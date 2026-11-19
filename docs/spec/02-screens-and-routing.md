@@ -22,8 +22,11 @@ Rules the gate keeps:
   session: the gate opens on the setup when there is no live project and on the dashboard
   when there is one, and never shows the landing page, the login screen or the recovery
   screen. An address shaped like a reset link or like a failed sign-in opens the app as any
-  other address does. Nothing signs out (§14), and who is signed in never changes, so the
-  gate runs when the page loads and on "Try again" only. When the device's storage cannot be
+  other address does. Nothing signs out (§14), and who is signed in never changes, so no
+  change of who is signed in ever re-runs the gate; it runs when the page loads, on "Try
+  again", and wherever a screen asks for it, as with accounts (§21): after the setup saves,
+  on the setup's and the archive screen's "← Back", and after a project is deleted, archived
+  or restored. When the device's storage cannot be
   read, or holds a text that is not a Compass database, the gate shows the error screen and
   the stored text is left as it is.
 - It re-runs whenever *who* is signed in changes, which is how the return from the Google

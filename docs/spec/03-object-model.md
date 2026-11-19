@@ -61,8 +61,10 @@ What the columns alone do not say:
   `learning_item_id` and `group_id` must name a row that exists, and that a row goes, or its
   column is emptied, when the row it points at is deleted, as the table above says. A value
   it refuses is answered with the code Postgres gives for the same refusal, and the message
-  never repeats the value. Every row's `user_id` is the one local person's, a fixed id, and
-  that person's email is empty. `save_interview` is played over these tables, whole or not at
+  never repeats the value: `23502` for an empty column that may not be, `22P02` for a value
+  of the wrong kind, `23514` for a length or a range, `23503` for a link to a row that is not
+  there, `23505` for an id already taken. Every row's `user_id` is the one local person's, the fixed id
+  `00000000-0000-4000-8000-000000000001`, and that person's email is empty. `save_interview` is played over these tables, whole or not at
   all, and a setup already saved is handed back untouched (§13). There are no access rules,
   since there is one person, and no indexes.
 - **Where the local rows are.** All seven tables are one text, JSON, under
@@ -72,6 +74,9 @@ What the columns alone do not say:
   step with no wait between, so two windows of the same browser do not write over each
   other's saves. A read writes nothing, and the key is absent until the first save. A text
   under that key that is not this format and version is never written over: every request is
-  refused until it is gone. A save the storage refuses, for example when it is full, changes
-  nothing and is reported as a failed save (§2). The data lives in that browser's storage for
+  refused, with the code `COMPASS_LOCAL_UNREADABLE` and the message "the data saved on this
+  device could not be read", until it is gone; storage that cannot be reached at all is
+  answered the same way. A save the storage refuses, for example when it is full, changes
+  nothing, is answered with `COMPASS_LOCAL_NOT_SAVED` and "this device's storage did not
+  take the save", and is reported as a failed save (§2). The data lives in that browser's storage for
   the app's address: another browser, another address or cleared site data starts empty.

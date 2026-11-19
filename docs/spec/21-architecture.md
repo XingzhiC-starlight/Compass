@@ -43,7 +43,15 @@ client stands and answers what the seam calls on it, and nothing more: `from(tab
 `select`, `insert`, `update` and `delete`; the filters `eq`, `neq`, `is`, `not`, `lt`, `lte`,
 `gt`, `gte` and `in`; `order`, `limit`, `single` and `maybeSingle`; `rpc("save_interview",
 …)`; and `auth`. A request is built by chaining and sent when it is awaited, and its answer
-is the Supabase client's shape, `{data, error}`, the error carrying a `code` and a `message`.
+is the Supabase client's shape: `{data, error, count, status, statusText}`, of which the
+seam reads `data` and `error`; `count` is always null, and the error is `{code, message,
+details, hint}`. Beside the Postgres codes of §3, it refuses as the Supabase client's server
+does: a table it does not have with `PGRST205`; a column it does not have, in a filter, an
+order or a row, with `PGRST204`; a function other than `save_interview`, or one whose
+parameter names are not exactly its ten, with `PGRST202`; and one row asked for (`single`,
+or `maybeSingle` with more than one) when the count is wrong with `PGRST116`, the write, if
+it was one, kept all the same. The setup's lists handed as anything but a list are refused
+with `22023`.
 It carries the mark `storesOnThisDevice: true`, which the seam's `storesOnThisDevice()`
 reads. Its `auth` has no accounts: `getSession` always answers the one local person, a fixed
 id with an empty email; `onAuthStateChange` hands back a subscription and never calls;
@@ -51,7 +59,15 @@ id with an empty email; `onAuthStateChange` hands back a subscription and never 
 of Compass has no accounts".
 
 The client does not hold the tables. It hands each request, as plain data, to a backend, one
-method: `send(request)`, answering a promise of the answer. `browserBackend` is the backend
+method: `send(request)`, answering a promise of the answer. A request is one of two: a
+query, `{kind, table, payload, filters, ordering, limit, shape, columns}`, where `kind` is
+`select`, `insert`, `update` or `delete`, `payload` a row or a list of rows or null, a
+filter `{column, op, value}` with `not` written as the op `not.<op>`, an ordering `{column,
+ascending}`, `shape` one of `rows`, `single` and `maybeSingle`, and `columns` the columns to
+answer with, null when a write asked for no rows back; or a call, `{kind: "rpc", fn, args}`.
+The surroundings are `{now, newId}`: a function answering the instant as an ISO text, and
+one answering a new id, for which the browser's backend gives `randomId` of
+`src/lib/transforms.ts`. `browserBackend` is the backend
 in a browser: per request it reads the kept text, runs the request, and writes the text back
 when a row changed (§3). Running a request is the pure engine's work,
 `runLocalRequest(tables, request, surroundings)` in `src/lib/localDatabase.ts`: it takes the
