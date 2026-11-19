@@ -1,0 +1,13 @@
+<!--
+  Compass — the PRACTICE COPY's reset email.
+
+  Only its link matters: it has the same form as the live project's Reset
+  Password template (docs/deploy.md §1). It opens Compass, not the sign-in
+  service, carrying a one-time token after the "#"; the app verifies the
+  token only when a person presses Continue (spec §5).
+
+  This email is never sent anywhere: the practice inbox catches it.
+-->
+<h2>Reset your Compass password</h2>
+<p>This is the practice copy. Follow the link to choose a new password.</p>
+<p><a href="{{ .RedirectTo }}/#token_hash={{ .TokenHash }}&type=recovery">Reset password</a></p>

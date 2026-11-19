@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Compass has closed." />
+    <meta name="theme-color" content="#F6F1E7" />
+    <title>Compass has closed</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #e5dcc8;
+        --card: #fff;
+        --text: #2d2d2d;
+        --muted: #6f6f6f;
+        --edge: #eee6d7;
+        --font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        width: min(640px, calc(100% - 32px));
+        margin: 48px auto;
+        background: var(--card);
+        border: 1px solid var(--edge);
+        border-radius: 28px;
+        padding: clamp(28px, 6vw, 48px);
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        line-height: 1.2;
+        margin: 0 0 16px;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      section + section {
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 1px solid var(--edge);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Compass has closed</h1>
+        <p>Thank you for using it.</p>
+        <p>
+          If you had an account, reply to the closing email you received by 2 November 2026
+          to get a copy of your data.
+        </p>
+        <p class="muted">
+          On 2 November 2026 your account, and everything you stored in Compass, is deleted.
+        </p>
+      </section>
+      <section lang="zh-CN">
+        <h1>Compass 已停止服务</h1>
+        <p>感谢你的使用。</p>
+        <p>如果你有账户，请在 2026 年 11 月 2 日前回复你收到的停止服务邮件，即可获取你的数据副本。</p>
+        <p class="muted">2026 年 11 月 2 日，你的账户以及你在 Compass 中保存的全部内容都将被删除。</p>
+      </section>
+    </main>
+  </body>
+</html>

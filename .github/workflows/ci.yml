@@ -1,0 +1,194 @@
+name: CI
+
+on:
+  # A pull request on any branch: opened, reopened, and every push to its branch. GitHub runs it
+  # on the branch merged into main as main stands, and starts none while the two conflict.
+  pull_request:
+  # GitHub runs once per push, on the push's newest commit: a merge that brings several commits
+  # gives a run and a mark to the last alone.
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A pull request's runs share one group, so a newer push stops its older run
+# that is still going. On main each push is a group of its own, named by its
+# newest commit, so no run waits behind another, and none is cancelled or
+# replaced, however soon the next push arrives: each push to main keeps its
+# own completed check.
+concurrency:
+  group: ci-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash   # bash -e -o pipefail: a failing command anywhere in a pipe fails the step
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@v7
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: Docs check (npm run docs:check)
+        run: npm run docs:check
+
+      - name: Lint (npm run lint)
+        run: npm run lint
+
+      - name: Tests (npm test)
+        run: npm test
+
+      - name: Browser checks' type check (npm run typecheck:browser)
+        # The build's type check reads src/ alone, and Playwright only strips types:
+        # this is the one place a wrong type in browser/ is caught.
+        run: npm run typecheck:browser
+
+      - name: Build (npm run build, production shape)
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
+        run: |
+          npm run build
+          wc -c dist/assets/index-*.js
+
+      - name: The built app holds nothing of the practice copy
+        run: |
+          if grep -rlE '127\.0\.0\.1:55321|localhost:5183|compass\.test|signInAsPractice|ROWS-LEFT-BEHIND' dist; then
+            echo "::error title=Practice copy in the built app::The files listed above hold something of the practice copy."
+            exit 1
+          fi
+          echo "ok  nothing of the practice copy is in the built app"
+
+      - name: Audit shipped dependencies (npm audit --omit=dev --audit-level=high)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Census tables are current (DESIGN-SYSTEM.md)
+        run: |
+          node scripts/design-census.mjs --write
+          git diff --exit-code -- DESIGN-SYSTEM.md
+
+      - name: Type check as the hosting build sees it (.vercelignore)
+        # Vercel builds from an upload that leaves out every folder .vercelignore names; a file
+        # under src/ that imports from one of them passes every step above and fails every deploy.
+        run: |
+          while IFS= read -r line; do
+            case "$line" in
+              ''|'#'*) ;;
+              */) echo "left out: $line"; rm -rf "./${line%/}" ;;
+            esac
+          done < .vercelignore
+          npx tsc --noEmit
+          echo "ok  the type check passes without them"
+
+  decide:
+    name: what changed
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      database: ${{ steps.decide.outputs.database }}
+    steps:
+      - name: Check out the commit, with the history to compare it with
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Decide whether the database checks run (only documents changed?)
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/documents-only.mjs
+
+  database:
+    name: database checks (practice copy)
+    # Waits for "what changed", and runs unless it answered "skip": on main, where it does not
+    # run, and when it failed or answered nothing, the database checks run in full.
+    needs: decide
+    if: ${{ !cancelled() && needs.decide.outputs.database != 'skip' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@v7
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: Set up the Supabase tool, at the version the practice copy was built with
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.116.0
+
+      - name: Read the browser driver's version
+        id: driver
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Keep Chromium's download between runs
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ steps.driver.outputs.version }}
+
+      - name: Install Chromium for the browser checks
+        # --with-deps also installs the system libraries Chromium needs; they are not kept
+        # between runs, and the download is skipped when it was.
+        run: npx playwright install --with-deps chromium
+
+      - name: Bring the practice copy up (npm run practice:up)
+        run: npm run practice:up
+
+      - name: Database checks (npm run test:db), a failed check tried once more${{ github.ref == 'refs/heads/main' && ', without the subfolder checks' || '' }}
+        run: npm run test:db -- --second-try ${{ github.ref == 'refs/heads/main' && '--leave-out-subfolder-checks' || '' }}
+
+      - name: Rolled-back checks (npm run practice:check)
+        run: npm run practice:check
+
+      - name: Browser checks (npm run test:browser), a failed check tried once more
+        id: browser
+        run: npm run test:browser -- --second-try
+
+      - name: Keep the browser checks' pictures and recordings on the run's page
+        # Only when the browser checks ran: the runner empties the folder as it starts, so it
+        # then holds that run alone. When an earlier step failed they were skipped, and the
+        # folder holds only what the database checks' own runs left (the false-on-purpose
+        # check's picture among them), which must not be offered as the browser checks' result.
+        if: ${{ always() && steps.browser.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-results
+          path: browser/results/
+          if-no-files-found: ignore
+
+      - name: Throw the practice copy away (npm run practice:down)
+        if: always()
+        run: npm run practice:down

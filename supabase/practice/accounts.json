@@ -1,0 +1,21 @@
+{
+  "about": [
+    "Compass - the practice copy's two accounts.",
+    "Made-up accounts that exist only on the practice copy, a throwaway backend on a developer's machine.",
+    "They open nothing else: the live project has never heard of them.",
+    "The practice commands make them the way a person registers (npm run practice:up, practice:reset).",
+    "The addresses end in .test, a name reserved for testing, so no real inbox can ever receive their mail."
+  ],
+  "accounts": [
+    {
+      "name": "a",
+      "email": "practice-a@compass.test",
+      "password": "Practice-A-8PIWcTLj6I-7!"
+    },
+    {
+      "name": "b",
+      "email": "practice-b@compass.test",
+      "password": "Practice-B-b0xvF9NiLk-7!"
+    }
+  ]
+}

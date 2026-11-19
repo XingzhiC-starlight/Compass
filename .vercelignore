@@ -1,0 +1,17 @@
+# Keep non-app files out of the Vercel build upload. Vercel only ever serves
+# the `dist/` output of `vite build`, so excluding these changes nothing about
+# the deployed app — it just makes each deploy's upload leaner and unambiguous.
+# (Nothing is moved on disk; Strategy A keeps the app at the repo root.)
+
+# Planning / reference docs and the doc tooling
+*.md
+docs/
+scripts/
+browser/
+
+# Backend infra (migrations live here; applied via Supabase, not the build)
+supabase/
+
+# Tooling / local-only
+.claude/
+.design-sync/

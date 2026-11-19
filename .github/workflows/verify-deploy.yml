@@ -1,0 +1,30 @@
+# Vercel's GitHub integration records each deploy as a GitHub "deployment" and posts its
+# status. GitHub raises a deployment_status event for every status of every deployment:
+# Preview and Production, pending and success. So the job's `if` keeps only state == success
+# and environment == Production, and a Preview deployment shows as a skipped run; that is
+# expected.
+#
+# The check targets the project's public production address on purpose: the per-deployment
+# *.vercel.app URL in the event is behind Vercel's login.
+name: Verify deploy
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  headers:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Which deployment this is
+        run: echo "deployment ${{ github.event.deployment.id }} of ${{ github.sha }} (${{ github.event.deployment_status.environment_url }})"
+
+      - name: Check out the deployed commit
+        uses: actions/checkout@v7
+
+      - name: Security headers on https://builder-compass.vercel.app
+        run: bash scripts/check-headers.sh https://builder-compass.vercel.app 3 10

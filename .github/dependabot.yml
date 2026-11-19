@@ -1,0 +1,33 @@
+# This file configures *version* updates only. Security updates for vulnerable dependencies
+# need "Dependabot alerts" switched on in Settings → Code security. GitHub reads this file from
+# the default branch, so it takes effect after merge.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"             # UTC; add `timezone:` (an IANA name) to change
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      # React majors wait for a change that needs them (docs/deploy.md §7 item 6):
+      # react, react-dom and both @types packages must move together, and
+      # Dependabot bumps them one at a time, so its pull request is always red.
+      - dependency-name: "react*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+    groups:
+      github-actions:
+        patterns: ["*"]

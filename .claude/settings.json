@@ -1,0 +1,18 @@
+{
+  "autoMemoryEnabled": false,
+  "permissions": {
+    "ask": [
+      "Bash(gh pr merge)",
+      "Bash(gh pr merge *)",
+      "Bash(gh api *merge*)",
+      "Bash(gh api *Merge*)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push *:main)",
+      "Bash(git push *:main *)"
+    ],
+    "deny": [
+      "mcp__ccd_pr__set_auto_merge"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "projectId": "60c5a335-ff73-423a-be4a-6839fe55f2d6",
+  "pkg": "compass",
+  "globalName": "Compass",
+  "shape": "package",
+  "entry": ".design-sync/ds-entry.ts",
+  "srcDir": "src",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": "src/styles/styles.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "libOverrides": {
+    "css.mjs": "Vite app: root-absolute url(/fonts/...) resolves from public/ web root"
+  },
+  "overrides": {
+    "TimeCard": { "cardMode": "column" },
+    "TimelineCard": { "cardMode": "column" },
+    "LearningCard": { "cardMode": "column" },
+    "TaskPanel": { "cardMode": "column" },
+    "ThoughtLog": { "cardMode": "column" },
+    "AutoTextarea": { "cardMode": "column" },
+    "Interview": { "cardMode": "column" },
+    "SetNewPassword": { "cardMode": "column" }
+  },
+  "componentSrcMap": {
+    "CSlider": "src/dashboard/CSlider.tsx",
+    "AutoTextarea": "src/dashboard/AutoTextarea.tsx",
+    "TimeCard": "src/dashboard/TimeCard.tsx",
+    "TimelineCard": "src/dashboard/TimelineCard.tsx",
+    "LearningCard": "src/dashboard/LearningCard.tsx",
+    "Sidebar": "src/dashboard/Sidebar.tsx",
+    "TaskPanel": "src/dashboard/TaskPanel.tsx",
+    "ThoughtLog": "src/dashboard/ThoughtLog.tsx",
+    "Interview": "src/interview/Interview.tsx",
+    "LoginScreen": "src/auth/LoginScreen.tsx",
+    "SetNewPassword": "src/auth/SetNewPassword.tsx",
+    "PasswordChecklist": "src/auth/PasswordChecklist.tsx",
+    "App": null,
+    "Dashboard": null,
+    "ArchiveScreen": null,
+    "AuthTurnstile": null
+  }
+}
