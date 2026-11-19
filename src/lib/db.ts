@@ -97,6 +97,14 @@ function authOptions(captchaToken?: string): { options?: { captchaToken: string 
   return captchaToken ? { options: { captchaToken } } : {};
 }
 
+/**
+ * Whether this copy keeps its data on the person's own device, with no accounts (I19): true
+ * when the client behind the seam is the local one.
+ */
+export function storesOnThisDevice(): boolean {
+  return (getSupabase() as { storesOnThisDevice?: unknown }).storesOnThisDevice === true;
+}
+
 export async function getCurrentUser(): Promise<User | null> {
   const { data } = await getSupabase().auth.getSession();
   sessionUser = data.session ? toSessionUser(data.session.user) : null;

@@ -57,9 +57,10 @@ you ran and what it printed.
 
 ## Architecture
 
-- Vite + React + TypeScript single-page app; Supabase (Postgres, Auth, owner-only RLS) behind
-  one seam, `src/lib/db.ts` (I1); pure logic in `src/lib/transforms.ts`; screens switched by
-  state in `App.tsx` (I9); hosted on Vercel with the headers in `vercel.json`. Spec §1–§4, and
+- Vite + React + TypeScript single-page app; one seam, `src/lib/db.ts` (I1), over one of two
+  databases (I19): with no Supabase values set, the local database on this device, with no
+  accounts; with both set, Supabase (Postgres, Auth, owner-only RLS); pure logic in
+  `src/lib/transforms.ts`; screens switched by state in `App.tsx` (I9); hosted on Vercel with the headers in `vercel.json`. Spec §1–§4, and
   §21 for the layers, who owns which state, the seam's operations and the flows. A change to
   what `src/lib/db.ts` exports updates §21's table in the same pull request; the docs check
   fails otherwise.
@@ -68,7 +69,8 @@ you ran and what it printed.
   the practice copy's settings · `.claude/settings.json` the permission rules ·
   `.claude/skills/` the project's skills.
 - Most often at stake: I1 (the seam), I2 (secrets), I3 (per-project scoping), I4 (day keys),
-  I5–I7 and I18 (auth, hosting), I8 with D1 (visual changes reuse existing units), I9.
+  I5–I7 and I18 (auth, hosting), I8 with D1 (visual changes reuse existing units), I9, I19
+  (which database is behind the seam).
 
 ## Which spec to read
 
@@ -92,7 +94,7 @@ file under `src/`, `supabase/`, `scripts/` or `browser/` is in no row.
 | `src/interview/`, `src/styles/interview.css` | §13 |
 | `src/landing/`, `src/styles/landing.css` | §15 |
 | `src/styles/styles.css` | §16 |
-| `src/lib/db.ts`, `src/lib/db/`, `src/lib/supabase.ts`, `src/lib/types.ts`, `src/lib/transforms.ts`, `src/lib/transforms/`, `src/lib/limits.ts` | §3, §17, §21 |
+| `src/lib/db.ts`, `src/lib/db/`, `src/lib/supabase.ts`, `src/lib/localClient.ts`, `src/lib/localDatabase.ts`, `src/lib/types.ts`, `src/lib/transforms.ts`, `src/lib/transforms/`, `src/lib/limits.ts` | §3, §17, §21 |
 | `supabase/migrations/`, `supabase/checks/`, `supabase/config.toml` | §3, §17, §18 |
 | `supabase/practice/`, `src/lib/practiceCopy.ts`, `src/lib/fakeSupabase.ts`, `src/lib/the-suite-and-the-database.test.ts`, `scripts/practice/`, `scripts/ci/`, `browser/` | §19 |
 | `scripts/what-the-code-holds.ts`, `scripts/the-hosting-build-finds-every-import.test.ts`, `scripts/check-headers.sh` | §17, §19 |

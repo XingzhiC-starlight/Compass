@@ -49,6 +49,8 @@ export function rawHtmlFindings(root: string): Finding[] {
 const THE_SEAM = "src/lib/db.ts";
 const CLIENT_MODULE = "src/lib/supabase.ts";
 const CLIENT_PACKAGE_SCOPE = "@supabase/";
+/** The local database (I19): the client module hands it out, and nothing else in the app reaches it. */
+const LOCAL_DATABASE = ["src/lib/localClient.ts", "src/lib/localDatabase.ts"];
 const TEST_SUPPORT = ["src/lib/practiceCopy.ts", "src/lib/fakeSupabase.ts"];
 const TEST_SUPPORT_LEFT_OUT = ["src/lib/practiceCopy.ts"];
 
@@ -235,6 +237,10 @@ function seamRuleBroken(importer: string, asked: Asked): string | null {
   const reached = asked.reaches ?? moduleNamed(importer, asked.specifier);
   if (reached === withoutExtension(CLIENT_MODULE) && importer !== THE_SEAM) {
     return `imports "${asked.specifier}", the client module, which only the seam (${THE_SEAM}) may import`;
+  }
+  const local = LOCAL_DATABASE.find((one) => reached === withoutExtension(one));
+  if (local && !asked.typeOnly && importer !== CLIENT_MODULE && !LOCAL_DATABASE.includes(importer)) {
+    return `imports "${asked.specifier}", the local database (${local}), which only the client module (${CLIENT_MODULE}) may import`;
   }
   const support = TEST_SUPPORT.find((one) => reached === withoutExtension(one));
   if (support && importer !== support) {

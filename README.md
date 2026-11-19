@@ -1,8 +1,10 @@
 # Compass
 
 This is the open-source copy of Compass, under the MIT license (`LICENSE`). It is connected
-to no host and no database: the addresses and the deployment described below are those of
-the closed hosted service, kept as the record of how it ran, and `your-project-ref` stands
+to no host and no database. Run as it is, with no `.env.local`, it needs no account and
+keeps everything you write on your own device (I19): `npm install`, `npm run dev`, and open
+http://localhost:5173. The addresses and the deployment described below are those of the
+closed hosted service, kept as the record of how it ran, and `your-project-ref` stands
 wherever that service's Supabase project was named.
 
 Compass is a calm focus and pacing dashboard for solo builders. A one-time interview sets a
@@ -15,8 +17,12 @@ https://builder-compass.vercel.app (spec §20).
 
 - Node 22.22.2 or newer, 24.15 or newer, or 26 (the range jsdom accepts). `npm install` — if it fails with an `~/.npm` EACCES error, use
   `npm install --cache /tmp/compass-npm-cache`.
-- Copy `.env.example` to `.env.local` and fill in `VITE_SUPABASE_URL` and
-  `VITE_SUPABASE_ANON_KEY` (both public by design — Row-Level Security limits what they can
+- With no `.env.local`, Compass opens straight on the setup, with no sign-in, and keeps its
+  data in the browser's storage for that address (spec §3): the same browser at the same
+  address finds it again, and clearing the site's data deletes it. Nothing is sent anywhere.
+- To run it with accounts on a Supabase project of your own instead, copy `.env.example` to
+  `.env.local` and fill in `VITE_SUPABASE_URL` and
+  `VITE_SUPABASE_ANON_KEY`, both or neither: one alone stops the app with a message (both public by design — Row-Level Security limits what they can
   do) and `VITE_TURNSTILE_SITE_KEY` (the public Turnstile site key; email auth needs it because
   CAPTCHA is enabled on the Supabase project — the widget renders only when the key is
   present). The Turnstile secret key lives only in Supabase.
@@ -67,8 +73,8 @@ says which sections to read for the code they touch.
 | §0 | [About this document](docs/spec/00-about.md) | How the spec is written, cited and kept true. |
 | §1 | [Product](docs/spec/01-product.md) | What Compass is, who it is for and what it refuses to be. |
 | §2 | [Screens and routing](docs/spec/02-screens-and-routing.md) | Which screen shows when, switched by state in `App.tsx`. |
-| §3 | [Object model](docs/spec/03-object-model.md) | The seven tables, their columns and the matching types. |
-| §4 | [Core invariants](docs/spec/04-invariants.md) | The rules the code keeps, `I1`–`I18`, one line each. |
+| §3 | [Object model](docs/spec/03-object-model.md) | The seven tables, their columns and the matching types, and how they are kept on this device. |
+| §4 | [Core invariants](docs/spec/04-invariants.md) | The rules the code keeps, `I1`–`I19`, one line each. |
 | §5 | [Auth](docs/spec/05-auth.md) | Sign-in, sign-up, email links, password reset and the CAPTCHA. |
 | §6 | [Projects, sidebar and archive](docs/spec/06-projects-sidebar-archive.md) | The sidebar, switching, renaming, archiving and deleting projects. |
 | §7 | [Dashboard shell](docs/spec/07-dashboard-shell.md) | The dashboard layout, the summary and depth views, loading and saving. |

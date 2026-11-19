@@ -1,6 +1,6 @@
 ## §3 Object model
 
-Code: `supabase/migrations/0001_init.sql`, `src/lib/types.ts`, `src/lib/transforms.ts` · Keeps: I4, I10, I16, I17
+Code: `supabase/migrations/0001_init.sql`, `src/lib/types.ts`, `src/lib/transforms.ts`, `src/lib/localDatabase.ts`, `src/lib/localClient.ts` · Keeps: I4, I10, I16, I17, I19
 
 Seven Postgres tables in the Supabase project, defined in `supabase/migrations/0001_init.sql`
 and mirrored one-to-one by the types in `src/lib/types.ts` (camelCase in TypeScript,
@@ -53,3 +53,25 @@ What the columns alone do not say:
   project uses, cycling through the palette when all are taken.
 - **`user_id` is never sent by the client.** Inserts omit it and the column default stamps the
   signed-in user (I17).
+- **The same seven tables on this device** (I19). With no Supabase project configured, the
+  rows are kept by the local database, `src/lib/localDatabase.ts`, in the same tables with
+  the same columns, and it keeps what the schema keeps: the kind of each column (an id, a
+  text, a whole number, a number, a flag, a day, an instant), the defaults, the columns that
+  may not be empty, the length and range limits above, that a row's `project_id`, `phase_id`,
+  `learning_item_id` and `group_id` must name a row that exists, and that a row goes, or its
+  column is emptied, when the row it points at is deleted, as the table above says. A value
+  it refuses is answered with the code Postgres gives for the same refusal, and the message
+  never repeats the value. Every row's `user_id` is the one local person's, a fixed id, and
+  that person's email is empty. `save_interview` is played over these tables, whole or not at
+  all, and a setup already saved is handed back untouched (§13). There are no access rules,
+  since there is one person, and no indexes.
+- **Where the local rows are.** All seven tables are one text, JSON, under
+  `localStorage["compass.localDatabase"]`: `{"format": "compass-local-database", "version": 1,
+  "tables": {…}}`, each table a list of rows with the SQL column names. Every request reads
+  that text, applies itself and, when it changed a row, writes the whole text back, in one
+  step with no wait between, so two windows of the same browser do not write over each
+  other's saves. A read writes nothing, and the key is absent until the first save. A text
+  under that key that is not this format and version is never written over: every request is
+  refused until it is gone. A save the storage refuses, for example when it is full, changes
+  nothing and is reported as a failed save (§2). The data lives in that browser's storage for
+  the app's address: another browser, another address or cleared site data starts empty.
