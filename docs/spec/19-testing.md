@@ -470,7 +470,8 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   check run on the packaged app. It runs on a pull request that changes how the app is
   packaged, and when started by hand, and only then, on `main`, can draft a release (§22).
   The drafting job is the one job that may write to the repository: it has the run's own
-  GitHub token with leave to write contents, and no stored secret.
+  GitHub token with leave to write contents and to read the run's kept files, and no stored
+  secret.
 
 ### Where a new test goes
 

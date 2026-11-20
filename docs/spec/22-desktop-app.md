@@ -182,7 +182,7 @@ to the minute, as hours and minutes, `0:25` or `2:30`, seconds dropped; otherwis
 session left running from an earlier day shows nothing: the page closes it at that day's end
 when it next reads the time (§8), and the main process changes nothing in the data file of its own accord. The text is empty until the file is first read, and is
 worked out from the held tables when it is first read, after every save and every five
-seconds. On every system the same text is in the icon's tooltip, "Compass · 0:25 today", and
+seconds. On every system the same time is in the icon's tooltip, "Compass · 0:25 today", and
 the tooltip is "Compass" when no clock runs; other systems have the tooltip alone.
 
 The icon's menu, in order (`menuLines`): **Open Compass**, which shows the window; **Capture
