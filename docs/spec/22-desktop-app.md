@@ -199,9 +199,9 @@ does not keep. What goes into the package is `package.json`, whose `main` names
 `node_modules`, since the main process is one file and the page is already bundled.
 
 On a Mac it makes `Compass.app`, one app for Apple Silicon and Intel alike, with the id
-`io.github.xingzhic-starlight.compass`, in the productivity category, and as two files to
-download, `Compass-<version>-mac.dmg` and `Compass-<version>-mac.zip`, the version being
-`package.json`'s. Its icon is `desktop/icons/appIcon.png`, drawn by `make-icons.mjs` with
+`io.github.xingzhic-starlight.compass`, in the productivity category, and as one file to
+download, `Compass-<version>-mac.dmg`, the version being `package.json`'s; it is about 230
+MB, since it carries Electron twice, once for each kind of Mac. Its icon is `desktop/icons/appIcon.png`, drawn by `make-icons.mjs` with
 the menu-bar icons: the same ring, its needle in the Time accent, on a rounded square of the
 sidebar's cream (DS §2). The app is signed ad hoc, with no Apple Developer certificate, and
 is not notarized: an Apple Silicon Mac starts no program that is not signed at all, and an
@@ -221,11 +221,13 @@ stays where it is.
 The download is made on GitHub, by `.github/workflows/desktop-download.yml`. Its first job
 runs on a Mac: `npm ci`, `npm run desktop:package`, then it checks that the app's signature
 is ad hoc and covers every file and that the program is made for both kinds of Mac, runs
-the desktop check on the packaged app, writes the two files' SHA-256 sums to
-`SHA256SUMS.txt` and keeps all three on the run's page. It runs on a pull request that
+the desktop check on the packaged app, writes the file's SHA-256 sum to
+`SHA256SUMS.txt` and keeps both on the run's page. On a pull request electron-builder signs
+nothing unless told to, so the job tells it to (`CSC_FOR_PULL_REQUEST`): the signature needs
+no certificate and no secret, and the app checked is then the app released. It runs on a pull request that
 changes `desktop/`, `package.json`, `package-lock.json` or the workflow itself, and
 publishes nothing. Started by hand on `main`, a second job then drafts a GitHub release
-named `v<version>` with the three files attached, and refuses when that version already has
+named `v<version>` with the two files attached, and refuses when that version already has
 a release. A draft is seen by the repository's owners alone; the release is public, and its
 tag made, only when a person publishes it on GitHub. Nothing publishes one by itself.
 
