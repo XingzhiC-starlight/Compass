@@ -21,7 +21,8 @@ page ships changes.
 
 ### The window
 
-One window, 1280 by 832, no smaller than 960 by 640, titled "Compass". It shows one address
+One window, 1280 by 832, no smaller than 1120 by 640, titled "Compass". At 1120 wide each
+upper card still shows about six characters of every row's name in depth (§7). It shows one address
 and no other, `compass://app/`, a scheme of the app's own that the main process answers from
 `desktop/out/app/`, and registers before the app is ready as a standard, secure scheme the
 page may fetch its own files from, so `'self'` in the policy and the page's own storage work

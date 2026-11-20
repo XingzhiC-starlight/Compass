@@ -40,7 +40,8 @@ on-ramp: logging hours and starting the work session are the same action.
   up to midnight.
 - A thin bar fills with today's logged ÷ goal, capped at 100%. Beside it a sparkline mirrors
   the depth view — one bar per day (up to 7) or per week (up to 7), scaled to the larger of
-  the goal and the values shown.
+  the goal and the values shown. The hero is never cut: in a card too narrow for both, the
+  sparkline shows only its most recent bars.
 - Hours print in tenths with the trailing zero dropped: "4", "2.5".
 
 **Day boundary.** Once a minute the card compares the local day (I4) with the day it is

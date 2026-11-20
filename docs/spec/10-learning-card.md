@@ -17,7 +17,9 @@ Home and End go to 0 and 100. With no items a static empty bar takes its place.
 **Depth: the roadmap.** Column head "Skill" / "Progress". Rows render in the user's order and
 only a drag by the grip changes it; nothing auto-sorts, because rows that float on focus or
 completion fought the user's own ordering. Each row: grip, a completion circle, the name, a
-small "focus" tag on the focus item, ×, and the percent.
+small "focus" tag on the focus item, ×, and the percent. In a card too narrow to leave the
+name about six characters beside it, the "focus" tag is not shown; the glance above still
+names the focus (DS §6.1).
 
 - The circle is a completion toggle ("Mark learning item done" / "Mark learning item not
   done"). Done means progress ≥ 100 and shows as a filled circle with a check and a muted

@@ -7,6 +7,12 @@ layout with no header bar — three orientation bubbles in a row (Commitment §8
 Learning §10) above the full-width action panel (Daily Task §11 / Thoughts §12). The layout
 is the same on every visit (principle 3).
 
+**Width.** The three bubbles are always equal thirds of the main area and nothing reaches past
+the window's edge, whatever the names are and in summary or depth: a name too long for its
+card is cut with an ellipsis. The app is 80% of the window wide, and in a window where that
+is under 1240 px it takes 1240 px, or the whole window less a 24 px margin on each side when
+the window is narrower than that (DS §6.1). The height is 80% of the window's.
+
 **Summary ⇄ depth.** One shared state flips all three upper bubbles at once; the action
 panel is always full. Clicking the negative space of any upper bubble toggles it. A click on
 a control — anything matching `button, input, select, textarea, a, .cslider, .row` — never

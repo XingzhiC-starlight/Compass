@@ -18,7 +18,9 @@ advances at midnight without any activity.
 
 **Depth: the phase checklist.** Column head "Phases" and "{done}/{total} done". Each row,
 left to right: a drag grip, a state circle, the name — with a "now" tag on the current phase,
-whose row is washed in the timeline accent — a delete ×, and the day count.
+whose row is washed in the timeline accent — a delete ×, and the day count. In a card too
+narrow to leave the name about six characters beside it, the "now" tag is not shown and the
+wash alone marks the row (DS §6.1).
 
 - The circle is a done toggle ("Mark phase done" / "Mark phase not done"). Ticking stamps
   `completed_at` with today's local day and the row turns done (filled circle with a check,

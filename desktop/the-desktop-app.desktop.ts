@@ -16,6 +16,9 @@ const CAPTURE =
 const GOAL =
   "One quiet note: when the running clock is seen to cross the project's daily goal the app says so once, named for the project, and with the note turned off it says nothing (spec §22)";
 
+const NARROW =
+  "At the smallest size its window takes, the dashboard's three cards are equal thirds inside the window, in summary and in depth, with names far too long for them (spec §7, §22)";
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const MAIN = path.join(HERE, "out", "main.js");
 
@@ -318,4 +321,57 @@ test(`${CHECK} — the page has its bridge and no Node, and a second copy of the
     );
   expect(second, "the second copy opened no window").toBe(0);
   expect(await running!.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
+});
+
+test(`${NARROW}`, async () => {
+  // With the app closed, names no card has room for: before, a long name widened its card
+  // until the row of cards reached past the window's edge.
+  const file = path.join(dataFolder, "compass-data.json");
+  const before = fs.readFileSync(file, "utf8");
+  const data = kept()!;
+  for (const row of [...data.tables.phases, ...data.tables.learning_items]) {
+    row.name = `${row.name} and everything else that has to happen before the first frost comes`;
+  }
+  fs.writeFileSync(file, JSON.stringify(data));
+
+  const page = await open();
+  await expect(dashboard(page)).toBeVisible();
+  const size = await running!.evaluate(({ BrowserWindow }) => {
+    const main = BrowserWindow.getAllWindows()[0];
+    main.setContentSize(200, 200);
+    return main.getMinimumSize();
+  });
+  expect(size, "the smallest window").toEqual([1120, 640]);
+  await expect.poll(() => page.evaluate(() => window.innerWidth), "the window shrank to its smallest").toBeLessThanOrEqual(1120);
+
+  const measured = () =>
+    page.evaluate(() => {
+      const edges = (selector: string) =>
+        Array.from(document.querySelectorAll(selector), (card) => card.getBoundingClientRect());
+      const upper = edges(".upper-row > .bubble");
+      return {
+        window: window.innerWidth,
+        page: document.documentElement.scrollWidth,
+        furthestRight: Math.max(...edges(".bubble").map((box) => Math.ceil(box.right))),
+        widths: upper.map((box) => Math.round(box.width)),
+      };
+    });
+  const fits = async (view: string) => {
+    const now = await measured();
+    expect(now.widths, `${view}: three cards`).toHaveLength(3);
+    expect(new Set(now.widths).size, `${view}: the three cards are equal (${now.widths.join(", ")})`).toBe(1);
+    expect(now.furthestRight, `${view}: no card reaches past the window's edge`).toBeLessThanOrEqual(now.window);
+    expect(now.page, `${view}: the page does not scroll sideways`).toBeLessThanOrEqual(now.window);
+  };
+
+  await expect(page.locator(".dashboard:not(.depth)")).toBeVisible();
+  await fits("summary");
+  await page.locator(".bubble-timeline").click({ position: { x: 6, y: 40 } });
+  await expect(page.locator(".dashboard.depth")).toBeVisible();
+  await expect(page.locator(".bubble-learning .row").first()).toBeVisible();
+  await fits("depth");
+  await page.screenshot({ path: path.join(HERE, "results", "the-smallest-window.png") });
+
+  await close();
+  fs.writeFileSync(file, before);
 });
