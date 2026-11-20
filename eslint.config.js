@@ -15,6 +15,7 @@ export default defineConfig([
     "browser/results/",
     "desktop/out/",
     "desktop/results/",
+    "desktop/release/",
     "supabase/",
   ]),
   {

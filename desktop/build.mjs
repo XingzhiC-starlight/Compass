@@ -44,7 +44,8 @@ await build({
 
 fs.copyFileSync(path.join(HERE, "preload.cjs"), path.join(OUT, "preload.cjs"));
 fs.mkdirSync(path.join(OUT, "icons"), { recursive: true });
-for (const icon of fs.readdirSync(path.join(HERE, "icons")).filter((name) => name.endsWith(".png"))) {
+// The menu-bar icons alone: the app's own icon is the packager's to place (package.config.mjs).
+for (const icon of fs.readdirSync(path.join(HERE, "icons")).filter((name) => /^menuBarTemplate.*\.png$/.test(name))) {
   fs.copyFileSync(path.join(HERE, "icons", icon), path.join(OUT, "icons", icon));
 }
 

@@ -67,3 +67,7 @@ missing. Never guess from general knowledge of React or Supabase.
     press of the capture keys in another app and the cursor being in the thought box? When
     exactly does the desktop app send its notification and when does it not, what does it
     say, how is it turned off, and where is that choice kept?
+25. The app as downloaded. What goes into the package and what is left out? How is the Mac
+    app signed, and why that way? What does a downloaded copy share with one run from the
+    source, and what differs? What makes the download, when, and what does it check? What
+    makes a release public?

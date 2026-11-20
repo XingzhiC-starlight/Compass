@@ -1,0 +1,148 @@
+# The desktop app as a download for the Mac (spec §22, "The app as downloaded").
+#
+# On a pull request that changes how the app is packaged, the first job makes the download on a
+# Mac, checks it and keeps it on the run's page; nothing is published.
+#
+# Run by hand from the Actions tab on main ("Run workflow"), it does the same and then the
+# second job drafts a GitHub release named for the version in package.json, with the download
+# attached. A draft is seen by the repository's owners alone: it becomes public, and its tag is
+# made, only when a person opens it on GitHub and presses "Publish release".
+name: Desktop download
+
+on:
+  pull_request:
+    paths:
+      - "desktop/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/desktop-download.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-download-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  mac:
+    name: the Mac download
+    runs-on: macos-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@v7
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: The version (package.json)
+        id: version
+        run: echo "version=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Build and package (npm run desktop:package)
+        # On a pull request electron-builder signs nothing unless told to, so that a
+        # certificate kept as a secret is never used on a stranger's code. There is no
+        # certificate here: the signature is ad hoc and needs no secret, and the app that is
+        # checked must be the app that is released.
+        env:
+          CSC_FOR_PULL_REQUEST: "true"
+        run: npm run desktop:package
+
+      - name: The app is signed ad hoc, whole, and made for both kinds of Mac
+        # Not signed at all, an Apple Silicon Mac refuses to start it; a seal that does not
+        # cover every file is one macOS calls damaged.
+        run: |
+          app="desktop/release/mac-universal/Compass.app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign --display --verbose=2 "$app" 2>&1 | tee signature.txt
+          grep -q '^Signature=adhoc$' signature.txt
+          lipo -archs "$app/Contents/MacOS/Compass" | tee archs.txt
+          grep -q 'x86_64' archs.txt
+          grep -q 'arm64' archs.txt
+
+      - name: The packaged app passes the desktop check
+        # The same walk CI gives the build from the source, here of the app inside the download.
+        id: desktop
+        env:
+          COMPASS_DESKTOP_APP: ${{ github.workspace }}/desktop/release/mac-universal/Compass.app/Contents/MacOS/Compass
+        run: npx playwright test -c desktop/playwright.config.ts
+
+      - name: Keep the desktop check's pictures on the run's page
+        if: ${{ always() && steps.desktop.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-results-mac
+          path: desktop/results/
+          if-no-files-found: ignore
+
+      - name: Checksum
+        working-directory: desktop/release
+        run: |
+          ls -l Compass-*-mac.dmg
+          shasum -a 256 Compass-*-mac.dmg | tee SHA256SUMS.txt
+
+      - name: Keep the download on the run's page
+        uses: actions/upload-artifact@v7
+        with:
+          name: compass-mac
+          path: |
+            desktop/release/Compass-*-mac.dmg
+            desktop/release/SHA256SUMS.txt
+          if-no-files-found: error
+
+  draft:
+    name: draft the release
+    needs: mac
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write   # to make the draft release
+      actions: read     # to fetch the download the first job kept
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERSION: ${{ needs.mac.outputs.version }}
+    steps:
+      - name: This version has no release yet
+        run: |
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "::error title=Already released::There is already a release for v$VERSION. Raise the version in package.json first."
+            exit 1
+          fi
+
+      - name: Fetch the download
+        run: gh run download "$GITHUB_RUN_ID" --name compass-mac --dir download
+
+      - name: Draft the release
+        run: |
+          cat > notes.md <<EOF
+          Compass $VERSION for the Mac, for Apple Silicon and Intel alike.
+
+          **To install:** download \`Compass-$VERSION-mac.dmg\`, open it and drag Compass into Applications.
+
+          **The first time you open it,** macOS will say it could not verify the app. That is expected: this build is not signed with an Apple Developer certificate. Open System Settings, go to Privacy & Security, scroll down to "Compass was blocked", and press Open Anyway. You are asked once. The README's "Installing the desktop app" has the steps in full.
+
+          Compass keeps everything you write in one file on your own computer, has no accounts and connects to nothing. It does not update itself: a newer version is a new download, and your data stays where it is.
+
+          \`SHA256SUMS.txt\` holds the file's checksum.
+          EOF
+          gh release create "v$VERSION" --draft --target "$GITHUB_SHA" --title "Compass $VERSION" --notes-file notes.md \
+            download/Compass-*-mac.dmg download/SHA256SUMS.txt
+          echo "The draft is at https://github.com/$GH_REPO/releases. It is public only once someone presses Publish."

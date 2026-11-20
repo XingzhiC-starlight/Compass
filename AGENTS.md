@@ -32,6 +32,8 @@ you ran and what it printed.
 - Setup and `.env.local`: README. `npm run dev` · `npm run lint` · `npm test` ·
   `npm run build`. Never commit `.env*`. `npm run typecheck:browser` too when a change
   touches `browser/`. The desktop app (spec §22): `npm run desktop` builds and starts it;
+  `npm run desktop:package` packages it into `desktop/release/` (a release's download is
+  made and drafted on GitHub, and published by the owner alone, README);
   `npm run typecheck:desktop` and `npm run test:desktop` (under `xvfb-run -a` where there is
   no screen) when a change touches `desktop/`, the client module or the local database. A
   lint rule is switched off for a line only with its reason after `--` on that line.
