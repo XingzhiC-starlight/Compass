@@ -29,8 +29,10 @@ you ran and what it printed.
 
 - Setup and `.env.local`: README. `npm run dev` · `npm run lint` · `npm test` ·
   `npm run build`. Never commit `.env*`. `npm run typecheck:browser` too when a change
-  touches `browser/`. A lint rule is switched off for a line only with its reason after
-  `--` on that line.
+  touches `browser/`. The desktop app (spec §22): `npm run desktop` builds and starts it;
+  `npm run typecheck:desktop` and `npm run test:desktop` (under `xvfb-run -a` where there is
+  no screen) when a change touches `desktop/`, the client module or the local database. A
+  lint rule is switched off for a line only with its reason after `--` on that line.
 - `npm run docs:check` (links, IDs, design drift, the routing table) before committing a
   docs, CSS or new-file change, chained in front of the commit with `&&`, unpiped.
 - `node scripts/design-census.mjs --write` in the commit that changes CSS; CI fails without
@@ -60,7 +62,9 @@ you ran and what it printed.
 - Vite + React + TypeScript single-page app; one seam, `src/lib/db.ts` (I1), over one of two
   databases (I19): with no Supabase values set, the local database on this device, with no
   accounts; with both set, Supabase (Postgres, Auth, owner-only RLS); pure logic in
-  `src/lib/transforms.ts`; screens switched by state in `App.tsx` (I9); hosted on Vercel with the headers in `vercel.json`. Spec §1–§4, and
+  `src/lib/transforms.ts`; screens switched by state in `App.tsx` (I9); the same page in an
+  Electron window with its data in a file (`desktop/`, I20, spec §22); the hosted service's
+  headers in `vercel.json`. Spec §1–§4, and
   §21 for the layers, who owns which state, the seam's operations and the flows. A change to
   what `src/lib/db.ts` exports updates §21's table in the same pull request; the docs check
   fails otherwise.
@@ -70,7 +74,7 @@ you ran and what it printed.
   `.claude/skills/` the project's skills.
 - Most often at stake: I1 (the seam), I2 (secrets), I3 (per-project scoping), I4 (day keys),
   I5–I7 and I18 (auth, hosting), I8 with D1 (visual changes reuse existing units), I9, I19
-  (which database is behind the seam).
+  (which database is behind the seam), I20 (the desktop page is only a page).
 
 ## Which spec to read
 
@@ -101,6 +105,7 @@ file under `src/`, `supabase/`, `scripts/` or `browser/` is in no row.
 | `scripts/docs-check.mjs`, `scripts/design-census.mjs` | §0, §16, §21 |
 | `scripts/verify/`, `.claude/skills/verify-compass/` | §19, and the section a journey walks (§5–§15) |
 | `closed/`, `vercel.json` | §17, §20 |
+| `desktop/` | §22, §17, and §21 for the local client it stands behind |
 
 ## Things to avoid
 

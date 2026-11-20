@@ -12,6 +12,13 @@ idea, write it here in a few lines. What Compass does today is in `docs/spec/` a
   thought without switching back, and open the full dashboard from it. A working experiment,
   about 1,900 lines in one commit, sits on the local branch `companion-mode-experiment`, which
   was never pushed. Build on it or start fresh.
+- **An installer for the desktop app.** The desktop app runs from the source (spec §22).
+  Package it so a person can download and open it, and so Open at Login can be pressed.
+- **Start and stop the clock from the menu bar.** The menu bar shows the running clock (spec
+  §22) and cannot change it.
+- **Export and import of the data kept on this device.** A copy with no accounts keeps its
+  data in one browser's storage, or in the desktop app's file (spec §3, §22), with no way in
+  the app to take it out or bring it in.
 - **Self-serve data export and account deletion.** The privacy notice says the beta offers
   neither (spec §14). Deleting an account needs a server-side piece, because it takes
   Supabase's service key, which never reaches the browser (I2).
