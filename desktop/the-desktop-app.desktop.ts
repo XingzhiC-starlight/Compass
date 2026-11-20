@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from "@playwright/test";
 
 const CHECK =
-  "The desktop app opens with no sign-in, keeps what is saved in a file of its own and not in the page, shows it again when opened again, and gives the page no way to the computer but the one bridge (spec §22)";
+  "The desktop app opens with no sign-in, keeps what is saved in a file of its own and not in the page, shows it again when opened again, and gives the page no way to the computer but its bridge (spec §22)";
+
+const COMPANION =
+  "The companion is a small window above the others that the dashboard draws into: its clock, its tasks and a thought typed there are the dashboard's own, each window follows the other, and it brings the main window back (spec §23)";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const MAIN = path.join(HERE, "out", "main.js");
@@ -29,7 +32,7 @@ async function close(): Promise<void> {
   running = null;
 }
 
-function kept(): { tables: Record<string, { name?: string; text?: string }[]> } | null {
+function kept(): { tables: Record<string, { name?: string; text?: string; is_done?: boolean }[]> } | null {
   const file = path.join(dataFolder, "compass-data.json");
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null;
 }
@@ -105,7 +108,63 @@ test(`${CHECK} — opened again, it shows the same project on its dashboard`, as
   await expect(page.getByRole("button", { name: "Stop work session" }), "the clock is still running").toBeVisible();
 });
 
-test(`${CHECK} — the page has the one bridge and no Node, and a second copy of the app does not start`, async () => {
+test(`${COMPANION}`, async () => {
+  const page = await open();
+  await expect(dashboard(page)).toBeVisible();
+  const windows = () =>
+    running!.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows().map((w) => ({ onTop: w.isAlwaysOnTop(), shown: w.isVisible() })),
+    );
+
+  const [companion] = await Promise.all([
+    running!.waitForEvent("window"),
+    page.getByRole("button", { name: "Companion", exact: true }).click(),
+  ]);
+  await expect(companion.getByRole("heading", { name: "Garden" })).toBeVisible();
+  expect(companion.url()).toBe("about:blank");
+  await companion.screenshot({ path: path.join(HERE, "results", "the-companion-clock.png") });
+  expect((await windows()).map((w) => w.onTop).sort(), "the companion alone stays on top").toEqual([false, true]);
+  expect(
+    await companion.evaluate(() => typeof (window as unknown as { compassDesktop?: unknown }).compassDesktop),
+    "the companion's own document has no bridge",
+  ).toBe("undefined");
+
+  // The clock left running is running here too, and a press in either window moves both.
+  await expect(companion.getByRole("button", { name: "Stop work session" })).toBeVisible();
+  await companion.getByRole("button", { name: "Stop work session" }).click();
+  await expect(page.getByRole("button", { name: "Start work session" })).toBeVisible();
+  await page.getByRole("button", { name: "Start work session" }).click();
+  await expect(companion.getByRole("button", { name: "Stop work session" })).toBeVisible();
+
+  await companion.getByRole("button", { name: "Show the timeline, learning and tasks" }).click();
+  await expect(companion.getByText("Phase 1 of 2")).toBeVisible();
+  await expect(companion.getByText("Dig the beds")).toBeVisible();
+  await expect(companion.getByText("Soil")).toBeVisible();
+
+  await companion.getByRole("button", { name: "Mark task complete" }).click();
+  await expect(page.locator(".task-item.checked", { hasText: "Buy seeds" })).toBeVisible();
+  await expect.poll(() => kept()?.tables.daily_tasks.map((row) => row.is_done)).toEqual([true]);
+
+  await companion.getByLabel("Add a thought").fill("Order mulch");
+  await companion.getByLabel("Add a thought").press("Enter");
+  await expect(page.getByText("Order mulch"), "it is in the dashboard's thought log").toBeAttached();
+  await expect.poll(() => kept()?.tables.thoughts.map((row) => row.text)).toEqual(["Order mulch"]);
+  await companion.screenshot({ path: path.join(HERE, "results", "the-companion.png") });
+
+  // A task added on the dashboard reaches the companion without a press there.
+  await page.getByText("+ Add a task").click();
+  await page.getByPlaceholder("Type a task, press Enter…").fill("Water the beds");
+  await page.keyboard.press("Enter");
+  await expect(companion.getByText("Water the beds")).toBeVisible();
+
+  // With the main window hidden, as closing it leaves it on a Mac, the companion brings it back.
+  await running!.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().find((w) => !w.isAlwaysOnTop())!.hide());
+  expect((await windows()).filter((w) => !w.onTop)[0].shown).toBe(false);
+  await companion.getByRole("button", { name: "Open Compass" }).click();
+  await expect.poll(async () => (await windows()).filter((w) => !w.onTop)[0].shown).toBe(true);
+});
+
+test(`${CHECK} — the page has its bridge and no Node, and a second copy of the app does not start`, async () => {
   const page = await open();
   await expect(dashboard(page)).toBeVisible();
   const reach = await page.evaluate(() => ({
@@ -113,7 +172,7 @@ test(`${CHECK} — the page has the one bridge and no Node, and a second copy of
     require: typeof (window as unknown as { require?: unknown }).require,
     process: typeof (window as unknown as { process?: unknown }).process,
   }));
-  expect(reach).toEqual({ bridge: ["send"], require: "undefined", process: "undefined" });
+  expect(reach).toEqual({ bridge: ["send", "show"], require: "undefined", process: "undefined" });
 
   const blocked = await page.evaluate(() =>
     fetch("https://example.com/").then(

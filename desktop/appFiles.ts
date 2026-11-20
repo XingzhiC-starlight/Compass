@@ -9,6 +9,34 @@ export const APP_ORIGIN = "compass://app";
 /** The channel the page's requests for the local database travel on. */
 export const DATABASE_CHANNEL = "compass:database";
 
+/** The channel the page asks on for the main window to be brought forward. */
+export const SHOW_CHANNEL = "compass:show-window";
+
+/** The name the page opens its companion window under (`src/companion/companionWindow.ts`). */
+export const COMPANION_NAME = "compass-companion";
+
+/**
+ * Whether a window the page asks to open is the companion (spec §23): an empty window under
+ * the companion's name, which the page then draws into. Nothing else the page opens is given
+ * a window.
+ */
+export function isTheCompanion(address: string, name: string): boolean {
+  return name === COMPANION_NAME && address === "about:blank";
+}
+
+/** The companion's window: small, above every other window, never full screen. */
+export const COMPANION_WINDOW = {
+  width: 300,
+  height: 250,
+  minWidth: 240,
+  minHeight: 160,
+  title: "Compass Companion",
+  alwaysOnTop: true,
+  fullscreenable: false,
+  maximizable: false,
+  skipTaskbar: true,
+} as const;
+
 /**
  * The file under `folder` that an address asks for, or null when the address is not the
  * app's, or names anything outside the folder. `/` is the page itself.
