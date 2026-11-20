@@ -13,7 +13,7 @@ import {
 } from "../lib/db";
 import type { Phase, Project } from "../lib/types";
 import { useDragReorder, reorder } from "./useDragReorder";
-import { dayNumber } from "./projectTime";
+import { timelineGlance } from "./projectTime";
 import { isSubmitEnter } from "./keys";
 
 export default function TimelineCard({
@@ -57,27 +57,7 @@ export default function TimelineCard({
     reorderPhases(next.map((p) => p.id));
   });
 
-  const total = phases.length;
-  const currentIndex = phases.findIndex((p) => !p.isDone);
-  const allDone = total > 0 && currentIndex === -1;
-  const doneCount = phases.filter((p) => p.isDone).length;
-  const phaseN = allDone ? total : currentIndex + 1;
-  const currentName = allDone ? "All phases done" : total > 0 ? phases[currentIndex].name : "—";
-
-  const elapsed = Math.max(0, dayNumber(project.startedAt) - 1);
-  let acc = 0;
-  const windows = phases.map((p) => {
-    const before = acc;
-    acc += Math.max(0, p.estDays);
-    return { before, after: acc };
-  });
-
-  const current = currentIndex >= 0 ? phases[currentIndex] : null;
-  const phaseProgress = allDone
-    ? 100
-    : current && current.estDays > 0
-      ? Math.max(0, Math.min(100, ((elapsed - windows[currentIndex].before) / current.estDays) * 100))
-      : 0;
+  const { total, currentIndex, doneCount, currentName, phaseProgress, eyebrow } = timelineGlance(phases, project.startedAt);
 
 
   function toggleDone(p: Phase) {
@@ -149,7 +129,7 @@ export default function TimelineCard({
 
       <div className="glance">
         <span className="glance-eyebrow">
-          {total ? `Phase ${phaseN} of ${total}` : "No phases yet"}
+          {eyebrow}
         </span>
 
         <div className="glance-hero-row">

@@ -14,6 +14,7 @@ import type { LearningItem } from "../lib/types";
 import { useDragReorder, reorder } from "./useDragReorder";
 import CSlider from "./CSlider";
 import { isSubmitEnter } from "./keys";
+import { learningGlance } from "./projectTime";
 import {
   firstOpenItem,
   focusAfterReorder,
@@ -67,8 +68,7 @@ export default function LearningCard({
     if (nextFocusId) setFocusItem(nextFocusId);
   });
 
-  const focus = items.find((it) => it.isFocus) ?? items[0];
-  const focusPct = focus ? focus.progressPct : 0;
+  const { focus, focusPct, eyebrow: focusEyebrow } = learningGlance(items);
 
   function nextOpenItemAfter(list: LearningItem[], id: string) {
     const index = list.findIndex((it) => it.id === id);
@@ -178,7 +178,7 @@ export default function LearningCard({
 
       <div className="glance">
         <span className="glance-eyebrow">
-          {focus ? `${focusPct}% · Focus` : "No focus set"}
+          {focusEyebrow}
         </span>
 
         <div className="glance-hero-row">
