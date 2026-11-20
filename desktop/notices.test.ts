@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ClockReading } from "./menuBar";
-import { goalNotice } from "./notices";
+import { goalNotice, goalWatch } from "./notices";
 
 const CHECK =
   "The desktop app sends one note, when the running clock is seen to cross the project's daily goal by running, and none for a goal already behind, a project with no goal, another project, another day or time typed in by hand (spec §22)";
@@ -79,9 +79,65 @@ describe("the note at the day's goal", () => {
     expect(goalNotice(before, reading({ seconds: 9000, atMs: before.atMs + 3_600_000 }))).not.toBeNull();
   });
 
-  it(`${CHECK} — it is once for each crossing the clock makes: after a total typed lower, the next crossing says it again`, () => {
+  it(`${CHECK} — the rule alone answers each crossing it is shown; keeping it to once a day is the watch's part`, () => {
     expect(goalNotice(reading({ seconds: 7198 }), reading({ seconds: 7201 }))).not.toBeNull();
     expect(goalNotice(reading({ seconds: 7201 }), reading({ seconds: 7206 }))).toBeNull();
     expect(goalNotice(reading({ seconds: 7199 }), reading({ seconds: 7203 }))).not.toBeNull();
+  });
+});
+
+const ONCE =
+  "The looks the app takes, one after another: a project is told once a day and no more, each project and each day apart, and with the note turned off nothing is told and the look is still kept (spec §22)";
+
+describe("the watch over the day's goal", () => {
+  it(`${ONCE} — the first look says nothing, the crossing says it, and the looks after it are quiet`, () => {
+    const watch = goalWatch();
+    expect(watch.look(reading({ seconds: 7190 }), true)).toBeNull();
+    expect(watch.look(reading({ seconds: 7200 }), true)).toEqual({ title: "Garden", body: "You've reached today's goal of 2h." });
+    expect(watch.look(reading({ seconds: 7205 }), true)).toBeNull();
+  });
+
+  it(`${ONCE} — a second crossing the same day, after the total was typed lower or the goal raised, says nothing`, () => {
+    const watch = goalWatch();
+    watch.look(reading({ seconds: 7198 }), true);
+    expect(watch.look(reading({ seconds: 7201 }), true)).not.toBeNull();
+    // The day's total typed lower, and the clock crossing the goal again.
+    watch.look(reading({ seconds: 7100, atMs: T0 + 7_300_000 }), true);
+    expect(watch.look(reading({ seconds: 7203, atMs: T0 + 7_403_000 }), true)).toBeNull();
+    // The goal raised to three hours, and crossed.
+    watch.look(reading({ seconds: 10_798, goalSeconds: 10_800 }), true);
+    expect(watch.look(reading({ seconds: 10_801, goalSeconds: 10_800 }), true)).toBeNull();
+  });
+
+  it(`${ONCE} — another project the same day is told for itself, and the first is still not told twice`, () => {
+    const watch = goalWatch();
+    watch.look(reading({ seconds: 7198 }), true);
+    expect(watch.look(reading({ seconds: 7201 }), true)).not.toBeNull();
+    watch.look(reading({ projectId: "shed", projectName: "Shed", seconds: 7198 }), true);
+    expect(watch.look(reading({ projectId: "shed", projectName: "Shed", seconds: 7201 }), true)).toMatchObject({ title: "Shed" });
+    watch.look(reading({ seconds: 7100, atMs: T0 + 7_300_000 }), true);
+    expect(watch.look(reading({ seconds: 7203, atMs: T0 + 7_403_000 }), true)).toBeNull();
+  });
+
+  it(`${ONCE} — the next day the same project is told again`, () => {
+    const watch = goalWatch();
+    watch.look(reading({ seconds: 7198 }), true);
+    expect(watch.look(reading({ seconds: 7201 }), true)).not.toBeNull();
+    watch.look(reading({ date: "2026-11-21", seconds: 7198 }), true);
+    expect(watch.look(reading({ date: "2026-11-21", seconds: 7201 }), true)).not.toBeNull();
+  });
+
+  it(`${ONCE} — with the note off the crossing says nothing, the look is kept, and turning it on announces no crossing already made`, () => {
+    const watch = goalWatch();
+    watch.look(reading({ seconds: 7198 }), false);
+    expect(watch.look(reading({ seconds: 7201 }), false)).toBeNull();
+    expect(watch.look(reading({ seconds: 7206 }), true)).toBeNull();
+  });
+
+  it(`${ONCE} — a clock stopped and started again begins from nothing: a look with no reading takes the place of the one before`, () => {
+    const watch = goalWatch();
+    watch.look(reading({ seconds: 7198 }), true);
+    watch.look(null, true);
+    expect(watch.look(reading({ seconds: 7201 }), true)).toBeNull();
   });
 });
