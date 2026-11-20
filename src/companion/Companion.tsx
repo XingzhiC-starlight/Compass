@@ -92,9 +92,11 @@ export default function Companion({
   const readRef = useRef(read);
   readRef.current = read;
 
-  // A new project is a new companion: nothing typed for one project is filed under another.
+  // A new project is a new companion: nothing typed for one project is filed under another,
+  // and its clock does not show the other's time while its own reading is on the way.
   useEffect(() => {
     setSnapshot(null);
+    setClock({ baseSeconds: 0, baseAtMs: Date.now(), running: false, date: todayDate() });
     setTaskIds([]);
     setThoughtText("");
     setThoughtSaved(false);

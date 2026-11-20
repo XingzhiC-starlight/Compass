@@ -336,6 +336,17 @@ describe("a thought typed in the companion", () => {
     expect(seam.reads[seam.reads.length - 1]).toBe("p2");
     expect(companion().querySelector(".glance-hero")!.textContent).toBe("1:00");
   });
+
+  it("until another project's reading arrives it shows no time and no line of the project before", async () => {
+    seam.payload = reading({ loggedSeconds: 3_600, running: true });
+    await show();
+    expect(companion().querySelector(".glance-hero")!.textContent).toBe("1:00:00");
+    seam.payload = null as unknown as ProjectDashboardData;
+    await show("p2");
+    expect(companion().querySelector(".glance-hero")!.textContent).toBe("0:00");
+    expect(companion().querySelector(".glance-eyebrow")!.textContent).toBe("Today");
+    expect(button("Start work session")).not.toBeNull();
+  });
 });
 
 describe("the companion's other lines", () => {
