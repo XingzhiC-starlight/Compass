@@ -43,6 +43,7 @@ export default function Companion({
   projectId,
   projectName,
   accentColor,
+  captureRequest = 0,
   onOpenCompass,
   onDataWritten,
 }: {
@@ -52,6 +53,11 @@ export default function Companion({
   projectId: ID;
   projectName: string;
   accentColor: string;
+  /**
+   * Counts the times a thought was asked for from outside, by the desktop app's keys (§22):
+   * each new count opens the summary and puts the cursor in the thought box. 0 is none.
+   */
+  captureRequest?: number;
   onOpenCompass: () => void;
   /** A save made here has answered: the dashboard reads again. */
   onDataWritten: () => void;
@@ -72,6 +78,8 @@ export default function Companion({
   const [thoughtSaved, setThoughtSaved] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
 
+  const thoughtBox = useRef<HTMLInputElement>(null);
+  const cursorOwed = useRef(false);
   const readId = useRef(0);
   const clockDate = useRef(clock.date);
   clockDate.current = clock.date;
@@ -173,11 +181,7 @@ export default function Companion({
     }
   }
 
-  function toggleExpanded(e?: MouseEvent) {
-    if (e && (e.target as HTMLElement).closest(INTERACTIVE)) return;
-    const selection = win.getSelection?.();
-    if (selection && !selection.isCollapsed && selection.toString().trim() !== "") return;
-    const next = !expanded;
+  function showSummary(next: boolean) {
     setExpanded(next);
     if (next) void read(false);
     try {
@@ -186,6 +190,28 @@ export default function Companion({
       /* a window that will not be resized shows the same companion at the size it has */
     }
   }
+
+  function toggleExpanded(e?: MouseEvent) {
+    if (e && (e.target as HTMLElement).closest(INTERACTIVE)) return;
+    const selection = win.getSelection?.();
+    if (selection && !selection.isCollapsed && selection.toString().trim() !== "") return;
+    showSummary(!expanded);
+  }
+
+  // A thought asked for from outside: the summary opens if it is not, and the cursor goes to
+  // the box, which is there once the summary has been drawn.
+  useEffect(() => {
+    if (!captureRequest) return;
+    cursorOwed.current = true;
+    if (!expanded) showSummary(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- answers a new request, and nothing else
+  }, [captureRequest]);
+
+  useEffect(() => {
+    if (!cursorOwed.current || !thoughtBox.current) return;
+    cursorOwed.current = false;
+    thoughtBox.current.focus();
+  }, [captureRequest, expanded]);
 
   const seconds = clockSeconds(clock, nowMs);
   const plannedHours = snapshot?.project.hoursPlannedPerDay ?? 0;
@@ -309,6 +335,7 @@ export default function Companion({
 
       {expanded && (
         <input
+          ref={thoughtBox}
           className="th-add-input companion-thought"
           value={thoughtText}
           maxLength={TEXT_LIMITS.thoughtText}

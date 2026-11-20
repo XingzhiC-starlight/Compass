@@ -17,6 +17,7 @@ const world = vi.hoisted(() => ({
   next: null as unknown,
   companion: null as null | Record<string, unknown>,
   syncVersions: [] as number[],
+  captureAsked: [] as (() => void)[],
 }));
 
 vi.mock("../lib/db", () => ({
@@ -34,6 +35,12 @@ vi.mock("../companion/companionWindow", () => ({
     return world.next;
   },
   showCompass: () => undefined,
+  onCaptureAsked: (cb: () => void) => {
+    world.captureAsked.push(cb);
+    return () => {
+      world.captureAsked = world.captureAsked.filter((f) => f !== cb);
+    };
+  },
 }));
 vi.mock("../companion/Companion", () => ({
   default: (props: Record<string, unknown>) => {
@@ -131,6 +138,7 @@ beforeEach(() => {
   world.opens = [];
   world.companion = null;
   world.syncVersions = [];
+  world.captureAsked = [];
   world.next = fakeWindow();
   settled.mockReset();
   host = document.createElement("div");
@@ -213,5 +221,43 @@ describe("the companion belongs to the dashboard", () => {
     await pressCompanion();
     expect(world.companion).toBeNull();
     expect(companionButton().className).not.toContain("active");
+  });
+
+  it(`${CHECK} — the desktop app asking for a thought opens it, or brings it forward, and counts the asking for it; closing it forgets the count, and leaving the dashboard stops the listening`, async () => {
+    await show("p1");
+    const ask = () =>
+      act(async () => {
+        for (const cb of [...world.captureAsked]) cb();
+      });
+    expect(world.captureAsked.length).toBe(1);
+
+    await ask();
+    expect(world.opens.length).toBe(1);
+    expect(world.companion).toMatchObject({ projectId: "p1", captureRequest: 1 });
+
+    const win = world.next as ReturnType<typeof fakeWindow>;
+    await ask();
+    expect(world.opens.length).toBe(1);
+    expect(win.focus).toHaveBeenCalledTimes(1);
+    expect(world.companion).toMatchObject({ captureRequest: 2 });
+
+    await act(async () => win.fire("pagehide"));
+    world.next = fakeWindow();
+    await pressCompanion();
+    expect(world.companion).toMatchObject({ captureRequest: 0 });
+
+    await act(async () => root.unmount());
+    expect(world.captureAsked.length).toBe(0);
+    // The check's own closing unmounts a root, so it is given a new one.
+    root = createRoot(host);
+  });
+
+  it(`${CHECK} — asked for a thought when the browser refuses the window, nothing is counted`, async () => {
+    world.next = null;
+    await show("p1");
+    await act(async () => {
+      for (const cb of [...world.captureAsked]) cb();
+    });
+    expect(world.companion).toBeNull();
   });
 });

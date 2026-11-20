@@ -3,6 +3,7 @@ import {
   COMPANION_NAME,
   COMPANION_SMALL_HEIGHT,
   COMPANION_WIDTH,
+  onCaptureAsked,
   openCompanionWindow,
   prepareCompanionDocument,
   showCompass,
@@ -131,5 +132,31 @@ describe("bringing the main window forward", () => {
     };
     expect(() => showCompass()).not.toThrow();
     expect(focus).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("hearing the desktop app ask for a thought", () => {
+  it("listens through the bridge, and stops with what the bridge answered", () => {
+    const stop = vi.fn();
+    const onCapture = vi.fn((_heard: () => void) => stop);
+    (window as Extras).compassDesktop = { send: vi.fn(), show: vi.fn(), onCapture };
+    const listener = vi.fn();
+
+    const stopListening = onCaptureAsked(listener);
+    expect(onCapture).toHaveBeenCalledWith(listener);
+    stopListening();
+    expect(stop).toHaveBeenCalledTimes(1);
+  });
+
+  it("in a browser, or with a bridge that has no such way or throws, nothing listens and stopping does nothing", () => {
+    expect(() => onCaptureAsked(vi.fn())()).not.toThrow();
+    (window as Extras).compassDesktop = { send: vi.fn(), show: vi.fn() };
+    expect(() => onCaptureAsked(vi.fn())()).not.toThrow();
+    (window as Extras).compassDesktop = {
+      onCapture: () => {
+        throw new Error("gone");
+      },
+    };
+    expect(() => onCaptureAsked(vi.fn())()).not.toThrow();
   });
 });

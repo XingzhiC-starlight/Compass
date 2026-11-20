@@ -31,7 +31,10 @@ https://builder-compass.vercel.app (spec §20).
   window of its own, with its data in a file on your computer and a clock in the menu bar.
   It needs nothing but `npm install`, has no accounts and uses no network. There is no
   installer yet: it runs from the source. The sidebar's Companion button opens the
-  companion (spec §23), a small window with the clock that stays above your other windows. `npm run test:desktop` starts the real app and
+  companion (spec §23), a small window with the clock that stays above your other windows.
+  Option-Shift-T (Alt-Shift-T off the Mac) opens it from any app, ready for a thought, and
+  one quiet notification says when you reach the day's goal; its tick in the menu-bar menu
+  turns it off. `npm run test:desktop` starts the real app and
   drives it (on Linux with no screen, `xvfb-run -a npm run test:desktop`), and
   `npm run typecheck:desktop` type-checks its code.
 - `npm run dev` serves http://localhost:5173. The port is fixed in `vite.config.ts`

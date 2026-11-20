@@ -6,8 +6,9 @@ The companion is a small second window that stays beside the person's other work
 project's clock, and on a press the other three cards in short, with a box for a thought. It
 shows what the dashboard shows and saves what the dashboard saves; it holds nothing of its
 own (I21). It is the same in a browser and in the desktop app; what the desktop app adds is
-that its window always stays above every other, on every desktop (§22). In a browser only a
-picture-in-picture window stays on top.
+that its window always stays above every other window, and on a Mac shows on every desktop
+and beside a full-screen app (§22). In a browser only a picture-in-picture window stays on
+top.
 
 ### Opening and closing it
 
@@ -23,8 +24,10 @@ pressed again.
 
 ### Its window
 
-`openCompanionWindow()` in `src/companion/companionWindow.ts` opens it, from inside the
-press, 300 wide and 250 high:
+`openCompanionWindow()` in `src/companion/companionWindow.ts` opens it, 300 wide and 250 high. A press
+on the button opens it from inside the press, which a browser asks of a page that opens a
+window; the desktop app's asking for a thought (below) opens it with no press, which the app
+allows:
 
 - in a browser that has document picture-in-picture windows, one of those, which the browser
   keeps on top;
@@ -114,6 +117,14 @@ that is refused shows no such line and puts the words back in the box, unless th
 typed new ones since.
 A switch to another project empties the box: nothing typed for one project is filed under
 another.
+
+In the desktop app a thought can be asked for from anywhere, by the capture keys or the
+menu's line (§22). The dashboard hears it (`onCaptureAsked` in
+`src/companion/companionWindow.ts`; in a browser nothing ever asks), opens the companion or
+brings it forward, and counts the asking for it; each new count opens the summary if it is
+closed, growing the window, and puts the cursor in this box. The count starts again when the
+companion closes, so one opened later by its button opens small. When the window is refused,
+nothing is counted.
 
 ### The other lines
 

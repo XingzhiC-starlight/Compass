@@ -63,3 +63,7 @@ missing. Never guess from general knowledge of React or Supabase.
     and in the desktop app? What does it show before and after a press on it, and what can a
     person do there? How does it stay in step with the dashboard in both directions, and
     what does the desktop app do for its window and refuse it?
+24. The capture keys and the note. What happens, step by step and in which process, between a
+    press of the capture keys in another app and the cursor being in the thought box? When
+    exactly does the desktop app send its notification and when does it not, what does it
+    say, how is it turned off, and where is that choice kept?

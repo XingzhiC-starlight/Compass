@@ -10,6 +10,12 @@ const CHECK =
 const COMPANION =
   "The companion is a small window above the others that the dashboard draws into: its clock, its tasks and a thought typed there are the dashboard's own, each window follows the other, and it brings the main window back (spec §23)";
 
+const CAPTURE =
+  "A thought is asked for from anywhere: the app holds the capture keys, and when it tells the page, the companion opens with its summary open and the cursor in the thought box, and what is typed goes to the file (spec §22, §23)";
+
+const GOAL =
+  "One quiet note: when the running clock is seen to cross the project's daily goal the app says so once, named for the project, and with the note turned off it says nothing (spec §22)";
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const MAIN = path.join(HERE, "out", "main.js");
 
@@ -32,9 +38,48 @@ async function close(): Promise<void> {
   running = null;
 }
 
-function kept(): { tables: Record<string, { name?: string; text?: string; is_done?: boolean }[]> } | null {
+type KeptRow = {
+  name?: string;
+  text?: string;
+  is_done?: boolean;
+  started_at?: string;
+  ended_at?: string | null;
+  duration_seconds?: number;
+};
+
+function kept(): { tables: Record<string, KeptRow[]> } | null {
   const file = path.join(dataFolder, "compass-data.json");
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null;
+}
+
+/**
+ * With the app closed, move the running clock's start so that today's time reaches the
+ * two-hour goal in `seconds` from now.
+ */
+function goalIn(seconds: number): void {
+  const file = path.join(dataFolder, "compass-data.json");
+  const data = kept()!;
+  const sessions = data.tables.time_sessions;
+  const finished = sessions.filter((row) => row.ended_at !== null).reduce((sum, row) => sum + (row.duration_seconds ?? 0), 0);
+  const runningNow = sessions.filter((row) => row.ended_at === null);
+  if (runningNow.length !== 1) throw new Error(`expected one running clock in the file, found ${runningNow.length}`);
+  runningNow[0].started_at = new Date(Date.now() - (2 * 3600 - finished - seconds) * 1000).toISOString();
+  fs.writeFileSync(file, JSON.stringify(data));
+}
+
+/** The next note the app says it sent, or null when none comes within `withinMs`. */
+function nextNote(withinMs: number): Promise<{ title: string; body: string } | null> {
+  return running!.evaluate(
+    ({ app }, wait) =>
+      new Promise<{ title: string; body: string } | null>((resolve) => {
+        const none = setTimeout(() => resolve(null), wait);
+        app.once("compass-goal-notice" as never, ((notice: { title: string; body: string }) => {
+          clearTimeout(none);
+          resolve({ title: notice.title, body: notice.body });
+        }) as never);
+      }),
+    withinMs,
+  );
 }
 
 const setup = (page: Page) => page.getByRole("button", { name: /Open my dashboard/ });
@@ -164,6 +209,61 @@ test(`${COMPANION}`, async () => {
   await expect.poll(async () => (await windows()).filter((w) => !w.onTop)[0].shown).toBe(true);
 });
 
+test(`${CAPTURE}`, async () => {
+  const page = await open();
+  await expect(dashboard(page)).toBeVisible();
+  expect(
+    await running!.evaluate(({ globalShortcut }) => globalShortcut.isRegistered("Alt+Shift+T")),
+    "the app holds the capture keys",
+  ).toBe(true);
+
+  // A check cannot press keys the whole computer hears, so it says to the page what the keys
+  // and the menu's line say.
+  const [companion] = await Promise.all([
+    running!.waitForEvent("window"),
+    running!.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()
+        .find((w) => !w.isAlwaysOnTop())!
+        .webContents.send("compass:capture"),
+    ),
+  ]);
+  await expect(companion.getByRole("button", { name: "Show the clock alone" })).toBeVisible();
+  await expect(companion.getByLabel("Add a thought")).toBeFocused();
+  await companion.keyboard.type("Mulch first");
+  await companion.keyboard.press("Enter");
+  await expect.poll(() => kept()?.tables.thoughts.map((row) => row.text)).toContain("Mulch first");
+  await companion.screenshot({ path: path.join(HERE, "results", "the-companion-for-a-thought.png") });
+
+  // Asked again with the companion open, no second window opens and the cursor is in the box.
+  await companion.getByRole("button", { name: "Open Compass" }).focus();
+  await running!.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .find((w) => !w.isAlwaysOnTop())!
+      .webContents.send("compass:capture"),
+  );
+  await expect(companion.getByLabel("Add a thought")).toBeFocused();
+  expect(await running!.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(2);
+});
+
+test(`${GOAL}`, async () => {
+  // The clock is still running. Its start is moved so the two-hour goal comes ten seconds on.
+  goalIn(10);
+  await open();
+  expect(await nextNote(30_000)).toEqual({ title: "Garden", body: "You've reached today's goal of 2h." });
+  expect(fs.existsSync(path.join(dataFolder, "compass-preferences.json")), "nothing was changed, so nothing is kept").toBe(false);
+  await close();
+
+  // Turned off, as the menu's tick leaves it, the same crossing says nothing.
+  fs.writeFileSync(
+    path.join(dataFolder, "compass-preferences.json"),
+    JSON.stringify({ format: "compass-preferences", version: 1, goalNotice: false }),
+  );
+  goalIn(4);
+  await open();
+  expect(await nextNote(12_000)).toBeNull();
+  fs.rmSync(path.join(dataFolder, "compass-preferences.json"));
+});
+
 test(`${CHECK} — the page has its bridge and no Node, and a second copy of the app does not start`, async () => {
   const page = await open();
   await expect(dashboard(page)).toBeVisible();
@@ -172,7 +272,7 @@ test(`${CHECK} — the page has its bridge and no Node, and a second copy of the
     require: typeof (window as unknown as { require?: unknown }).require,
     process: typeof (window as unknown as { process?: unknown }).process,
   }));
-  expect(reach).toEqual({ bridge: ["send", "show"], require: "undefined", process: "undefined" });
+  expect(reach).toEqual({ bridge: ["send", "show", "onCapture"], require: "undefined", process: "undefined" });
 
   const blocked = await page.evaluate(() =>
     fetch("https://example.com/").then(
