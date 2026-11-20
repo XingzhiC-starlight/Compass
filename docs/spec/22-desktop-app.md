@@ -151,13 +151,18 @@ says nothing; a goal lowered under the time already done says nothing; a project
 goal, or a clock stopped, sends none; and time typed in by hand sends none, since it moves
 the total in one step, also when the save of it is looked at half done, with the new total
 and the running session both still counted. A look that comes late, as after the computer
-slept with the clock running, still sends it. It is once for each crossing the clock makes,
-not once a day: after a total typed lower, or a goal raised, the next crossing says it again.
+slept with the clock running, still sends it.
+
+A project is told once a day and no more (`goalWatch` in `desktop/notices.ts`, which holds
+the look before and the projects told today): a second crossing on the same day, after the
+day's total was typed lower or the goal raised, says nothing. Each project is told for
+itself, and the next day starts again.
 
 The app looks whenever it works out the menu bar's text: when the file is first read, after
-every save, and every five seconds. It keeps the look before in memory alone, and keeps it
-while the note is turned off too, so turning the note on never announces a crossing that
-happened while it was off. Every look takes the place of the one before, a look with no
+every save, and every five seconds. It keeps the look before, and who was told today, in
+memory alone, so both end when the app closes. It keeps the look while the note is turned
+off too, so turning the note on never announces a crossing that happened while it was off;
+a crossing made while it was off counts as not told. Every look takes the place of the one before, a look with no
 reading too, so a clock stopped and started again begins from nothing.
 
 The note can be turned off with the menu's **Tell Me When I Reach Today's Goal**, which is
