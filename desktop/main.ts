@@ -67,7 +67,7 @@ function showWindow(): void {
   window = new BrowserWindow({
     width: 1280,
     height: 832,
-    minWidth: 960,
+    minWidth: 1120,
     minHeight: 640,
     title: "Compass",
     show: false,
