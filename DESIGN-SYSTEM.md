@@ -519,9 +519,24 @@ would stop the collapse and widen that gap to 42 px.
 ### DS §6.1 Structural sizes
 
 - The app is one centered card of `80vw × 80vh` on the page background; inside it a
-  `220px 1fr` grid holds the sidebar and the dashboard; the upper row is three equal columns
-  (`1fr 1fr 1fr`) and the dashboard rows are `auto minmax(0, 1fr)` in summary and
-  `minmax(0, 1.7fr) minmax(0, 1fr)` in depth.
+  `220px minmax(0, 1fr)` grid holds the sidebar and the dashboard; the upper row is three
+  equal columns (`repeat(3, minmax(0, 1fr))`) and the dashboard rows are `auto minmax(0, 1fr)`
+  in summary and `minmax(0, 1.7fr) minmax(0, 1fr)` in depth. Every column has a floor of zero,
+  so a long name never widens its card: the card keeps its third and the name is cut with an
+  ellipsis.
+- In a window where `80vw` is under `--app-comfort-width` (1240 px), the app is that wide
+  instead, or the window less a `--space-5` margin on each side when the window is narrower
+  still: `max(80vw, min(100vw - 2 × --space-5, --app-comfort-width))`. 1240 px is the width at
+  which each upper card is about 320 px, enough for a depth row to show its grip, circle,
+  about six characters of its name, its tag, × and its number. The token is new because no
+  existing unit names a width of the whole app; the setup screen's `--setup-*` widths are its
+  own (§9.2). The height stays `80vh`. There is no breakpoint in this (D7).
+- What gives way inside a card that is narrower than its content, in this order: a row's
+  "now" or "focus" tag leaves when the name beside it would have under `6ch` of room (it wraps
+  to a second line that the row's one-line height, `1lh`, hides; a row being renamed keeps
+  its tag); then the name is cut with an ellipsis. In the Commitment glance the hero number
+  keeps its full width and the sparkline gives up its oldest bars. A bubble's title is cut
+  with an ellipsis before its ▸/▾ cue is pushed out.
 - The setup screen is a `--setup-form-width` (720 px) form beside a `--setup-rail-width`
   (180 px) rail with a `--setup-rail-gap` of 56 px. Its breakpoints: at 1080 px the rail
   narrows to 156 px and the gap to 40 px; at 940 px the form narrows to 680 px and the rail to
@@ -577,11 +592,11 @@ would stop the collapse and widen that gap to 42 px.
 | `42px` | 1 | `.landing-shape-outline` |
 | `4ch` | 1 | `.glance-hero-input-narrow` |
 | `7px` | 1 | `.glance-bar` |
-| `80vw` | 1 | `.app` |
 | `9px` | 1 | `.setup .progress-node svg` |
 | `calc(100% - 12px)` | 1 | `.setup .progress-step::before` |
 | `calc(100% - var(--setup-radius-section-half))` | 1 (token) | `.setup .project-step` |
 | `fit-content` | 1 | `.sidebar-toggle` |
+| `max(80vw, min(calc(100vw - 2 * var(--space-5)), var(--app-comfort-width)))` | 1 (token) | `.app` |
 | `min( calc(var(--setup-form-width) + var(--setup-rail-width) + var(--setup-rail-gap) + 28px), calc(100vw - 28px) )` | 1 (token) | `.setup` |
 | `min( calc(var(--setup-form-width) + var(--setup-rail-width) + var(--setup-rail-gap) + 40px), calc(100vw - 40px) )` | 1 (token) | `.setup` |
 | `min(260px, calc(100vw - 40px))` | 1 | `.confirm-panel` |
@@ -628,7 +643,7 @@ would stop the collapse and widen that gap to 42 px.
 <!-- census: min-width -->
 | value | uses | where |
 |---|---|---|
-| `0` | 24 | `.pill-name`, `.pill-rename`, `.settings-row-copy` |
+| `0` | 26 | `.pill-name`, `.pill-rename`, `.settings-row-copy` |
 
 <!-- census: max-width -->
 | value | uses | where |
@@ -655,6 +670,11 @@ would stop the collapse and widen that gap to 42 px.
 | `270px` | 1 | `.settings-panel` |
 | `28px` | 1 | `.bubble-task .bubble-header` |
 | `3px` | 1 | `.glance-bar` |
+
+<!-- census: max-height -->
+| value | uses | where |
+|---|---|---|
+| `1lh` | 1 | `.ph-title:not(:has(input)), .lr-title:not(:h` |
 
 ## DS §7 Elevation
 
@@ -1038,6 +1058,7 @@ theme's overrides of nine of those tokens (§12).
 | `--r-input` | `16px` | `:root` · §4.1 — radii |
 | `--shadow-rest` | `0 18px 44px rgba(58, 42, 20, 0.14), 0 4px 12px rgba(58, 42, 20, 0.06)` | `:root` · §7.1 — elevation (soft, diffused, warm) |
 | `--shadow-hover` | `0 24px 56px rgba(58, 42, 20, 0.18), 0 6px 16px rgba(58, 42, 20, 0.08)` | `:root` · §7.1 — elevation (soft, diffused, warm) |
+| `--app-comfort-width` | `1240px` | `:root` · §6.1 — structural sizes |
 | `--space-1` | `8px` | `:root` · §5.1 — spacing scale |
 | `--space-2` | `12px` | `:root` · §5.1 — spacing scale |
 | `--space-3` | `16px` | `:root` · §5.1 — spacing scale |

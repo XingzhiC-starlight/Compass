@@ -256,30 +256,31 @@ export default function LearningCard({
                     </svg>
                   </button>
 
-                  {editingId === it.id ? (
-                    <input
-                      className="row-name-input"
-                      autoFocus
-                      maxLength={TEXT_LIMITS.learningItemName}
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                      onBlur={commitEdit}
-                      onKeyDown={(e) => {
-                        if (isSubmitEnter(e)) commitEdit();
-                        if (e.key === "Escape") setEditingId(null);
-                      }}
-                    />
-                  ) : (
-                    <span
-                      className="row-name"
-                      onClick={() => startEdit(it)}
-                      title="Click to rename"
-                    >
-                      {it.name}
-                    </span>
-                  )}
-
-                  {it.isFocus && <span className="focus-tag">focus</span>}
+                  <div className="lr-title">
+                    {editingId === it.id ? (
+                      <input
+                        className="row-name-input"
+                        autoFocus
+                        maxLength={TEXT_LIMITS.learningItemName}
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        onBlur={commitEdit}
+                        onKeyDown={(e) => {
+                          if (isSubmitEnter(e)) commitEdit();
+                          if (e.key === "Escape") setEditingId(null);
+                        }}
+                      />
+                    ) : (
+                      <span
+                        className="row-name"
+                        onClick={() => startEdit(it)}
+                        title="Click to rename"
+                      >
+                        {it.name}
+                      </span>
+                    )}
+                    {it.isFocus && <span className="focus-tag">focus</span>}
+                  </div>
 
                   <button className="row-del" type="button" aria-label="Delete item" onClick={() => deleteItem(it.id)}>
                     ×

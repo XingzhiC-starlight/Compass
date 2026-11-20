@@ -125,6 +125,9 @@
   --shadow-rest: 0 18px 44px rgba(58, 42, 20, 0.14), 0 4px 12px rgba(58, 42, 20, 0.06);
   --shadow-hover: 0 24px 56px rgba(58, 42, 20, 0.18), 0 6px 16px rgba(58, 42, 20, 0.08);
 
+  /* DS §6.1 — structural sizes */
+  --app-comfort-width: 1240px;
+
   /* DS §5.1 — spacing scale */
   --space-1: 8px;
   --space-2: 12px;
@@ -255,9 +258,9 @@ body {
 
 .app {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: var(--space-5);
-  width: 80vw;
+  width: max(80vw, min(calc(100vw - 2 * var(--space-5)), var(--app-comfort-width)));
   height: 80vh;
 }
 
@@ -792,7 +795,7 @@ body {
 
 .upper-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
   min-height: 0;
 }
@@ -853,6 +856,10 @@ body {
   line-height: 1;
   text-transform: uppercase;
   color: var(--text-muted);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bubble-task .bubble-header {
@@ -866,6 +873,7 @@ body {
 
 .glance-cue {
   margin-left: auto;
+  flex-shrink: 0;
   font-size: 15px;
   line-height: 1;
   color: var(--text-muted);
@@ -947,6 +955,9 @@ body {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
+.dashboard .bubble-time .glance-hero {
+  flex: none;
+}
 .bubble-time .glance-hero-input {
   font-family: var(--font-metric);
   font-variant-numeric: tabular-nums;
@@ -983,9 +994,12 @@ body {
 .glance-spark {
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
   gap: 4px;
   height: 36px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 .glance-bar {
   width: 7px;
@@ -1361,11 +1375,27 @@ body {
   flex: 1;
   min-width: 0;
 }
-.ph-title {
+.ph-title,
+.lr-title {
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
   min-width: 0;
+}
+.lr-title {
+  flex: 1;
+}
+/* A row's "now" or "focus" tag steps aside when the name beside it would be left under six
+   characters of room: it wraps to a second line, which the one-line height hides. */
+.ph-title:not(:has(input)),
+.lr-title:not(:has(input)) {
+  flex-wrap: wrap;
+  max-height: 1lh;
+  overflow: hidden;
+}
+.ph-title .row-name,
+.lr-title .row-name {
+  flex-basis: 6ch;
 }
 .ph-days {
   flex-shrink: 0;
