@@ -27,8 +27,8 @@ import {
   opensInTheBrowser,
 } from "./appFiles";
 import { diskFiles, fileBackend } from "./dataFile";
-import { clockReading, clockTitle, menuLines, type ClockReading } from "./menuBar";
-import { goalNotice, type Notice } from "./notices";
+import { clockReading, clockTitle, menuLines } from "./menuBar";
+import { goalWatch, type Notice } from "./notices";
 import { preferencesHolder, type PreferencesHolder } from "./preferences";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -52,8 +52,8 @@ let quitting = false;
 let preferences: PreferencesHolder | null = null;
 /** Whether the system let the app have the capture keys. */
 let captureKeysHeld = false;
-/** The clock as it was at the look before this one, for the note at the goal. */
-let lastReading: ClockReading | null = null;
+/** The looks at the clock, for the note at the goal: the one before, and who was told today. */
+const watch = goalWatch();
 /** The note showing, held so it is not cleared away while it shows. */
 let shown: Notification | null = null;
 
@@ -161,8 +161,7 @@ function lookAtTheClock(tables: Parameters<typeof clockReading>[0]): void {
   const now = new Date();
   const reading = clockReading(tables, now);
   refreshMenuBar(clockTitle(tables, now));
-  const notice = preferences?.get().goalNotice ? goalNotice(lastReading, reading) : null;
-  lastReading = reading;
+  const notice = watch.look(reading, preferences?.get().goalNotice ?? false);
   if (notice) tell(notice);
 }
 
