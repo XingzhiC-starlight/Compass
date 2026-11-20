@@ -14,8 +14,10 @@ you ran and what it printed.
 3. Run the checks the change touches (below), commit, push the branch and open a pull
    request without asking. One concern per commit; stage files by name, never `git add .`
    or `git commit -a`.
-4. The owner merges. A merge to `main` deploys to production, so never push to `main`, never
-   merge and never turn on auto-merge. Never merge red.
+4. A pull request merges on its own once every check is green: turn on auto-merge for it, or
+   merge it when it is already green. Never push to `main`, and never merge red. The owner
+   merges instead when the pull request falls under rule 5, or carries behavior nobody could
+   try; say which at the top of the pull request.
 5. Stop and explain the approach in chat, then wait for the owner's OK before writing code,
    when a change touches the database schema or its access rules, sign-in, the security
    headers or secrets, or adds AI, sharing or payments (spec §17).
