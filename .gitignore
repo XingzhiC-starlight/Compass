@@ -50,6 +50,8 @@ verify-results/
 supabase/.temp/
 supabase/.branches/
 
-# The desktop app as built (`npm run desktop`), and its check's pictures and report.
+# The desktop app as built (`npm run desktop`), its check's pictures and report, and the
+# app as packaged (`npm run desktop:package`).
 desktop/out/
 desktop/results/
+desktop/release/
