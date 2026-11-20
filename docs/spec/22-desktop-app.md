@@ -40,7 +40,7 @@ is off, so it has no `require`, no `process` and no disk. A link to a web addres
 `https`, opens in the person's browser; the window itself never leaves the app's address,
 and any other kind of link goes nowhere. The one window the page may open is its companion
 (below). The page's own storage holds what it holds in a
-browser, the active project's id (§3), and not the tables.
+browser, the active project's id (§3) and the theme (§14), and not the tables.
 
 On a Mac, closing the window hides it and leaves Compass running in the menu bar; the Dock
 icon or the menu's "Open Compass" shows it again, and Quit ends it. On other systems closing

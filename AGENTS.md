@@ -91,7 +91,7 @@ file under `src/`, `supabase/`, `scripts/` or `browser/` is in no row.
 |---|---|
 | `src/App.tsx`, `src/main.tsx`, `src/vite-env.d.ts`, `src/App/`, `src/lib/projectRouting.ts` | §2, §21 |
 | `src/auth/`, `src/lib/recoveryLink.ts`, `supabase/templates/` | §5, §17 |
-| `src/dashboard/Sidebar.tsx`, `src/dashboard/Sidebar/`, `src/archive/`, `src/dashboard/DeleteConfirm.tsx`, `src/dashboard/useDeleteConfirm.tsx` | §6, §14 |
+| `src/dashboard/Sidebar.tsx`, `src/dashboard/Sidebar/`, `src/dashboard/useTheme.ts`, `src/archive/`, `src/dashboard/DeleteConfirm.tsx`, `src/dashboard/useDeleteConfirm.tsx` | §6, §14 |
 | `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts`, `src/dashboard/a-drop-after-a-refresh.test.tsx`, `src/dashboard/the-boxes-under-strict-mode.test.tsx`, `src/dashboard/markup-shaped-text-appears-as-typed.test.tsx` | §7, §21 |
 | `src/companion/`, `src/dashboard/the-companion-belongs-to-the-dashboard.test.tsx` | §23, §7, §21, and §22 for its window in the desktop app |
 | `src/dashboard/TimeCard.tsx`, `src/dashboard/TimeCard/`, `src/dashboard/hoursEdit.ts` | §8 |

@@ -13,6 +13,7 @@ import type { ID, Project } from "../lib/types";
 import { isSubmitEnter } from "./keys";
 import { useDeleteConfirm } from "./useDeleteConfirm";
 import { useDragReorder, reorder } from "./useDragReorder";
+import { THEMES, useTheme } from "./useTheme";
 
 export default function Sidebar({
   projects,
@@ -49,6 +50,7 @@ export default function Sidebar({
   const [view, setView] = useState<"active" | "archive">("active");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [theme, chooseTheme] = useTheme();
   const [draft, setDraft] = useState<string | null>(null);
   const deleteConfirm = useDeleteConfirm((p) => onDeleteProject(p.id));
   const settingsPanelId = useId();
@@ -336,6 +338,26 @@ export default function Sidebar({
             </button>
           </div>
 
+          <div className="settings-theme">
+            <ThemeGlyph />
+            <span className="settings-row-title">Theme</span>
+            <div className="settings-theme-options" role="group" aria-label="Theme">
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={"settings-theme-btn" + (theme === t.id ? " active" : "")}
+                  aria-pressed={theme === t.id}
+                  onClick={() => chooseTheme(t.id)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="settings-divider" />
+
           {storesOnThisDevice() ? (
             <div className="settings-row-copy">
               <span className="settings-row-title">Saved on this device</span>
@@ -396,6 +418,15 @@ function SettingsGlyph() {
     <svg className="sidebar-settings-icon" viewBox="0 0 18 18" aria-hidden="true">
       <path d="M7.7 2.4 H10.3 L10.8 4.1 C11.2 4.2 11.6 4.4 11.9 4.6 L13.6 4.2 L14.9 6.5 L13.7 7.8 C13.7 8 13.8 8.5 13.8 9 C13.8 9.5 13.7 10 13.7 10.2 L14.9 11.5 L13.6 13.8 L11.9 13.4 C11.6 13.6 11.2 13.8 10.8 13.9 L10.3 15.6 H7.7 L7.2 13.9 C6.8 13.8 6.4 13.6 6.1 13.4 L4.4 13.8 L3.1 11.5 L4.3 10.2 C4.3 10 4.2 9.5 4.2 9 C4.2 8.5 4.3 8 4.3 7.8 L3.1 6.5 L4.4 4.2 L6.1 4.6 C6.4 4.4 6.8 4.2 7.2 4.1 Z" />
       <circle cx="9" cy="9" r="2.15" />
+    </svg>
+  );
+}
+
+function ThemeGlyph() {
+  return (
+    <svg className="settings-row-icon" viewBox="0 0 18 18" aria-hidden="true">
+      <circle cx="9" cy="9" r="6.25" />
+      <path d="M9 2.75 V15.25 M9 6.2 H14.5 M9 9 H15.25 M9 11.8 H14.5" />
     </svg>
   );
 }
