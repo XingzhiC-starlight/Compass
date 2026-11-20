@@ -70,6 +70,7 @@ describe("the running clock, read once", () => {
       date: "2026-11-20",
       seconds: 25 * 60,
       goalSeconds: 7200,
+      atMs: NOW.getTime(),
     });
   });
 

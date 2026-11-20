@@ -15,6 +15,8 @@ export interface ClockReading {
   seconds: number;
   /** The project's daily goal in seconds, 0 when it has none. */
   goalSeconds: number;
+  /** The instant of the reading, in milliseconds. */
+  atMs: number;
 }
 
 /**
@@ -37,6 +39,7 @@ export function clockReading(tables: LocalTables | null, now: Date): ClockReadin
     date: today,
     seconds: loggedSecondsOn(ofTheProject, today, now.getTime()),
     goalSeconds: Number.isFinite(hours) && hours > 0 ? hours * 3600 : 0,
+    atMs: now.getTime(),
   };
 }
 
