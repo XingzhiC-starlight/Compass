@@ -88,11 +88,11 @@ jobs:
           path: desktop/results/
           if-no-files-found: ignore
 
-      - name: Checksums
+      - name: Checksum
         working-directory: desktop/release
         run: |
-          ls -l Compass-*-mac.dmg Compass-*-mac.zip
-          shasum -a 256 Compass-*-mac.dmg Compass-*-mac.zip | tee SHA256SUMS.txt
+          ls -l Compass-*-mac.dmg
+          shasum -a 256 Compass-*-mac.dmg | tee SHA256SUMS.txt
 
       - name: Keep the download on the run's page
         uses: actions/upload-artifact@v7
@@ -100,7 +100,6 @@ jobs:
           name: compass-mac
           path: |
             desktop/release/Compass-*-mac.dmg
-            desktop/release/Compass-*-mac.zip
             desktop/release/SHA256SUMS.txt
           if-no-files-found: error
 
@@ -142,8 +141,8 @@ jobs:
 
           Compass keeps everything you write in one file on your own computer, has no accounts and connects to nothing. It does not update itself: a newer version is a new download, and your data stays where it is.
 
-          \`SHA256SUMS.txt\` holds the checksums of both files.
+          \`SHA256SUMS.txt\` holds the file's checksum.
           EOF
           gh release create "v$VERSION" --draft --target "$GITHUB_SHA" --title "Compass $VERSION" --notes-file notes.md \
-            download/Compass-*-mac.dmg download/Compass-*-mac.zip download/SHA256SUMS.txt
+            download/Compass-*-mac.dmg download/SHA256SUMS.txt
           echo "The draft is at https://github.com/$GH_REPO/releases. It is public only once someone presses Publish."

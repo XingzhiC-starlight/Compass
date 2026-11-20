@@ -17,11 +17,9 @@ export default {
   mac: {
     icon: "desktop/icons/appIcon.png",
     category: "public.app-category.productivity",
-    // One download for both kinds of Mac.
-    target: [
-      { target: "dmg", arch: ["universal"] },
-      { target: "zip", arch: ["universal"] },
-    ],
+    // One file to download, for both kinds of Mac. No zip beside it: that is the form an
+    // app's own updater wants, and this app has none.
+    target: [{ target: "dmg", arch: ["universal"] }],
     artifactName: "Compass-${version}-mac.${ext}",
     // No Apple Developer certificate: the app is signed ad hoc, which an Apple Silicon Mac
     // needs before it will start a program at all. It is not notarized, so macOS asks the
