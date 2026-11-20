@@ -161,11 +161,16 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | Days ⇄ Weeks | the Commitment card | plain state, not persisted | the card's header button (§8) |
 | Projects ⇄ Archive, the rename draft, the Settings panel | `Sidebar` | plain state | the header button, the active pill, the gear (§6, §14) |
 | The theme, Classic or Sand | `Sidebar` | `useTheme` state, read once at mount from `localStorage["compass.theme"]` and written back on every choice; mirrored as `data-theme` on the document root while the sidebar is mounted | the two Theme buttons in Settings (§14) |
-| Saves in flight and their settle waiters; the write-error listeners; the two queues | the seam | module variables | every tracked write; `onWriteError`; `setFocusItem`, `removeLearningItem`, `setLoggedSecondsForDate` |
+| Saves in flight and their settle waiters; the write-error listeners; the listeners for saves settled; the two queues | the seam | module variables | every tracked write; `onWriteError`; `onSavesSettled`; `setFocusItem`, `removeLearningItem`, `setLoggedSecondsForDate` |
 | The failed-save note; which refresh parts are still owed | `App` | `saveFailed` state; `owedParts` | the write-error listener; each refresh's result (§2) |
 | The recovery route and the pending reset token | `App` | refs, so strict mode's second mount sees them | the page load; saving the new password; asking for a new link |
 
-Nothing else is kept in the browser: no view, no draft, no selection.
+The table lists the state other parts of the app rely on. A screen's own display state (a
+notice, a load failure, an open box, a timer) lives where the screen's section describes it:
+`App`, for one, also holds the notice from a failed sign-in redirect as state, and a ref
+that sends a signed-out gate to the login screen instead of the landing page, cleared once
+someone is signed in (§2). Nothing else is kept in browser storage: no view, no draft, no
+selection.
 
 ### The seam's operations
 
