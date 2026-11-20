@@ -127,8 +127,9 @@ companion, or brings it forward, with its summary open and the cursor in its tho
 (§23); what is typed and entered there is a thought like any other (§12). The main process
 also brings the companion to the front itself, since a page cannot take the keyboard from
 another app: on a Mac it brings the app forward, an open companion is shown and focused, and
-a companion just made is focused as it is made. With the main window gone the keys open it
-and nothing more, and on a screen with no dashboard, the setup, nothing listens.
+a companion just made is focused as it is made. A main window hidden on a Mac is told like
+any other and stays hidden. With no main window at all the keys open one and nothing more,
+and on a screen with no dashboard, the setup, nothing listens.
 
 ### The note at the goal
 
@@ -156,7 +157,8 @@ not once a day: after a total typed lower, or a goal raised, the next crossing s
 The app looks whenever it works out the menu bar's text: when the file is first read, after
 every save, and every five seconds. It keeps the look before in memory alone, and keeps it
 while the note is turned off too, so turning the note on never announces a crossing that
-happened while it was off.
+happened while it was off. Every look takes the place of the one before, a look with no
+reading too, so a clock stopped and started again begins from nothing.
 
 The note can be turned off with the menu's **Tell Me When I Reach Today's Goal**, which is
 ticked at first. That choice is the one thing in the app's preferences
@@ -175,8 +177,8 @@ Mac tints for a light or a dark bar (`desktop/icons/`, drawn by `make-icons.mjs`
 on a Mac, is the clock (`clockTitle` in `desktop/menuBar.ts`): when a work session is running
 that was started today, today's time on that session's project, the running session counted
 to the minute, as hours and minutes, `0:25` or `2:30`, seconds dropped; otherwise nothing. A
-session left running from an earlier day shows nothing: the app closes it at that day's end
-when it next reads the time (§8). The text is empty until the file is first read, and is
+session left running from an earlier day shows nothing: the page closes it at that day's end
+when it next reads the time (§8), and the main process changes nothing in the data file of its own accord. The text is empty until the file is first read, and is
 worked out from the held tables when it is first read, after every save and every five
 seconds. On every system the same text is in the icon's tooltip, "Compass · 0:25 today", and
 the tooltip is "Compass" when no clock runs; other systems have the tooltip alone.

@@ -24,8 +24,10 @@ pressed again.
 
 ### Its window
 
-`openCompanionWindow()` in `src/companion/companionWindow.ts` opens it, from inside the
-press, 300 wide and 250 high:
+`openCompanionWindow()` in `src/companion/companionWindow.ts` opens it, 300 wide and 250 high. A press
+on the button opens it from inside the press, which a browser asks of a page that opens a
+window; the desktop app's asking for a thought (below) opens it with no press, which the app
+allows:
 
 - in a browser that has document picture-in-picture windows, one of those, which the browser
   keeps on top;
