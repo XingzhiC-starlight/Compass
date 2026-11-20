@@ -34,7 +34,7 @@ Rules the gate keeps:
   refreshes do not re-run it.
 - With accounts, signing out returns to the landing page. The login screen's "Compass" wordmark also returns
   to the landing.
-- The seam holds the active project id and App keeps a copy (§3, §21). When the list changes
+- The seam holds the active project id and App keeps a copy (§3, §21). When the gate runs,
   App keeps the current project if it still exists, otherwise the first live project; with
   none it shows the interview. Restoring a project from the archive opens that project.
 - App owns the gate and hands each screen what it needs as props: the dashboard the

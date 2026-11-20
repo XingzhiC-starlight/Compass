@@ -954,8 +954,9 @@ copy of the page's stylesheets, so it is built from the dashboard's units and ad
   it); `.companion-summary`, the scrolling region between the clock card and the thought box,
   its scrollbar hidden; `.companion-line`, a card's one line, in the
   heading face at 15 px, weight 700, line height 1.25, clamped to two lines;
-  `.companion-note`, a muted centered line at 13 px; `.companion-cue`, the header's ▸ as a
-  bare button; `.companion-thought`, which boxes the thought input with the form material
+  `.companion-note`, a muted centered line at 13 px, which carries "Loading…", the task
+  card's notes and the failed-save line; `.companion-cue`, which makes the header's
+  `.glance-cue` a bare button; `.companion-thought`, which boxes the thought input with the form material
   (§2.5) and `--r-input`, its border turning `--primary-600` in focus (§2.3);
   `.companion-body`, which turns off the page body's centering.
 - **The sidebar's button.** `.sidebar-companion` shares every rule of `.sidebar-settings`,

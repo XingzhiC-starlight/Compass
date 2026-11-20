@@ -8,8 +8,8 @@ idea, write it here in a few lines. What Compass does today is in `docs/spec/` a
 ## Product
 
 - **Open the companion from the menu bar, and remember where it was put.** The companion
-  (spec §23) opens from the sidebar alone, at the place and size the system gives it each
-  time. A line in the menu bar's menu could open it without the main window, and its place
+  (spec §23) opens from the sidebar alone, at its fixed size and at the place the system gives
+  it each time. A line in the menu bar's menu could open it without the main window, and its place
   on the screen could be kept between openings.
 - **An installer for the desktop app.** The desktop app runs from the source (spec §22).
   Package it so a person can download and open it, and so Open at Login can be pressed.
