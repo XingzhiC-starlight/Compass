@@ -1,6 +1,6 @@
 ## §2 Screens and routing
 
-Code: `src/App.tsx`, `src/lib/projectRouting.ts`, `src/auth/authRedirectNotice.ts` · Keeps: I9
+Code: `src/App.tsx`, `src/lib/projectRouting.ts`, `src/auth/authRedirectNotice.ts` · Keeps: I9, I19
 
 Compass is a single-page app with no URL routing (I9). `src/App.tsx` is a state-based gate
 that picks one of eight screens from the session and the project list:
@@ -18,10 +18,21 @@ that picks one of eight screens from the session and the project list:
 
 Rules the gate keeps:
 
+- With the data kept on this device (I19) there are no accounts, so there is always a
+  session: the gate opens on the setup when there is no live project and on the dashboard
+  when there is one, and never shows the landing page, the login screen or the recovery
+  screen. An address shaped like a reset link or like a failed sign-in opens the app as any
+  other address does. Nothing signs out (§14), and who is signed in never changes, so no
+  change of who is signed in ever re-runs the gate; it runs when the page loads, on "Try
+  again", and wherever a screen asks for it, as with accounts (§21): after the setup saves,
+  on the setup's and the archive screen's "← Back", and after a project is deleted, archived
+  or restored. When the device's storage cannot be
+  read, or holds a text that is not a Compass database, the gate shows the error screen and
+  the stored text is left as it is.
 - It re-runs whenever *who* is signed in changes, which is how the return from the Google
   redirect lands on the dashboard and how a sign-out in another tab is noticed. Token
   refreshes do not re-run it.
-- Signing out returns to the landing page. The login screen's "Compass" wordmark also returns
+- With accounts, signing out returns to the landing page. The login screen's "Compass" wordmark also returns
   to the landing.
 - The seam holds the active project id and App keeps a copy (§3, §21). When the list changes
   App keeps the current project if it still exists, otherwise the first live project; with

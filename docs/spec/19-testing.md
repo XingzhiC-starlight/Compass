@@ -82,8 +82,9 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   `public/`, images and fonts unread — through one reader, `scripts/what-the-code-holds.ts`.
   The first names any import, plain, re-exported or loaded later, that reaches the client
   module from a file other than the seam, the client's package — any package under
-  `@supabase/` — for its value from a file other than the client module, or the test
-  support from any of them (I1). The second names
+  `@supabase/` — for its value from a file other than the client module, the local
+  database's two modules for anything but a type from a file other than the client module
+  and themselves (I19), or the test support from any of them (I1). The second names
   any line that holds the admin key's name, `service_role` in any letter case, a comment
   included, or a key's shape: a literal beginning `sb_`, a word and another `_` —
   `sb_secret_`, `sb_publishable_` or any other — or a three-part token (I2, §17). The third
@@ -133,6 +134,41 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   that names an owner or counts the other project's rows, fail those checks. The read that
   closes forgotten clocks across all of a person's projects is I3's exception, and is not
   taken for a read with a filter missing; what it hands back is still judged.
+- The local database (I19) is checked as itself, never replaced. Its rules
+  (`src/lib/localDatabase.the-rules-the-database-kept.test.ts`) hand the pure engine tables
+  and a request and read the answer and the tables it hands back: a new row's id, owner,
+  instant and defaults; each refusal of §3 with its code, writing nothing, and its message
+  without the typed text; a limit counted in characters; what a delete takes with it and
+  what it empties; filters and ordering over empty cells; one row asked for and none or
+  several found; the setup's save, its ten parameter names, its second send and its
+  all-or-nothing; and the kept text, which comes back as it went in and is refused when it
+  is another format or version. Keeping the tables
+  (`src/lib/localClient.keeping-the-tables-on-the-device.test.ts`) runs the local client
+  over a pretend storage: one client reads what another saved, two that save together keep
+  both saves, a read writes nothing, an unreadable text is left exactly as it is while
+  every request is refused, a save the storage refuses is answered as failed and its row is
+  not there afterwards, storage that throws when reached refuses and does not throw, and
+  the one person is signed in, cannot sign out and is told of no change. Which database
+  stands behind the seam (`src/lib/supabase.which-database-stands-behind-the-seam.test.ts`)
+  loads the client module fresh under each of the four settings of the two values, with the
+  Supabase package's `createClient` stood in for, and reads which client was made, or that
+  none was and nothing was kept. The seam on this device (`src/lib/db/on-this-device.test.ts`)
+  hands the real seam a real local client over a pretend storage and walks its operations:
+  the setup, the reads, the writes of each card, the clock and a day's hours, a project
+  archived, restored, reordered and deleted with everything in it, a new client on the same
+  storage, and a refused save reported once with its code and without the typed line. A copy
+  with no accounts (`src/App/a-copy-with-no-accounts.test.tsx`) replaces nothing: the whole
+  `App`, the seam, the client module and the local database on jsdom's storage, loaded fresh
+  for each open as a page load does; it opens on the setup with no landing page and no login
+  form, also from an address shaped like a reset link or a failed sign-in, opens a saved
+  project on its dashboard after each of two reopenings, and reads the Settings dialog. What
+  Settings offers (`src/dashboard/Sidebar/what-settings-offers.test.tsx`) renders the
+  sidebar with the seam's `storesOnThisDevice` and `signOut` stood in for, once each way.
+  The local database's rules are written from the migrations by hand and are compared with
+  a real Postgres by no check: the migrations stay the record (§18), and a rule changed
+  there is changed in `src/lib/localDatabase.ts` in the same pull request. No browser check
+  and no journey of the verification skill opens a copy with no accounts; they drive the
+  practice app, which has a Supabase project behind it.
 
 ### The practice copy and the database checks
 

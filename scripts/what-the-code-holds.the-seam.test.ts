@@ -65,6 +65,35 @@ describe("a screen or a pure module reaches the database only through the seam",
   });
 });
 
+describe("a screen or a pure module reaches the local database only through the seam", () => {
+  it(`${CHECK_SEAM} — passes for the code as it is, whose client module hands out the local database`, () => {
+    expect(attempt(() => shippedFiles(REPO))).toEqual(expect.arrayContaining(["src/lib/localClient.ts", "src/lib/localDatabase.ts"]));
+    expect(attempt(() => seamFindings(REPO))).toEqual([]);
+  });
+
+  it(`${CHECK_SEAM} — fails when a screen, a pure module or the seam itself imports the local database`, () => {
+    const root = copyOfTheCode();
+    const screen = plant(root, "src/dashboard/Sidebar.tsx", 'import { createLocalClient as plantedLocal } from "../lib/localClient";');
+    const pure = plant(root, "src/lib/transforms.ts", 'import { runLocalRequest as plantedRun } from "./localDatabase";');
+    const seam = plant(root, "src/lib/db.ts", 'import { browserBackend as plantedBackend } from "./localClient";');
+
+    expect(sorted(attempt(() => seamFindings(root)))).toEqual(
+      sorted([
+        finding("src/dashboard/Sidebar.tsx", screen, "the seam", /local database/),
+        finding("src/lib/transforms.ts", pure, "the seam", /local database/),
+        finding("src/lib/db.ts", seam, "the seam", /local database/),
+      ]),
+    );
+  });
+
+  it(`${CHECK_SEAM} — passes for an import of the local database's types alone`, () => {
+    const root = copyOfTheCode();
+    plant(root, "src/dashboard/Sidebar.tsx", 'import type { LocalRow as PlantedRow } from "../lib/localDatabase";');
+
+    expect(attempt(() => seamFindings(root))).toEqual([]);
+  });
+});
+
 const THE_ALLOWED_PAIR = {
   "src/lib/supabase.ts": ['import { createClient, type SupabaseClient } from "@supabase/supabase-js";', 'export const getSupabase = (): SupabaseClient => createClient("https://made-up.example", "made-up");'],
   "src/lib/db.ts": ['import { getSupabase } from "./supabase";', 'import type { SupabaseClient } from "@supabase/supabase-js";', "export const ready = (): SupabaseClient => getSupabase();"],

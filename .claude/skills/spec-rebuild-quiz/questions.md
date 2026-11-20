@@ -45,3 +45,13 @@ missing. Never guess from general knowledge of React or Supabase.
     live, and which columns does the client never send?
 18. Essential or incidental. Which rules must any rebuild keep, and how does a reader tell
     them from details (copy, pixel sizes) that a rebuild may change?
+19. Two databases. What decides whether Compass runs over a Supabase project or keeps its
+    data on this device, where in the code is that decided, and what happens when the
+    configuration is half given? How does a screen learn which it is?
+20. The local database. Which calls does the local client answer, and in what shape? How is
+    it split between a client, a backend and a pure engine, and what would another holder of
+    the data have to provide? Where is the data kept, in what format, and what happens to a
+    kept text it cannot read and to a save the storage refuses?
+21. No accounts. With the data kept on this device: who is signed in, which screens can the
+    gate never show, what does an address shaped like a reset link do, and what does the
+    Settings dialog hold?

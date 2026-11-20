@@ -39,6 +39,8 @@ vi.mock("../lib/db", async (importOriginal) => {
 
   return {
     ...safe,
+    // A reset link belongs to a copy with accounts: the data is not kept on this device (I19).
+    storesOnThisDevice: () => false,
     getCurrentUser: vi.fn(async () => seam.user),
     onAuthChange: vi.fn((cb: () => void) => {
       seam.authListeners.add(cb);

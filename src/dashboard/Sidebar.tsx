@@ -7,7 +7,7 @@ import {
   type CSSProperties,
   type MouseEvent,
 } from "react";
-import { renameProject, reorderProjects, signOut } from "../lib/db";
+import { renameProject, reorderProjects, signOut, storesOnThisDevice } from "../lib/db";
 import { TEXT_LIMITS } from "../lib/limits";
 import type { ID, Project } from "../lib/types";
 import { isSubmitEnter } from "./keys";
@@ -321,35 +321,44 @@ export default function Sidebar({
             </button>
           </div>
 
-          <a
-            className="settings-row"
-            href="/privacy.html"
-            aria-label="Privacy Notice, read our privacy policy"
-          >
-            <LockGlyph />
-            <span className="settings-row-copy">
-              <span className="settings-row-title">Privacy Notice</span>
-              <span className="settings-row-subtitle">Read our privacy policy</span>
-            </span>
-            <ChevronGlyph />
-          </a>
+          {storesOnThisDevice() ? (
+            <div className="settings-row-copy">
+              <span className="settings-row-title">Saved on this device</span>
+              <span className="settings-row-subtitle">No account. Your work stays on this device.</span>
+            </div>
+          ) : (
+            <>
+              <a
+                className="settings-row"
+                href="/privacy.html"
+                aria-label="Privacy Notice, read our privacy policy"
+              >
+                <LockGlyph />
+                <span className="settings-row-copy">
+                  <span className="settings-row-title">Privacy Notice</span>
+                  <span className="settings-row-subtitle">Read our privacy policy</span>
+                </span>
+                <ChevronGlyph />
+              </a>
 
-          <div className="settings-divider" />
+              <div className="settings-divider" />
 
-          <button
-            type="button"
-            className="settings-row"
-            aria-label="Log out, sign out from your account"
-            disabled={signingOut}
-            onClick={handleSignOut}
-          >
-            <LogoutGlyph />
-            <span className="settings-row-copy">
-              <span className="settings-row-title">Log out</span>
-              <span className="settings-row-subtitle">Sign out from your account</span>
-            </span>
-            <ChevronGlyph />
-          </button>
+              <button
+                type="button"
+                className="settings-row"
+                aria-label="Log out, sign out from your account"
+                disabled={signingOut}
+                onClick={handleSignOut}
+              >
+                <LogoutGlyph />
+                <span className="settings-row-copy">
+                  <span className="settings-row-title">Log out</span>
+                  <span className="settings-row-subtitle">Sign out from your account</span>
+                </span>
+                <ChevronGlyph />
+              </button>
+            </>
+          )}
 
           <p className="settings-version">Version {__APP_VERSION__}</p>
         </div>

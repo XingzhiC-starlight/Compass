@@ -11,6 +11,7 @@ import {
   getActiveProjectId,
   getDashboardShellData,
   setActiveProject,
+  storesOnThisDevice,
   deleteProject,
   archiveProject,
   unarchiveProject,
@@ -115,6 +116,13 @@ export default function App() {
       }
       resolveScreen();
     });
+
+    // With no accounts (I19) there is no password to recover: an address shaped like a reset
+    // link opens the app as any other address does. Asked here, after the address was read.
+    if (storesOnThisDevice()) {
+      recoveryRouteRef.current = false;
+      pendingRecoveryTokenRef.current = null;
+    }
 
     if (recoveryRouteRef.current) showRecovery();
     else resolveScreen();

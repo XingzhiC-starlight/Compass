@@ -1,6 +1,6 @@
 ## §21 Architecture
 
-Code: `src/main.tsx`, `src/App.tsx`, `src/lib/projectRouting.ts`, `src/lib/db.ts`, `src/lib/supabase.ts`, `src/lib/transforms.ts`, `src/lib/types.ts`, `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts` · Keeps: I1, I3, I4, I9, I11, I12, I17
+Code: `src/main.tsx`, `src/App.tsx`, `src/lib/projectRouting.ts`, `src/lib/db.ts`, `src/lib/supabase.ts`, `src/lib/localClient.ts`, `src/lib/localDatabase.ts`, `src/lib/transforms.ts`, `src/lib/types.ts`, `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts` · Keeps: I1, I3, I4, I9, I11, I12, I17, I19
 
 The shape of the code: the layers, who owns which state, every operation of the seam, and
 the flows that run through them. The behavior a person sees is in §5 to §15. A rebuild keeps
@@ -21,16 +21,63 @@ Four layers, and nothing reaches across one.
    `src/lib/supabase.ts` (I1). Every read, every write and every auth call is one of its
    exported operations, listed below. It maps rows to the types of `src/lib/types.ts` through
    `src/lib/transforms.ts` on the way in and out.
-3. **The client**, `src/lib/supabase.ts`. `getSupabase()` creates the Supabase client on its
-   first call, never at import (I12), with the project address and the public key from the
-   environment and no other option, so the session persists in `localStorage` and a sign-in
-   link's token in the address is read by the client itself. That late creation is
-   load-bearing: the gate reads the address for a recovery token and a failed-redirect error
-   before the first call creates the client, and the client reads the address for a session
-   when it is created, so the order of the two is kept.
-4. **The database.** Postgres in Supabase with owner-only row-level security (I2), the
-   schema of `supabase/migrations/` (§3, §18) and one function, `save_interview` (§13). The
-   browser sends no SQL.
+3. **The client**, `src/lib/supabase.ts`. `getSupabase()` creates the client on its first
+   call, never at import (I12), and keeps it. Which client is decided there, once, from
+   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (I19). With both, it is the Supabase
+   client, made with the project address and the public key and no other option, so the
+   session persists in `localStorage` and a sign-in link's token in the address is read by
+   the client itself. With neither, it is the local client,
+   `createLocalClient(browserBackend(() => window.localStorage))` from
+   `src/lib/localClient.ts`, handed back under the Supabase client's type. With one alone,
+   the call throws an error whose message names both values, keeps no client, and throws
+   again at every later call. A value is given when it is not empty: an empty text is the
+   same as a value never set, so a build with both left blank, as the suite's is (§19),
+   gets the local client. The late creation is load-bearing: the gate reads the address for a
+   recovery token and a failed-redirect error before the first call creates the client, and
+   the Supabase client reads the address for a session when it is created, so the order of
+   the two is kept.
+4. **The database**, one of two (I19). With a Supabase project: Postgres with owner-only
+   row-level security (I2), the schema of `supabase/migrations/` (§3, §18) and one function,
+   `save_interview` (§13); the browser sends no SQL. With none: the local database on this
+   device, described next.
+
+**The local client and the local database.** The local client stands where the Supabase
+client stands and answers what the seam calls on it, and nothing more: `from(table)` with
+`select`, `insert`, `update` and `delete`; the filters `eq`, `neq`, `is`, `not`, `lt`, `lte`,
+`gt`, `gte` and `in`; `order`, `limit`, `single` and `maybeSingle`; `rpc("save_interview",
+…)`; and `auth`. A request is built by chaining and sent when it is awaited, and its answer
+is the Supabase client's shape: `{data, error, count, status, statusText}`, of which the
+seam reads `data` and `error`; `count` is always null, and the error is `{code, message,
+details, hint}`. Beside the Postgres codes of §3, it refuses as the Supabase client's server
+does: a table it does not have with `PGRST205`; a column it does not have, in a filter, an
+order or a row, with `PGRST204`; a function other than `save_interview`, or one whose
+parameter names are not exactly its ten, with `PGRST202`; and one row asked for (`single`,
+or `maybeSingle` with more than one) when the count is wrong with `PGRST116`, the write, if
+it was one, kept all the same. The setup's lists handed as anything but a list are refused
+with `22023`.
+It carries the mark `storesOnThisDevice: true`, which the seam's `storesOnThisDevice()`
+reads. Its `auth` has no accounts: `getSession` always answers the one local person, a fixed
+id with an empty email; `onAuthStateChange` hands back a subscription and never calls;
+`signOut` does nothing and answers no error; every other call answers the error "this copy
+of Compass has no accounts".
+
+The client does not hold the tables. It hands each request, as plain data, to a backend, one
+method: `send(request)`, answering a promise of the answer. A request is one of two: a
+query, `{kind, table, payload, filters, ordering, limit, shape, columns}`, where `kind` is
+`select`, `insert`, `update` or `delete`, `payload` a row or a list of rows or null, a
+filter `{column, op, value}` with `not` written as the op `not.<op>`, an ordering `{column,
+ascending}`, `shape` one of `rows`, `single` and `maybeSingle`, and `columns` the columns to
+answer with, null when a write asked for no rows back; or a call, `{kind: "rpc", fn, args}`.
+The surroundings are `{now, newId}`: a function answering the instant as an ISO text, and
+one answering a new id, for which the browser's backend gives `randomId` of
+`src/lib/transforms.ts`. `browserBackend` is the backend
+in a browser: per request it reads the kept text, runs the request, and writes the text back
+when a row changed (§3). Running a request is the pure engine's work,
+`runLocalRequest(tables, request, surroundings)` in `src/lib/localDatabase.ts`: it takes the
+tables, the request, and a clock and an id maker, never changes the tables it was handed,
+and answers the result with the tables to keep, the same object when nothing changed. So
+another holder of the data, a file in place of the browser's storage, is another backend
+over the same engine, and neither the client nor the seam changes.
 
 Pure logic touches neither React nor the database and takes its inputs, the clock included,
 as arguments; only `todayDate` and `dayNumber` read the clock themselves.
@@ -49,9 +96,10 @@ as arguments; only `todayDate` and `dayNumber` read the clock themselves.
 | `src/auth/passwordRules.ts`, `src/auth/authErrors.ts`, `src/auth/authRedirectNotice.ts`, `src/auth/captchaSize.ts` | The password policy (§5); the calm copy for a reset error (§5); the notice for a failed auth redirect (§2); the CAPTCHA box for a viewport width (§5). |
 | `src/landing/landingDemo.ts` | The demo's frames and hotspot rectangles (§15). |
 
-The seam's own tests replace `src/lib/supabase.ts` with `src/lib/fakeSupabase.ts`, so a
-rebuild keeps `getSupabase()` as the one import point, called at each use; the screens' tests
-replace the seam itself, whole or in part (§19).
+The seam's own tests replace `src/lib/supabase.ts` with `src/lib/fakeSupabase.ts`, or hand it
+a local client over a pretend storage, so a rebuild keeps `getSupabase()` as the one import
+point, called at each use; the screens' tests replace the seam itself, whole or in part
+(§19).
 
 ### Module map
 
@@ -68,7 +116,9 @@ replace the seam itself, whole or in part (§19).
 | `src/dashboard/useAddBox.ts` | An add box that waits for its save, with no time-out (§7). |
 | `src/dashboard/useDragReorder.ts`, `useEdgeAutoScroll.ts`, `useDeleteConfirm.tsx` | Drag-reorder by grip, the edge scroll while dragging (§12), and the delete confirmation (§6). |
 | `src/lib/db.ts` | The seam: the operations below, the active project id, the cached user, the count of saves in flight, the write-error listeners, and two queues. |
-| `src/lib/supabase.ts` | The lazily created client (I12). |
+| `src/lib/supabase.ts` | The lazily created client (I12), and the choice between the two (I19). |
+| `src/lib/localClient.ts` | The local client, its `auth` with no accounts, the backend's one method, and the browser's backend with the key the text is kept under. |
+| `src/lib/localDatabase.ts` | The pure engine: the seven tables' columns and rules, a request run over tables, the setup's save, and the kept text's format (§3). |
 | `src/lib/types.ts` | The domain types, one per table, plus `User` and `InterviewInput` (§3). |
 | `supabase/migrations/` | The schema of record and the one database function (§18). |
 
@@ -76,7 +126,8 @@ replace the seam itself, whole or in part (§19).
 
 | State | Owner | Lives in | Changed by |
 |---|---|---|---|
-| Who is signed in | the Supabase client | its session in `localStorage` (I7) | sign-in, sign-out, token refresh, inside the client |
+| Who is signed in | the Supabase client | its session in `localStorage` (I7) | sign-in, sign-out, token refresh, inside the client. On this device (I19): always the one local person, held nowhere and changed by nothing |
+| The rows, on this device (I19) | the browser's backend | one text under `localStorage["compass.localDatabase"]` (§3); no copy is held in memory between requests | each request that changes a row |
 | The cached user, `{id, email, name?}` | the seam | a module variable | every auth event, `getCurrentUser`, `signOut`; read to notice a change of user and to stamp a new thought group's owner on the client side only |
 | Which screen shows | `App` | `screen` state; "loading" is only its first value | the gate (§2) and the screens' callbacks |
 | The active project id | the seam | a module variable, read once at load from `localStorage["compass.activeProjectId"]` and written back on every change; `App` keeps a copy for rendering | `setActiveProject`, `saveInterview` (the new project), `deleteProject` (the first remaining live project, or none) |
@@ -137,7 +188,8 @@ counted from 0.
 <!-- census: seam -->
 | operation | group | takes | does | scope | on failure |
 |---|---|---|---|---|---|
-| `getCurrentUser` | auth | nothing | reads the stored session and caches its user | user | throws when the client is not configured; an auth error reads as no session |
+| `storesOnThisDevice` | auth | nothing | answers at once, with no promise, whether the client is the local one (I19), by its mark; creates the client when it is the first call | none | throws when the client is half configured |
+| `getCurrentUser` | auth | nothing | reads the stored session and caches its user; on this device, always the one local person | user | throws when the client is half configured; an auth error reads as no session |
 | `signInWithGoogle` | auth | nothing | starts the Google redirect with the page's origin as the return address (I5) | none | throws |
 | `signUpWithEmail` | auth | email, password, a CAPTCHA token when there is one | signs up, with the origin as the confirmation's return address; answers whether confirmation is needed | none | throws |
 | `resendEmailConfirmation` | auth | email, a token when there is one | resends the confirmation, same return address | none | throws |
@@ -146,8 +198,8 @@ counted from 0.
 | `updatePassword` | auth | the new password | sets the signed-in user's password; the user id stays, so the gate does not re-run | none | throws |
 | `verifyRecoveryToken` | auth | the token hash | spends a reset link's one-time token; on success the client stores the recovery session and fires the recovery event | none | throws |
 | `signOut` | auth | nothing | signs out of every session of the user and forgets the cached user; the local session goes even when the server call fails | user | never throws |
-| `onAuthChange` | auth | a callback | subscribes to the client's auth events; updates the cached user on each; calls back only when the user id changed, and never on the recovery event; answers the unsubscribe | none | none |
-| `onPasswordRecovery` | auth | a callback | a second subscription that calls back only on the recovery event | none | none |
+| `onAuthChange` | auth | a callback | subscribes to the client's auth events; updates the cached user on each; calls back only when the user id changed, and never on the recovery event; answers the unsubscribe | none | throws when the client is half configured |
+| `onPasswordRecovery` | auth | a callback | a second subscription that calls back only on the recovery event | none | throws when the client is half configured |
 | `isPasswordRecoveryUrl` | links | an address, the page's when omitted | whether the query or the hash carries `type=recovery` or `redirect_type=recovery` | none | false on a malformed address |
 | `getAuthRedirectError` | links | an address, the page's when omitted | the error a failed auth redirect put in the query, else in the hash, in the parameters `error`, `error_code` and `error_description`: `{code, description}`, the code from `error_code`, else `error`, else `auth_error`; the description from `error_description`, else `error`, else "Authentication did not finish." | none | null when there is none or the address is malformed |
 | `cleanAuthRedirectErrorUrl` | links | an address | the address without `error`, `error_code` and `error_description`, in the query and in the hash, an emptied hash dropped | none | a malformed address is answered unchanged |
@@ -229,6 +281,20 @@ such a change shows the recovery screen instead. The recovery event sets the rec
 and shows the recovery screen. Saving a new password on the recovery screen clears the route
 and runs the gate, so the person lands in the app; asking for a new reset link clears it and
 opens the login screen in its forgot mode (§5).
+
+**A page load, on this device** (I19). The same mount, in the same order. The address is
+read as above; the two subscriptions create the local client and are never called; then,
+because `storesOnThisDevice()` answers yes, the recovery route and any held token are
+dropped. The gate runs: `getCurrentUser` answers the local person, so the landing page and
+the login screen are never reached, and the rest is as above: the sidebar's data, then the
+setup or the dashboard. Every flow below runs unchanged over the local client; "the server"
+in them is then this device's storage, and a read or a save fails only when that storage
+cannot be read or refuses the save (§3).
+
+**A page load, half configured** (I19). The address is read; the first subscription is the
+first call that creates the client, and it throws there, inside the mount and before the
+gate, so the gate's error screen is not what shows. Nothing catches the error: the page
+stays blank, and the message, which names both values, is in the browser's console.
 
 `Dashboard` mounts with the active project id and the sidebar's data, and loads the payload:
 it takes a request number, blanks the cards to "Loading…", calls `getProjectDashboardData`,
@@ -360,7 +426,8 @@ longer value fails the save.
 
 Nothing in these documents is marked optional. A rebuild keeps the invariants of §4, the
 object model of §3, the layers, the ownership, the seam's operations with their failure
-shapes and the flows of this section, the behavior of §5 to §15 with the copy those sections
+shapes and the flows of this section, both databases behind the seam with the choice between
+them (I19), the behavior of §5 to §15 with the copy those sections
 quote, the posture of §17, the schema of §18, and the design units of `DESIGN-SYSTEM.md`.
 The load-bearing clauses are the ones with IDs (§0); the rest of a section describes the app
 as accepted, and a rebuild that changes any of it changes the section in the same pull
