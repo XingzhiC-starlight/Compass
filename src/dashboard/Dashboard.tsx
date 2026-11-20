@@ -8,11 +8,14 @@ import {
 } from "../lib/db";
 import type { ID, Phase, Project } from "../lib/types";
 import { projectCardTreeKey, shouldAcceptProjectPayload } from "./dashboardLoad";
+import { phasePacing } from "./projectTime";
 import Sidebar from "./Sidebar";
 import TimeCard from "./TimeCard";
 import TimelineCard from "./TimelineCard";
 import LearningCard from "./LearningCard";
 import TaskPanel from "./TaskPanel";
+import Companion from "../companion/Companion";
+import { openCompanionWindow, showCompass } from "../companion/companionWindow";
 
 type ViewMode = "summary" | "depth";
 
@@ -55,6 +58,12 @@ export default function Dashboard({
   const latestRequestId = useRef(0);
   const dataRef = useRef(data);
   dataRef.current = data;
+  // The companion's window, or null when there is none (spec §23). The dashboard owns it: it
+  // outlives a project switch and a reload of the cards, and closes when the dashboard goes.
+  const [companionWin, setCompanionWin] = useState<Window | null>(null);
+  const companionWinRef = useRef<Window | null>(null);
+  companionWinRef.current = companionWin;
+  const mounted = useRef(true);
 
   async function loadProject() {
     if (!activeProjectId) return;
@@ -112,6 +121,42 @@ export default function Dashboard({
   // eslint-disable-next-line react-hooks/exhaustive-deps -- answers a new refresh request, and nothing else
   }, [quietRefreshRequest]);
 
+  async function openCompanion() {
+    const open = companionWinRef.current;
+    if (open && !open.closed) {
+      open.focus();
+      return;
+    }
+    const win = await openCompanionWindow();
+    if (!win) return;
+    if (!mounted.current) {
+      win.close();
+      return;
+    }
+    setCompanionWin(win);
+  }
+
+  // The person closing the companion clears it here, and this page going takes it along.
+  useEffect(() => {
+    if (!companionWin) return;
+    const gone = () => setCompanionWin(null);
+    const closeIt = () => companionWin.close();
+    companionWin.addEventListener("pagehide", gone);
+    window.addEventListener("pagehide", closeIt);
+    return () => {
+      companionWin.removeEventListener("pagehide", gone);
+      window.removeEventListener("pagehide", closeIt);
+    };
+  }, [companionWin]);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      companionWinRef.current?.close();
+    };
+  }, []);
+
   const onRenamed = (name: string) => {
     setData((d) => (d ? { ...d, project: { ...d.project, name } } : d));
     onProjectRenamed(name);
@@ -138,14 +183,7 @@ export default function Dashboard({
 
   const depth = view === "depth";
 
-  const completedDates = (data?.phases ?? [])
-    .filter((p) => p.isDone && p.completedAt)
-    .map((p) => p.completedAt as string);
-  const currentPhaseStart = completedDates.length
-    ? completedDates.reduce((a, b) => (b > a ? b : a))
-    : data?.project.startedAt ?? "";
-  const remainingDays = (data?.phases ?? []).filter((p) => !p.isDone).reduce((s, p) => s + p.estDays, 0);
-  const allPhasesDone = !!data && data.phases.length > 0 && data.phases.every((p) => p.isDone);
+  const { currentPhaseStart, remainingDays, allPhasesDone } = phasePacing(data?.phases ?? [], data?.project.startedAt ?? "");
 
   const finishedIds = new Set(
     Object.entries(shell.completion).filter(([, done]) => done).map(([id]) => id),
@@ -154,6 +192,8 @@ export default function Dashboard({
     if (allPhasesDone) finishedIds.add(data.project.id);
     else finishedIds.delete(data.project.id);
   }
+
+  const activeProject = shell.projects.find((p) => p.id === activeProjectId) ?? null;
 
   return (
     <div className="app">
@@ -170,6 +210,8 @@ export default function Dashboard({
         onArchiveProject={onArchiveProject}
         onUnarchiveProject={onUnarchiveProject}
         onSignOut={onSignOut}
+        onOpenCompanion={openCompanion}
+        companionOpen={!!companionWin}
       />
       <main className={"dashboard" + (depth ? " depth" : "")}>
         {loadError ? (
@@ -210,6 +252,16 @@ export default function Dashboard({
           </Fragment>
         )}
       </main>
+      {companionWin && activeProjectId && activeProject && (
+        <Companion
+          win={companionWin}
+          projectId={activeProjectId}
+          projectName={activeProject.name}
+          accentColor={activeProject.accentColor}
+          onOpenCompass={showCompass}
+          onDataWritten={() => void refreshQuietly()}
+        />
+      )}
     </div>
   );
 }

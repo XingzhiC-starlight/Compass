@@ -94,6 +94,8 @@ async function renderSidebar(finishedIds: Set<string> = new Set()): Promise<void
         onArchiveProject={handlers.onArchiveProject}
         onUnarchiveProject={vi.fn()}
         onSignOut={vi.fn()}
+        onOpenCompanion={vi.fn()}
+        companionOpen={false}
       />,
     );
   });

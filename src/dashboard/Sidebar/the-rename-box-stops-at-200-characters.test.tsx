@@ -86,6 +86,8 @@ describe("the sidebar's rename box stops at 200 characters", () => {
           onArchiveProject={vi.fn()}
           onUnarchiveProject={vi.fn()}
           onSignOut={vi.fn()}
+          onOpenCompanion={vi.fn()}
+          companionOpen={false}
         />,
       );
     });

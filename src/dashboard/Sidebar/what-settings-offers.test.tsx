@@ -58,6 +58,8 @@ async function openSettings(onSignOut = vi.fn()): Promise<Element> {
         onArchiveProject={vi.fn()}
         onUnarchiveProject={vi.fn()}
         onSignOut={onSignOut}
+        onOpenCompanion={vi.fn()}
+        companionOpen={false}
       />,
     );
   });

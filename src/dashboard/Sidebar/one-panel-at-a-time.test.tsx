@@ -67,6 +67,8 @@ describe("the delete confirmation and the Settings panel are never open together
           onArchiveProject={vi.fn()}
           onUnarchiveProject={vi.fn()}
           onSignOut={vi.fn()}
+          onOpenCompanion={vi.fn()}
+          companionOpen={false}
         />,
       );
     });

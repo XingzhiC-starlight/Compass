@@ -99,6 +99,8 @@ async function renderSidebar(): Promise<void> {
         onArchiveProject={vi.fn()}
         onUnarchiveProject={vi.fn()}
         onSignOut={vi.fn()}
+        onOpenCompanion={vi.fn()}
+        companionOpen={false}
       />,
     );
   });
