@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { emptyTables, type LocalRow, type LocalTables } from "../src/lib/localDatabase";
-import { clockTitle, menuLines } from "./menuBar";
+import { clockReading, clockTitle, menuLines } from "./menuBar";
 
 const CHECK =
   "The menu bar shows today's hours and minutes on the project whose clock is running, and nothing when no clock runs today; its menu opens Compass, sets opening at login in the installed app alone, and quits (spec §22)";
@@ -57,20 +57,57 @@ describe("the menu-bar clock", () => {
   });
 });
 
+describe("the running clock, read once", () => {
+  const withProject = (sessions: LocalRow[], project: LocalRow = {}) => ({
+    ...tablesWith(sessions),
+    projects: [{ id: "garden", name: "Garden", hours_planned_per_day: 2, ...project }],
+  });
+
+  it(`${CHECK} — it names the project, the day, today's seconds and the goal in seconds`, () => {
+    expect(clockReading(withProject([session({ started_at: at(15, 5) })]), NOW)).toEqual({
+      projectId: "garden",
+      projectName: "Garden",
+      date: "2026-11-20",
+      seconds: 25 * 60,
+      goalSeconds: 7200,
+    });
+  });
+
+  it(`${CHECK} — no goal, or a project row that is not there, is a goal of nothing`, () => {
+    expect(clockReading(withProject([session({})], { hours_planned_per_day: 0 }), NOW)?.goalSeconds).toBe(0);
+    expect(clockReading(tablesWith([session({})]), NOW)).toMatchObject({ projectName: "", goalSeconds: 0 });
+  });
+
+  it(`${CHECK} — no clock running today is no reading`, () => {
+    expect(clockReading(null, NOW)).toBeNull();
+    expect(clockReading(withProject([session({ ended_at: at(10, 0), duration_seconds: 3600 })]), NOW)).toBeNull();
+    expect(clockReading(withProject([session({ session_date: "2026-11-19" })]), NOW)).toBeNull();
+  });
+});
+
 describe("the menu under the icon", () => {
-  it(`${CHECK} — run from the source, opening at login is shown and cannot be pressed`, () => {
-    expect(menuLines({ installed: false, opensAtLogin: true })).toEqual([
+  const state = { installed: false, opensAtLogin: true, goalNotice: true, captureKeys: "Alt+Shift+T" };
+
+  it(`${CHECK} — its lines, in order; run from the source, opening at login is shown and cannot be pressed`, () => {
+    expect(menuLines(state)).toEqual([
       { label: "Open Compass", kind: "press", does: "open" },
+      { label: "Capture a Thought", kind: "press", does: "capture", keys: "Alt+Shift+T" },
       { kind: "line" },
+      { label: "Tell Me When I Reach Today's Goal", kind: "tick", does: "goal-notice", ticked: true },
       { label: "Open at Login", kind: "tick", does: "open-at-login", ticked: false, enabled: false },
       { kind: "line" },
       { label: "Quit Compass", kind: "press", does: "quit" },
     ]);
   });
 
-  it(`${CHECK} — installed, the line can be pressed and is ticked when the setting is on`, () => {
-    const line = (opensAtLogin: boolean) => menuLines({ installed: true, opensAtLogin })[2];
+  it(`${CHECK} — installed, opening at login can be pressed and is ticked when the setting is on`, () => {
+    const line = (opensAtLogin: boolean) => menuLines({ ...state, installed: true, opensAtLogin })[4];
     expect(line(true)).toMatchObject({ ticked: true, enabled: true });
     expect(line(false)).toMatchObject({ ticked: false, enabled: true });
+  });
+
+  it(`${CHECK} — the goal's line follows its preference, and the capture line shows no keys the system did not give`, () => {
+    expect(menuLines({ ...state, goalNotice: false })[3]).toMatchObject({ ticked: false });
+    expect(menuLines({ ...state, captureKeys: null })[1]).toEqual({ label: "Capture a Thought", kind: "press", does: "capture" });
   });
 });

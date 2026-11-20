@@ -12,6 +12,15 @@ export const DATABASE_CHANNEL = "compass:database";
 /** The channel the page asks on for the main window to be brought forward. */
 export const SHOW_CHANNEL = "compass:show-window";
 
+/** The channel the app tells the page on that a thought is to be captured. */
+export const CAPTURE_CHANNEL = "compass:capture";
+
+/**
+ * The keys that ask for a thought to be captured from anywhere on the computer: Option, Shift
+ * and T on a Mac, Alt, Shift and T elsewhere.
+ */
+export const CAPTURE_KEYS = "Alt+Shift+T";
+
 /** The name the page opens its companion window under (`src/companion/companionWindow.ts`). */
 export const COMPANION_NAME = "compass-companion";
 
