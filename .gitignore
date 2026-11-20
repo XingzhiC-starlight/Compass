@@ -49,3 +49,7 @@ verify-results/
 # (supabase/config.toml) ARE committed; a link to a hosted project never is.
 supabase/.temp/
 supabase/.branches/
+
+# The desktop app as built (`npm run desktop`), and its check's pictures and report.
+desktop/out/
+desktop/results/

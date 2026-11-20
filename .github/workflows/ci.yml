@@ -25,6 +25,9 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # This job never starts the desktop app, so npm leaves Electron's program undownloaded.
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
     defaults:
       run:
         shell: bash   # bash -e -o pipefail: a failing command anywhere in a pipe fails the step
@@ -93,6 +96,45 @@ jobs:
           npx tsc --noEmit
           echo "ok  the type check passes without them"
 
+  desktop:
+    name: desktop checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@v7
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: Desktop app's type check (npm run typecheck:desktop)
+        # The build's type check reads src/ alone: this is the one place a wrong type in
+        # desktop/ is caught.
+        run: npm run typecheck:desktop
+
+      - name: Desktop check (npm run test:desktop), on a screen that is not there
+        # The check builds the desktop app, starts it and drives its window. The machine has
+        # no screen, so xvfb gives it a pretend one.
+        id: desktop
+        run: xvfb-run -a npm run test:desktop
+
+      - name: Keep the desktop check's pictures on the run's page
+        if: ${{ always() && steps.desktop.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-results
+          path: desktop/results/
+          if-no-files-found: ignore
+
   decide:
     name: what changed
     if: github.event_name == 'pull_request'
@@ -128,6 +170,9 @@ jobs:
     if: ${{ !cancelled() && needs.decide.outputs.database != 'skip' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # This job never starts the desktop app, so npm leaves Electron's program undownloaded.
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
     defaults:
       run:
         shell: bash

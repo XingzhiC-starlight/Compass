@@ -8,6 +8,7 @@
 docs/
 scripts/
 browser/
+desktop/
 
 # Backend infra (migrations live here; applied via Supabase, not the build)
 supabase/

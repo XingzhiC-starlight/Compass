@@ -30,6 +30,7 @@ async function freshModules(env: { url: string; key: string }) {
 }
 
 afterEach(() => {
+  delete (window as { compassDesktop?: unknown }).compassDesktop;
   vi.unstubAllEnvs();
   vi.resetModules();
   window.localStorage.clear();
@@ -54,6 +55,28 @@ describe("which database stands behind the seam", () => {
     getSupabase();
     expect(made.clients).toEqual([[MADE_UP_ADDRESS, MADE_UP_KEY]]);
     expect(db.storesOnThisDevice()).toBe(false);
+  });
+
+  it.each([
+    ["no project configured", { url: "", key: "" }],
+    ["a project configured", { url: MADE_UP_ADDRESS, key: MADE_UP_KEY }],
+    ["the address alone", { url: MADE_UP_ADDRESS, key: "" }],
+  ])(`${CHECK} — inside the desktop app, with %s: the local client over the app's bridge, no hosted client, and nothing kept in the page (spec §22)`, async (_what, env) => {
+    const asked: unknown[] = [];
+    (window as { compassDesktop?: unknown }).compassDesktop = {
+      send: async (request: unknown) => {
+        asked.push(request);
+        return { data: [], error: null, count: null, status: 200, statusText: "OK" };
+      },
+    };
+    const { db } = await freshModules(env);
+
+    expect(db.storesOnThisDevice()).toBe(true);
+    expect(await db.listProjects()).toEqual([]);
+    expect(asked).toHaveLength(1);
+    expect(asked[0]).toMatchObject({ kind: "select", table: "projects" });
+    expect(made.clients.length, "no hosted client was made").toBe(0);
+    expect(window.localStorage.getItem("compass.localDatabase")).toBeNull();
   });
 
   it.each([

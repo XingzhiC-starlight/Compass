@@ -55,6 +55,27 @@ export function browserBackend(store: () => LocalStore, key: string = LOCAL_DATA
   };
 }
 
+/** What the desktop app's page is handed in place of the browser's storage (spec §22). */
+export interface DesktopBridge {
+  send(request: LocalRequest): Promise<LocalAnswer>;
+}
+
+/**
+ * Hands each request to the desktop app's main process, which holds the file. A request the
+ * main process never answers is refused here, as a failed read or save, and not thrown.
+ */
+export function desktopBackend(bridge: DesktopBridge): LocalBackend {
+  return {
+    async send(request) {
+      try {
+        return await bridge.send(request);
+      } catch {
+        return refused("COMPASS_LOCAL_UNREACHABLE", "the desktop app did not answer");
+      }
+    },
+  };
+}
+
 function refused(code: string, message: string): LocalAnswer {
   return { data: null, error: { code, message, details: "", hint: "" }, count: null, status: 0, statusText: "" };
 }

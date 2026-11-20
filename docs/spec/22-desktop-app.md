@@ -1,0 +1,117 @@
+## §22 The desktop app
+
+Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/icons/make-icons.mjs`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20
+
+Compass also runs as a desktop app, built with Electron: the same page in a window of its
+own, with its data in a file on the computer and a clock in the menu bar. Everything a person
+does in the window is the behavior of §6 to §14, unchanged; this section is what the desktop
+app adds around the page. It has no accounts and talks to no server (I19, I20).
+
+### Running it
+
+`npm run desktop` builds the app into `desktop/out/` and starts it. The build
+(`desktop/build.mjs`) makes three things: the page, as `npm run build` makes it but with the
+three `VITE_` values empty and no env file read, into `desktop/out/app/`; the main process,
+`desktop/main.ts` with what it imports, as the one file `desktop/out/main.js`; and beside
+them, copied as they are, `preload.cjs` and the menu-bar icons. Vite does both builds, the
+second as a build for Node. Electron is the one package the desktop app adds, a development
+dependency; nothing the page ships changes. There is no installer: the app runs from the
+source.
+
+### The window
+
+One window, 1280 by 832, no smaller than 960 by 640, titled "Compass". It shows one address
+and no other, `compass://app/`, a scheme of the app's own that the main process answers from
+`desktop/out/app/`, and registers before the app is ready as a standard, secure scheme the
+page may fetch its own files from, so `'self'` in the policy and the page's own storage work
+there as at a web address: the path names the file, `/` is `index.html`, and an address that is not
+the app's, or that names anything outside that folder, finds nothing (`fileFor` in
+`desktop/appFiles.ts`). Every file goes out with the hosted app's policy (§17) with every
+other host taken out: `default-src 'self'`; `script-src 'self'`; `style-src 'self'
+'unsafe-inline'`; `font-src 'self'`; `img-src 'self' data:`; `connect-src 'none'`;
+`frame-src 'none'`; `object-src 'none'`; `frame-ancestors 'none'`; `base-uri 'self'`;
+`form-action 'none'`; with `X-Content-Type-Options: nosniff` and `Referrer-Policy:
+no-referrer`. So the page loads its own files and connects to nothing.
+
+The page is a web page and no more (I20): context isolation and the sandbox are on and Node
+is off, so it has no `require`, no `process` and no disk. A link to a web address, `http` or
+`https`, opens in the person's browser; the window itself never leaves the app's address,
+and any other kind of link goes nowhere. The page's own storage holds what it holds in a
+browser, the active project's id (§3), and not the tables.
+
+On a Mac, closing the window hides it and leaves Compass running in the menu bar; the Dock
+icon or the menu's "Open Compass" shows it again, and Quit ends it. On other systems closing
+the window ends the app. A second copy of the app does not start: it hands over to the first,
+which shows its window, and ends.
+
+### The data file
+
+The tables of §3 are one file, `compass-data.json`, in the app's folder under the person's
+application data, which on a Mac is `~/Library/Application Support/Compass/`. Its text is the
+local database's (§3): `{"format": "compass-local-database", "version": 1, "tables": {…}}`.
+The main process is its only reader and writer (I20), through the holder in
+`desktop/dataFile.ts`, which is a backend of the local client (§21) over the same pure
+engine the browser's backend uses.
+
+- The file is read once, at the first request, and the tables are held from then on; a
+  request is run against the held tables and, when it changed a row, the whole text is
+  written before the request is answered. A read writes nothing, and there is no file until
+  the first save.
+- A save writes a second file beside the first, `compass-data.json.saving`, readable by its
+  owner alone, and renames it over the first, so a save cut short leaves the old file whole.
+- A file that cannot be read, or that is not this format and version, is left exactly as it
+  is: every request is refused with `COMPASS_LOCAL_UNREADABLE`, and the file is read again
+  at the next request, so mending or removing it needs no restart. A save the disk refuses
+  changes nothing and is answered with `COMPASS_LOCAL_NOT_SAVED`. A request the local
+  database throws on, something that is not a request among them, is refused with
+  `COMPASS_LOCAL_BAD_REQUEST`, a code the file's holder alone gives. The page shows each as
+  it shows any refused read or save (§2, §3).
+- A check starts the app with `COMPASS_DATA_FOLDER` naming a folder of its own, which
+  replaces the application-data folder, so it never opens the person's file.
+
+### The bridge
+
+The page reaches the file by one way. `desktop/preload.cjs` gives it `window.compassDesktop`
+with one function, `send(request)`, which hands a request of the local client (§21), as
+plain data, to the main process on the channel `compass:database` and answers the answer.
+The main process answers only a request from a page at the app's own address. In the page,
+`getSupabase()` looks for the bridge first: when it is there the client is
+`createLocalClient(desktopBackend(window.compassDesktop))`, whatever the two Supabase values
+are, so the desktop app is never over a Supabase project (I19). A request whose bridge call
+fails, because the main process refuses the sender or nothing listens on the channel, is
+answered in the page with `COMPASS_LOCAL_UNREACHABLE` and not thrown. There is no time limit:
+a request the main process has not answered yet stays waiting (§7).
+
+### The menu bar
+
+An icon sits in the menu bar while the app runs: a ring with a needle, a template image the
+Mac tints for a light or a dark bar (`desktop/icons/`, drawn by `make-icons.mjs`). Beside it,
+on a Mac, is the clock (`clockTitle` in `desktop/menuBar.ts`): when a work session is running
+that was started today, today's time on that session's project, the running session counted
+to the minute, as hours and minutes, `0:25` or `2:30`, seconds dropped; otherwise nothing. A
+session left running from an earlier day shows nothing: the app closes it at that day's end
+when it next reads the time (§8). The text is empty until the file is first read, and is
+worked out from the held tables when it is first read, after every save and every five
+seconds. On every system the same text is in the icon's tooltip, "Compass · 0:25 today", and
+the tooltip is "Compass" when no clock runs; other systems have the tooltip alone.
+
+The icon's menu: **Open Compass**, which shows the window; **Open at Login**, a tick; and
+**Quit Compass**. Open at Login is the operating system's own setting for an installed app:
+pressed, it flips the setting and the tick follows. Run from the source the line is shown
+and cannot be pressed, since the setting would open the bare Electron program.
+
+### What checks it
+
+The pure parts each have tests in the suite (§19): the file's holder over a pretend disk,
+the menu bar's text and menu, the files the window is handed and the policy they carry, and
+in `src/lib/` the choice of the bridge and the bridge's backend. `npm run test:desktop`
+builds the app, starts the real one with Playwright on a data folder of its own and drives
+its window (`desktop/the-desktop-app.desktop.ts`): a first open shows the setup at
+`compass://app/` with no sign-in; a project, a task and a running clock are in the file,
+the page's storage holds no tables and Settings says "Saved on this device" (§14); opened again, the same project, task and running clock
+are there; the page has the bridge's one function and no Node, a request to a web address
+from the page is refused, and a second copy opens no window. On a machine with no screen it
+runs under `xvfb-run`, and on Linux it starts the app with Chromium's sandbox off, which
+test machines there lack the setting for. The menu bar's icon, its text on a real Mac, the
+hiding window and Open at Login are checked by no test: they are the operating system's, and
+are tried by hand on a Mac.

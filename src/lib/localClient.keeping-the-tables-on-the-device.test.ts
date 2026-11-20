@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LOCAL_DATABASE_KEY, browserBackend, createLocalClient, type LocalStore } from "./localClient";
+import { LOCAL_DATABASE_KEY, browserBackend, createLocalClient, desktopBackend, type LocalStore } from "./localClient";
 import { LOCAL_USER_ID, parseTables } from "./localDatabase";
 
 const CHECK =
@@ -126,6 +126,48 @@ describe("the local client and the device's storage", () => {
 
     const again = createLocalClient(browserBackend(() => store));
     expect((await again.from("phases").select("name")).data).toEqual([{ name: "Dig" }]);
+  });
+});
+
+describe("the local client inside the desktop app", () => {
+  it("hands each request to the app's bridge as plain data and answers what the bridge answers (spec §22)", async () => {
+    const asked: unknown[] = [];
+    const client = createLocalClient(
+      desktopBackend({
+        send: async (request) => {
+          asked.push(request);
+          return { data: [{ name: "Garden" }], error: null, count: null, status: 200, statusText: "OK" };
+        },
+      }),
+    );
+    const answer = await client.from("projects").select("name").eq("id", "p1").order("sort_order").limit(5);
+    expect(answer.data).toEqual([{ name: "Garden" }]);
+    expect(asked).toEqual([
+      {
+        kind: "select",
+        table: "projects",
+        payload: null,
+        filters: [{ column: "id", op: "eq", value: "p1" }],
+        ordering: [{ column: "sort_order", ascending: true }],
+        limit: 5,
+        shape: "rows",
+        columns: "name",
+      },
+    ]);
+    expect(() => structuredClone(asked[0]), "the request can cross to another process").not.toThrow();
+  });
+
+  it("a request the app never answers is refused as a failed read or save, and not thrown (spec §22)", async () => {
+    const client = createLocalClient(
+      desktopBackend({
+        send: async () => {
+          throw new Error("the main process is gone");
+        },
+      }),
+    );
+    const answer = await client.from("projects").insert(PROJECT);
+    expect(answer.data).toBeNull();
+    expect(answer.error?.code).toBe("COMPASS_LOCAL_UNREACHABLE");
   });
 });
 

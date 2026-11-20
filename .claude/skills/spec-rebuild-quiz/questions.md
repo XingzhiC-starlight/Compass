@@ -55,3 +55,7 @@ missing. Never guess from general knowledge of React or Supabase.
 21. No accounts. With the data kept on this device: who is signed in, which screens can the
     gate never show, what does an address shaped like a reset link do, and what does the
     Settings dialog hold?
+22. The desktop app. What does the page get that a web page does not, and what is it kept
+    from? Where is the data, who reads and writes it, how is a save made safe, and what
+    happens to a file that cannot be read? What address does the window show and what serves
+    it? What does the menu bar show, and when is it empty?

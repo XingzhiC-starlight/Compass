@@ -13,6 +13,8 @@ export default defineConfig([
     ".design-sync/",
     ".claude/",
     "browser/results/",
+    "desktop/out/",
+    "desktop/results/",
     "supabase/",
   ]),
   {
@@ -41,7 +43,7 @@ export default defineConfig([
     },
   },
   {
-    files: ["scripts/**", "browser/**", "*.{js,mjs,ts}"],
+    files: ["scripts/**", "browser/**", "desktop/**", "*.{js,mjs,ts}"],
     languageOptions: { globals: globals.node },
   },
 ]);

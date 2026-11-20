@@ -1,6 +1,6 @@
 ## §19 Testing
 
-Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, `scripts/practice/`, `browser/`, `scripts/verify/`, `.github/workflows/ci.yml` · Keeps: I1, I12, I18
+Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, `scripts/practice/`, `browser/`, `scripts/verify/`, `.github/workflows/ci.yml`, `desktop/playwright.config.ts` · Keeps: I1, I12, I18
 
 ### Unit and component tests
 
@@ -169,6 +169,11 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   there is changed in `src/lib/localDatabase.ts` in the same pull request. No browser check
   and no journey of the verification skill opens a copy with no accounts; they drive the
   practice app, which has a Supabase project behind it.
+- The desktop app (§22) has tests in the suite for each of its pure parts, in `desktop/`
+  beside them, and one check that starts the real app, `npm run test:desktop`
+  (`desktop/the-desktop-app.desktop.ts`, run by Playwright with
+  `desktop/playwright.config.ts`); §22 says what each shows. `npm run typecheck:desktop`
+  type-checks `desktop/`, which the build's type check does not read.
 
 ### The practice copy and the database checks
 
@@ -373,8 +378,12 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
 ### The checks on GitHub
 
 - The checks run in GitHub Actions (`.github/workflows/ci.yml`), once per push, as two jobs
-  side by side, and on a pull request a third, small one that decides whether the second
-  runs. A pull request runs them in full when it is opened or reopened and on every
+  side by side, with the desktop job beside them, and on a pull request a third, small one
+  that decides whether the second runs. The desktop job runs `npm ci`,
+  `npm run typecheck:desktop` and `xvfb-run -a npm run test:desktop`, and keeps what
+  `desktop/results/` then holds as a file on the run's page; it runs in full on every run.
+  The first and second jobs never start the desktop app and are told to leave Electron's
+  program undownloaded (`ELECTRON_SKIP_BINARY_DOWNLOAD`). A pull request runs them in full when it is opened or reopened and on every
   push to its branch, but for the database checks when a pull request into `main` brings
   only documents and after a push that changed only documents (both below), on the branch
   merged into `main` as `main` stands; while the two conflict, GitHub starts no run. A push
@@ -458,8 +467,8 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   check that only a running Compass can show is performed by the agent that builds the
   change, in the practice app, and its picture of the screen or what the command printed goes
   in the pull request; the verification skill (below) is how an agent drives it.
-- `npm run lint` runs ESLint (`eslint.config.js`) over `src/`, `scripts/`, `browser/` and
-  the config files, and fails on any finding, a warning included. It reads each file on its
+- `npm run lint` runs ESLint (`eslint.config.js`) over `src/`, `scripts/`, `browser/`,
+  `desktop/` and the config files, and fails on any finding, a warning included. It reads each file on its
   own, without the types, so it catches what the type check lets through: TypeScript's and
   JavaScript's recommended rules, the two classic React hooks rules (hooks called in the
   same order every render, effects that name what they read), and Vite's fast-refresh rule

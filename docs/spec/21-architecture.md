@@ -1,6 +1,6 @@
 ## §21 Architecture
 
-Code: `src/main.tsx`, `src/App.tsx`, `src/lib/projectRouting.ts`, `src/lib/db.ts`, `src/lib/supabase.ts`, `src/lib/localClient.ts`, `src/lib/localDatabase.ts`, `src/lib/transforms.ts`, `src/lib/types.ts`, `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts` · Keeps: I1, I3, I4, I9, I11, I12, I17, I19
+Code: `src/main.tsx`, `src/App.tsx`, `src/lib/projectRouting.ts`, `src/lib/db.ts`, `src/lib/supabase.ts`, `src/lib/localClient.ts`, `src/lib/localDatabase.ts`, `src/lib/transforms.ts`, `src/lib/types.ts`, `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts` · Keeps: I1, I3, I4, I9, I11, I12, I17, I19, I20
 
 The shape of the code: the layers, who owns which state, every operation of the seam, and
 the flows that run through them. The behavior a person sees is in §5 to §15. A rebuild keeps
@@ -23,7 +23,10 @@ Four layers, and nothing reaches across one.
    `src/lib/transforms.ts` on the way in and out.
 3. **The client**, `src/lib/supabase.ts`. `getSupabase()` creates the client on its first
    call, never at import (I12), and keeps it. Which client is decided there, once, from
-   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (I19). With both, it is the Supabase
+   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (I19), unless the page is inside the
+   desktop app: when `window.compassDesktop` is there, it is the local client over the
+   desktop's backend, `createLocalClient(desktopBackend(window.compassDesktop))`, whatever the
+   two values are (§22). Otherwise: with both, it is the Supabase
    client, made with the project address and the public key and no other option, so the
    session persists in `localStorage` and a sign-in link's token in the address is read by
    the client itself. With neither, it is the local client,
@@ -76,8 +79,13 @@ when a row changed (§3). Running a request is the pure engine's work,
 `runLocalRequest(tables, request, surroundings)` in `src/lib/localDatabase.ts`: it takes the
 tables, the request, and a clock and an id maker, never changes the tables it was handed,
 and answers the result with the tables to keep, the same object when nothing changed. So
-another holder of the data, a file in place of the browser's storage, is another backend
-over the same engine, and neither the client nor the seam changes.
+another holder of the data is another backend over the same engine, and neither the client
+nor the seam changes. There are two more. `desktopBackend(bridge)` is the page's backend
+inside the desktop app: it hands each request to `bridge.send` and answers what comes back,
+and a request whose `bridge.send` fails is answered with `COMPASS_LOCAL_UNREACHABLE`, with no
+time limit on one still waiting (§22). Behind that bridge,
+in the desktop app's main process, the file's holder (`fileBackend` in `desktop/dataFile.ts`)
+runs the request and keeps the tables in a file (§22).
 
 Pure logic touches neither React nor the database and takes its inputs, the clock included,
 as arguments; only `todayDate` and `dayNumber` read the clock themselves.
@@ -86,7 +94,7 @@ as arguments; only `todayDate` and `dayNumber` read the clock themselves.
 |---|---|
 | `src/lib/transforms.ts` | The row mappers. The feed math, `computeGroup`, `computeUngroup`, `computeMerge` and `computePop` (§12). The time math: `localYMD`, a date's local day key; `todayDate`; `localDayEnd`, the local midnight that ends a day key; `closeSessionAt`, a session's end and its seconds when closed now, capped at its own day's end; `loggedSecondsOn`, a day's seconds from its sessions, a running one counted live; `bucketDailyTime`, one entry per day for the last N days; `deriveDashboardTime`, today's seconds, whether a session is open, and the series, from one reading of the clock. `randomId`, a v4 UUID made without `crypto.randomUUID`, which older iOS lacks. |
 | `src/lib/projectRouting.ts` | `chooseActiveProject`: the current id when it is still live, else the first live project. The reload reducer, `dashboardReloadReducer`: one counter, the quiet-refresh request, which the gate bumps on a failed save and passes to the dashboard. |
-| `src/lib/recoveryLink.ts` | The reset link's one-time token: find it in the query or the hash, take it, and replace the address without it (§5). |
+| `src/lib/recoveryLink.ts` | The reset link's one-time token: find it in the query or the hash, take it, and replace the address without it (§5). It reads the page's address itself and rewrites it: the one module here that is not given its inputs. |
 | `src/lib/limits.ts` | `TEXT_LIMITS`: `projectName`, `phaseName`, `learningItemName`, `thoughtGroupName` and `thoughtTitle` at 200, `taskText` and `thoughtText` at 4,000, one per text column a person types into (§3); the accent color's length check has none, since the seam picks the color. |
 | `src/dashboard/dashboardLoad.ts` | `shouldAcceptProjectPayload`, true for the latest request and the active project, and `projectCardTreeKey`, the id and the version joined (I11). |
 | `src/dashboard/projectTime.ts` | `dayNumber`: the whole days from a day key to today on the local calendar, the key's day being day 1; the cards clamp it. |
@@ -117,10 +125,11 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | `src/dashboard/useDragReorder.ts`, `useEdgeAutoScroll.ts`, `useDeleteConfirm.tsx` | Drag-reorder by grip, the edge scroll while dragging (§12), and the delete confirmation (§6). |
 | `src/lib/db.ts` | The seam: the operations below, the active project id, the cached user, the count of saves in flight, the write-error listeners, and two queues. |
 | `src/lib/supabase.ts` | The lazily created client (I12), and the choice between the two (I19). |
-| `src/lib/localClient.ts` | The local client, its `auth` with no accounts, the backend's one method, and the browser's backend with the key the text is kept under. |
+| `src/lib/localClient.ts` | The local client, its `auth` with no accounts, the backend's one method, the browser's backend with the key the text is kept under, and the page's backend inside the desktop app. |
 | `src/lib/localDatabase.ts` | The pure engine: the seven tables' columns and rules, a request run over tables, the setup's save, and the kept text's format (§3). |
 | `src/lib/types.ts` | The domain types, one per table, plus `User` and `InterviewInput` (§3). |
 | `supabase/migrations/` | The schema of record and the one database function (§18). |
+| `desktop/` | The desktop app around the page: the main process, the bridge, the data file's holder, the menu bar, and its build (§22). Not part of the page, and imported by nothing under `src/`. |
 
 ### State ownership
 
@@ -128,6 +137,7 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 |---|---|---|---|
 | Who is signed in | the Supabase client | its session in `localStorage` (I7) | sign-in, sign-out, token refresh, inside the client. On this device (I19): always the one local person, held nowhere and changed by nothing |
 | The rows, on this device (I19) | the browser's backend | one text under `localStorage["compass.localDatabase"]` (§3); no copy is held in memory between requests | each request that changes a row |
+| The rows, in the desktop app (§22) | the main process's file holder | the file `compass-data.json`, and the tables held in the main process since the first request | each request that changes a row |
 | The cached user, `{id, email, name?}` | the seam | a module variable | every auth event, `getCurrentUser`, `signOut`; read to notice a change of user and to stamp a new thought group's owner on the client side only |
 | Which screen shows | `App` | `screen` state; "loading" is only its first value | the gate (§2) and the screens' callbacks |
 | The active project id | the seam | a module variable, read once at load from `localStorage["compass.activeProjectId"]` and written back on every change; `App` keeps a copy for rendering | `setActiveProject`, `saveInterview` (the new project), `deleteProject` (the first remaining live project, or none) |
@@ -189,7 +199,7 @@ counted from 0.
 | operation | group | takes | does | scope | on failure |
 |---|---|---|---|---|---|
 | `storesOnThisDevice` | auth | nothing | answers at once, with no promise, whether the client is the local one (I19), by its mark; creates the client when it is the first call | none | throws when the client is half configured |
-| `getCurrentUser` | auth | nothing | reads the stored session and caches its user; on this device, always the one local person | user | throws when the client is half configured; an auth error reads as no session |
+| `getCurrentUser` | auth | nothing | reads the stored session and caches its user; on this device, always the one local person | user | fails when the client is half configured; an auth error reads as no session |
 | `signInWithGoogle` | auth | nothing | starts the Google redirect with the page's origin as the return address (I5) | none | throws |
 | `signUpWithEmail` | auth | email, password, a CAPTCHA token when there is one | signs up, with the origin as the confirmation's return address; answers whether confirmation is needed | none | throws |
 | `resendEmailConfirmation` | auth | email, a token when there is one | resends the confirmation, same return address | none | throws |
@@ -427,7 +437,7 @@ longer value fails the save.
 Nothing in these documents is marked optional. A rebuild keeps the invariants of §4, the
 object model of §3, the layers, the ownership, the seam's operations with their failure
 shapes and the flows of this section, both databases behind the seam with the choice between
-them (I19), the behavior of §5 to §15 with the copy those sections
+them (I19), the desktop app of §22 with its page kept a page (I20), the behavior of §5 to §15 with the copy those sections
 quote, the posture of §17, the schema of §18, and the design units of `DESIGN-SYSTEM.md`.
 The load-bearing clauses are the ones with IDs (§0); the rest of a section describes the app
 as accepted, and a rebuild that changes any of it changes the section in the same pull
