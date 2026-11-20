@@ -22,7 +22,9 @@ source.
 
 One window, 1280 by 832, no smaller than 960 by 640, titled "Compass". It shows one address
 and no other, `compass://app/`, a scheme of the app's own that the main process answers from
-`desktop/out/app/`: the path names the file, `/` is `index.html`, and an address that is not
+`desktop/out/app/`, and registers before the app is ready as a standard, secure scheme the
+page may fetch its own files from, so `'self'` in the policy and the page's own storage work
+there as at a web address: the path names the file, `/` is `index.html`, and an address that is not
 the app's, or that names anything outside that folder, finds nothing (`fileFor` in
 `desktop/appFiles.ts`). Every file goes out with the hosted app's policy (§17) with every
 other host taken out: `default-src 'self'`; `script-src 'self'`; `style-src 'self'
@@ -60,9 +62,10 @@ engine the browser's backend uses.
 - A file that cannot be read, or that is not this format and version, is left exactly as it
   is: every request is refused with `COMPASS_LOCAL_UNREADABLE`, and the file is read again
   at the next request, so mending or removing it needs no restart. A save the disk refuses
-  changes nothing and is answered with `COMPASS_LOCAL_NOT_SAVED`. Something that is not a
-  request is refused with `COMPASS_LOCAL_BAD_REQUEST`. The page shows each as it shows the
-  same refusal in a browser (§2, §3).
+  changes nothing and is answered with `COMPASS_LOCAL_NOT_SAVED`. A request the local
+  database throws on, something that is not a request among them, is refused with
+  `COMPASS_LOCAL_BAD_REQUEST`, a code the file's holder alone gives. The page shows each as
+  it shows any refused read or save (§2, §3).
 - A check starts the app with `COMPASS_DATA_FOLDER` naming a folder of its own, which
   replaces the application-data folder, so it never opens the person's file.
 
@@ -74,8 +77,10 @@ plain data, to the main process on the channel `compass:database` and answers th
 The main process answers only a request from a page at the app's own address. In the page,
 `getSupabase()` looks for the bridge first: when it is there the client is
 `createLocalClient(desktopBackend(window.compassDesktop))`, whatever the two Supabase values
-are, so the desktop app is never over a Supabase project (I19). A request the main process
-never answers is refused in the page with `COMPASS_LOCAL_UNREACHABLE` and not thrown.
+are, so the desktop app is never over a Supabase project (I19). A request whose bridge call
+fails, because the main process refuses the sender or nothing listens on the channel, is
+answered in the page with `COMPASS_LOCAL_UNREACHABLE` and not thrown. There is no time limit:
+a request the main process has not answered yet stays waiting (§7).
 
 ### The menu bar
 
@@ -85,9 +90,10 @@ on a Mac, is the clock (`clockTitle` in `desktop/menuBar.ts`): when a work sessi
 that was started today, today's time on that session's project, the running session counted
 to the minute, as hours and minutes, `0:25` or `2:30`, seconds dropped; otherwise nothing. A
 session left running from an earlier day shows nothing: the app closes it at that day's end
-when it next reads the time (§8). The text is worked out from the held tables after every
-save and every five seconds. On other systems the same text is in the icon's tooltip,
-"Compass · 0:25 today", and the tooltip is "Compass" when no clock runs.
+when it next reads the time (§8). The text is empty until the file is first read, and is
+worked out from the held tables when it is first read, after every save and every five
+seconds. On every system the same text is in the icon's tooltip, "Compass · 0:25 today", and
+the tooltip is "Compass" when no clock runs; other systems have the tooltip alone.
 
 The icon's menu: **Open Compass**, which shows the window; **Open at Login**, a tick; and
 **Quit Compass**. Open at Login is the operating system's own setting for an installed app:
@@ -101,8 +107,8 @@ the menu bar's text and menu, the files the window is handed and the policy they
 in `src/lib/` the choice of the bridge and the bridge's backend. `npm run test:desktop`
 builds the app, starts the real one with Playwright on a data folder of its own and drives
 its window (`desktop/the-desktop-app.desktop.ts`): a first open shows the setup at
-`compass://app/` with no sign-in; a project, a task and a running clock are in the file and
-the page's storage holds no tables; opened again, the same project, task and running clock
+`compass://app/` with no sign-in; a project, a task and a running clock are in the file,
+the page's storage holds no tables and Settings says "Saved on this device" (§14); opened again, the same project, task and running clock
 are there; the page has the bridge's one function and no Node, a request to a web address
 from the page is refused, and a second copy opens no window. On a machine with no screen it
 runs under `xvfb-run`, and on Linux it starts the app with Chromium's sandbox off, which

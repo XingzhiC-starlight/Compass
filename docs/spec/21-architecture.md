@@ -82,7 +82,8 @@ and answers the result with the tables to keep, the same object when nothing cha
 another holder of the data is another backend over the same engine, and neither the client
 nor the seam changes. There are two more. `desktopBackend(bridge)` is the page's backend
 inside the desktop app: it hands each request to `bridge.send` and answers what comes back,
-and a request never answered is refused with `COMPASS_LOCAL_UNREACHABLE`. Behind that bridge,
+and a request whose `bridge.send` fails is answered with `COMPASS_LOCAL_UNREACHABLE`, with no
+time limit on one still waiting (§22). Behind that bridge,
 in the desktop app's main process, the file's holder (`fileBackend` in `desktop/dataFile.ts`)
 runs the request and keeps the tables in a file (§22).
 
@@ -93,7 +94,7 @@ as arguments; only `todayDate` and `dayNumber` read the clock themselves.
 |---|---|
 | `src/lib/transforms.ts` | The row mappers. The feed math, `computeGroup`, `computeUngroup`, `computeMerge` and `computePop` (§12). The time math: `localYMD`, a date's local day key; `todayDate`; `localDayEnd`, the local midnight that ends a day key; `closeSessionAt`, a session's end and its seconds when closed now, capped at its own day's end; `loggedSecondsOn`, a day's seconds from its sessions, a running one counted live; `bucketDailyTime`, one entry per day for the last N days; `deriveDashboardTime`, today's seconds, whether a session is open, and the series, from one reading of the clock. `randomId`, a v4 UUID made without `crypto.randomUUID`, which older iOS lacks. |
 | `src/lib/projectRouting.ts` | `chooseActiveProject`: the current id when it is still live, else the first live project. The reload reducer, `dashboardReloadReducer`: one counter, the quiet-refresh request, which the gate bumps on a failed save and passes to the dashboard. |
-| `src/lib/recoveryLink.ts` | The reset link's one-time token: find it in the query or the hash, take it, and replace the address without it (§5). |
+| `src/lib/recoveryLink.ts` | The reset link's one-time token: find it in the query or the hash, take it, and replace the address without it (§5). It reads the page's address itself and rewrites it: the one module here that is not given its inputs. |
 | `src/lib/limits.ts` | `TEXT_LIMITS`: `projectName`, `phaseName`, `learningItemName`, `thoughtGroupName` and `thoughtTitle` at 200, `taskText` and `thoughtText` at 4,000, one per text column a person types into (§3); the accent color's length check has none, since the seam picks the color. |
 | `src/dashboard/dashboardLoad.ts` | `shouldAcceptProjectPayload`, true for the latest request and the active project, and `projectCardTreeKey`, the id and the version joined (I11). |
 | `src/dashboard/projectTime.ts` | `dayNumber`: the whole days from a day key to today on the local calendar, the key's day being day 1; the cards clamp it. |
@@ -198,7 +199,7 @@ counted from 0.
 | operation | group | takes | does | scope | on failure |
 |---|---|---|---|---|---|
 | `storesOnThisDevice` | auth | nothing | answers at once, with no promise, whether the client is the local one (I19), by its mark; creates the client when it is the first call | none | throws when the client is half configured |
-| `getCurrentUser` | auth | nothing | reads the stored session and caches its user; on this device, always the one local person | user | throws when the client is half configured; an auth error reads as no session |
+| `getCurrentUser` | auth | nothing | reads the stored session and caches its user; on this device, always the one local person | user | fails when the client is half configured; an auth error reads as no session |
 | `signInWithGoogle` | auth | nothing | starts the Google redirect with the page's origin as the return address (I5) | none | throws |
 | `signUpWithEmail` | auth | email, password, a CAPTCHA token when there is one | signs up, with the origin as the confirmation's return address; answers whether confirmation is needed | none | throws |
 | `resendEmailConfirmation` | auth | email, a token when there is one | resends the confirmation, same return address | none | throws |
