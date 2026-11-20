@@ -22,12 +22,23 @@ const MAIN = path.join(HERE, "out", "main.js");
 let dataFolder: string;
 let running: ElectronApplication | null = null;
 
-async function open(): Promise<Page> {
-  running = await electron.launch({
-    // Chromium's own sandbox needs a setting most Linux test machines lack; the Mac keeps it.
-    args: [MAIN, ...(process.platform === "linux" ? ["--no-sandbox"] : [])],
+/**
+ * How the app is started. With `COMPASS_DESKTOP_APP` naming a packaged app's program
+ * (`npm run desktop:package`), that program is the one driven; otherwise Electron is handed
+ * the build in desktop/out, as `npm run desktop` does.
+ */
+function launching() {
+  const packaged = process.env.COMPASS_DESKTOP_APP;
+  // Chromium's own sandbox needs a setting most Linux test machines lack; the Mac keeps it.
+  const flags = process.platform === "linux" ? ["--no-sandbox"] : [];
+  return {
+    ...(packaged ? { executablePath: packaged, args: flags } : { args: [MAIN, ...flags] }),
     env: { ...process.env, COMPASS_DATA_FOLDER: dataFolder } as Record<string, string>,
-  });
+  };
+}
+
+async function open(): Promise<Page> {
+  running = await electron.launch(launching());
   const page = await running.firstWindow();
   await page.waitForLoadState("domcontentloaded");
   return page;
@@ -283,11 +294,7 @@ test(`${CHECK} — the page has its bridge and no Node, and a second copy of the
   expect(blocked, "the page connects to nothing").toBe("refused");
 
   const second = await electron
-    .launch({
-      args: [MAIN, ...(process.platform === "linux" ? ["--no-sandbox"] : [])],
-      env: { ...process.env, COMPASS_DATA_FOLDER: dataFolder } as Record<string, string>,
-      timeout: 15_000,
-    })
+    .launch({ ...launching(), timeout: 15_000 })
     .then(
       async (app) => {
         const windows = app.windows().length;
