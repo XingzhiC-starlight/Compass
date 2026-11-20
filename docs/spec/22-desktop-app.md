@@ -27,8 +27,9 @@ and no other, `compass://app/`, a scheme of the app's own that the main process 
 page may fetch its own files from, so `'self'` in the policy and the page's own storage work
 there as at a web address: the path names the file, `/` is `index.html`, and an address that is not
 the app's, or that names anything outside that folder, finds nothing (`fileFor` in
-`desktop/appFiles.ts`). Every file goes out with the hosted app's policy (§17) with every
-other host taken out: `default-src 'self'`; `script-src 'self'`; `style-src 'self'
+`desktop/appFiles.ts`). Every file goes out with a policy made from the hosted app's (§17), with every
+other host taken out and tighter where the desktop app needs less (it connects to nothing,
+posts no form and sends no referrer): `default-src 'self'`; `script-src 'self'`; `style-src 'self'
 'unsafe-inline'`; `font-src 'self'`; `img-src 'self' data:`; `connect-src 'none'`;
 `frame-src 'none'`; `object-src 'none'`; `frame-ancestors 'none'`; `base-uri 'self'`;
 `form-action 'none'`; with `X-Content-Type-Options: nosniff` and `Referrer-Policy:
@@ -139,13 +140,23 @@ and the goal and nothing else a person typed (§17).
 
 The rule is `goalNotice(before, now)` in `desktop/notices.ts`, over two readings of the
 running clock (`clockReading` in `desktop/menuBar.ts`: the project, the local day, today's
-seconds on it with the running session counted, and its daily goal in seconds). The note is
-sent only when the crossing is seen: the look before was at the same project on the same day
-and under its goal, and this look is at the goal or past it. So it comes once; opening the
-app or starting a clock with the goal already behind says nothing; a goal lowered under the
-time already done says nothing; and a project with no goal, a clock stopped, or time typed in
-by hand never sends one. The app looks whenever it works out the menu bar's text: when the
-file is first read, after every save, and every five seconds.
+seconds on it with the running session counted, its daily goal in seconds, and the instant of
+the reading; no reading when no clock runs today). The note is sent only when the crossing is
+seen and the clock made it. All of these hold: the look before was at the same project on the
+same day; its seconds were under this look's goal; this look's seconds are at the goal or
+past it; and the seconds grew by no more than the time that passed between the two looks,
+with two seconds' slack. So opening the app or starting a clock with the goal already behind
+says nothing; a goal lowered under the time already done says nothing; a project with no
+goal, or a clock stopped, sends none; and time typed in by hand sends none, since it moves
+the total in one step, also when the save of it is looked at half done, with the new total
+and the running session both still counted. A look that comes late, as after the computer
+slept with the clock running, still sends it. It is once for each crossing the clock makes,
+not once a day: after a total typed lower, or a goal raised, the next crossing says it again.
+
+The app looks whenever it works out the menu bar's text: when the file is first read, after
+every save, and every five seconds. It keeps the look before in memory alone, and keeps it
+while the note is turned off too, so turning the note on never announces a crossing that
+happened while it was off.
 
 The note can be turned off with the menu's **Tell Me When I Reach Today's Goal**, which is
 ticked at first. That choice is the one thing in the app's preferences

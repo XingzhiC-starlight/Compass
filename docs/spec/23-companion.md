@@ -6,8 +6,9 @@ The companion is a small second window that stays beside the person's other work
 project's clock, and on a press the other three cards in short, with a box for a thought. It
 shows what the dashboard shows and saves what the dashboard saves; it holds nothing of its
 own (I21). It is the same in a browser and in the desktop app; what the desktop app adds is
-that its window always stays above every other, on every desktop (§22). In a browser only a
-picture-in-picture window stays on top.
+that its window always stays above every other window, and on a Mac shows on every desktop
+and beside a full-screen app (§22). In a browser only a picture-in-picture window stays on
+top.
 
 ### Opening and closing it
 

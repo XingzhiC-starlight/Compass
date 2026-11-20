@@ -7,10 +7,9 @@ idea, write it here in a few lines. What Compass does today is in `docs/spec/` a
 
 ## Product
 
-- **Open the companion from the menu bar, and remember where it was put.** The companion
-  (spec §23) opens from the sidebar alone, at its fixed size and at the place the system gives
-  it each time. A line in the menu bar's menu could open it without the main window, and its place
-  on the screen could be kept between openings.
+- **Remember where the companion was put.** The companion (spec §23) opens at its small size
+  and at the place the system gives it each time. Its place on the screen, and whether its
+  summary was open, could be kept between openings.
 - **Choose the capture keys.** The desktop app's keys for capturing a thought are fixed
   (spec §22). When another program holds them they do nothing, and the menu's line is the
   only other way.

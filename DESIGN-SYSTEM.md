@@ -961,7 +961,7 @@ copy of the page's stylesheets, so it is built from the dashboard's units and ad
   `.companion-body`, which turns off the page body's centering.
 - **The sidebar's button.** `.sidebar-companion` shares every rule of `.sidebar-settings`,
   hover, active and focus ring included, so the two buttons at the foot of the sidebar are one
-  style. The companion's last line, "Open Compass", is the same class, centered
+  style. The companion's last line, "Open Compass", is `.sidebar-companion` too, centered
   (`.companion-open`).
 
 ## DS §10 Design debt
