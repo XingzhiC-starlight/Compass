@@ -14,8 +14,8 @@ does, and neither does a click that ends a text-selection drag (a live selection
 text; a whitespace-only selection does not block it). Each bubble header shows a ▸ (summary) or ▾ (depth) cue. In depth the upper row
 grows to hold the expanded content; nothing opens in a drawer, modal or overlay.
 
-**Loading.** The sidebar's data (projects, archive, per-project completion) is loaded once by
-the gate, survives project switches, and is re-read in place after a failed save (§2). The
+**Loading.** The sidebar's data (projects, archive, per-project completion) is loaded by
+the gate each time it runs (§2), is not read again on a project switch, and is re-read in place after a failed save (§2). The
 active project's payload — project, phases, learning items, tasks, the last 49 days of
 time, the thought feed — is loaded by the dashboard in one seam call for the requested id,
 so switching projects blanks only the cards ("Loading…"). A stale-request guard accepts a payload only if it is the latest request and
