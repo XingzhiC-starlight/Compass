@@ -40,7 +40,7 @@ is off, so it has no `require`, no `process` and no disk. A link to a web addres
 `https`, opens in the person's browser; the window itself never leaves the app's address,
 and any other kind of link goes nowhere. The one window the page may open is its companion
 (below). The page's own storage holds what it holds in a
-browser, the active project's id (§3), and not the tables.
+browser, the active project's id (§3) and the theme (§14), and not the tables.
 
 On a Mac, closing the window hides it and leaves Compass running in the menu bar; the Dock
 icon or the menu's "Open Compass" shows it again, and Quit ends it. On other systems closing
@@ -86,9 +86,9 @@ windows, never full screen, never maximized, and with no entry of its own in a t
 When it has been made it is set to float above other apps' windows too and, on a Mac, to
 show on every desktop and beside a full-screen app. The page can resize it, which is how it
 grows for the summary. It is a window of the page's, not a page: its document stays at
-`about:blank` and is given no bridge, it may navigate nowhere, and it may open nothing; a
-link to a web address in it opens in the person's browser. Since it shares the page, it
-needs no channel for the data.
+`about:blank` and is given no bridge, it may navigate nowhere, and it may open nothing: a
+navigation in it is refused, and a link that would open a new window at a web address opens
+in the person's browser instead. Since it shares the page, it needs no channel for the data.
 
 On a Mac, closing the main window hides it and leaves the companion where it is, with its
 clock ticking and its saves going to the file; the companion's **Open Compass** shows the

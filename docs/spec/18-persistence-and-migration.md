@@ -58,11 +58,11 @@ Code: `supabase/migrations/`, `supabase/checks/`, `scripts/practice/` · Keeps: 
   assertion would be read", and is reported as not held, since a check whose assertions are
   not read would reach its closing message having proved nothing.
 - The app never migrates data on its own: `db.ts` reads and writes the tables as they are.
-  The app's own client-side state is `localStorage["compass.activeProjectId"]` (§3) and, with
-  the data kept on this device, the whole local database under
-  `localStorage["compass.localDatabase"]` (§3, I19); the
+  The app's own client-side state is `localStorage["compass.activeProjectId"]` (§3),
+  `localStorage["compass.theme"]` (§14) and, with the data kept on this device, the whole
+  local database under `localStorage["compass.localDatabase"]` (§3, I19); the
   Supabase client also keeps the auth session there (I7); clearing the project id makes the
-  dashboard fall back to the first live project.
+  dashboard fall back to the first live project, and clearing the theme shows Classic.
 - Deleting a project or an auth user cascades through the foreign keys (§3), so there is no
   orphan cleanup.
 - Backups rely on the Supabase project's defaults; no restore has been rehearsed (open,

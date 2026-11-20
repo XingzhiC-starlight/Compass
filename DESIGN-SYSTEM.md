@@ -64,8 +64,8 @@ The dashboard background family, present before any module accent appears.
 |---|---|---|
 | `--primary-25` | `#FEFCF8` | airiest wash; light setup fields; the landing Log in pill's text |
 | `--primary-50` | `#FBF8F2` | auth background |
-| `--primary-100` | `#F6F1E7` | sidebar (`--sidebar-bg`), setup section surfaces, the `theme-color` |
-| `--primary-200` | `#EEE6D7` | warm panel edges (`--warm-panel-edge`), lighter dividers |
+| `--primary-100` | `#F6F1E7` | sidebar (`--sidebar-bg`), setup section surfaces, the `theme-color`; the four cards in the Sand theme (§12) |
+| `--primary-200` | `#EEE6D7` | warm panel edges (`--warm-panel-edge`), lighter dividers; the page in the Sand theme (§12) |
 | `--primary-300` | `#E5DCC8` | the page (`--bg`); the brand environment |
 | `--primary-400` | `#D6C8AE` | setup borders and dividers, input borders |
 | `--primary-500` | `#BFA37A` | focus rings and active indicators |
@@ -77,7 +77,8 @@ The dashboard background family, present before any module accent appears.
 ### DS §2.2 Module families
 
 Each module has an accent (dots, bars, checks), a wash (its card background), an edge (its
-hairline border) and, where text must stay legible on the wash, an ink.
+hairline border) and, where text must stay legible on the wash, an ink. The Sand theme
+replaces the four washes and the four edges with one sand wash and one sand hairline (§12).
 
 | Module | Accent | Wash | Edge | Ink |
 |---|---|---|---|---|
@@ -116,7 +117,7 @@ use:
 
 | Token | Value | Role |
 |---|---|---|
-| `--bg` | `var(--primary-300)` | the page |
+| `--bg` | `var(--primary-300)` | the page; `var(--primary-200)` in the Sand theme (§12) |
 | `--card` | `#FFFFFF` | dashboard bubbles, auth cards |
 | `--surface` | `#FFFFFF` | inverse surface for toasts and controls |
 | `--sidebar-bg` | `var(--primary-100)` | the sidebar |
@@ -167,15 +168,17 @@ in this table is a defect (D4).
 | literal | uses | where |
 |---|---|---|
 | `#fff` | 6 | `.project-pill.active` color, `.confirm-panel-delete` color, `.glance-clock svg` fill |
-| `rgba(0,0,0,0.04)` | 5 | `.project-pill:hover` background, `.new-pill:hover` background, `.bubble` border |
+| `rgba(0,0,0,0.04)` | 6 | `[data-theme="sand"] .sidebar` border, `.project-pill:hover` background, `.new-pill:hover` background |
+| `#2F3338` | 4 | `.settings-row:disabled:hover .settings-r` color, `.settings-row-title` color, `.settings-theme-btn:hover` color |
 | `rgba(0,0,0,0.03)` | 4 | `.task-item:hover` background, `.task-add-row.adding` background, `.th-row:hover` background |
+| `rgba(0,0,0,0.05)` | 4 | `.settings-close:hover` background, `.settings-theme-options` background, `.confirm-panel-cancel:hover` background |
 | `rgba(0,0,0,0.06)` | 4 | `.depth .glance` border-bottom, `.time-foot` border-top, `.th-group-chip` background |
 | `rgba(0,0,0,0.35)` | 4 | `.project-pill.drop-before` box-shadow, `.project-pill.drop-after` box-shadow, `.dashboard .row.drop-before` box-shadow |
 | `rgba(255,255,255,0.7)` | 4 | `.project-pill.active .pill-dot` background, `.dashboard .row.dragging` background, `.dashboard .row-name-input` background |
-| `rgba(0,0,0,0.05)` | 3 | `.settings-close:hover` background, `.confirm-panel-cancel:hover` background, `.panel-toggle` background |
 | `rgba(0,0,0,0.08)` | 3 | `.sidebar-settings, .sidebar-companion` border-top, `.settings-divider` background, `src/App.tsx` box-shadow |
 | `rgba(0,0,0,0.18)` | 3 | `.new-pill` border, `.th-group` border, `.th-action-btn-ghost` border |
-| `#2F3338` | 2 | `.settings-row:disabled:hover .settings-r` color, `.settings-row-title` color |
+| `rgba(58,42,20,0.12)` | 3 | `.settings-theme-btn.active` box-shadow, `.panel-toggle-btn.active` box-shadow, `(privacy.html)` box-shadow |
+| `#4D5870` | 2 | `.settings-row:hover .settings-row-title` color, `.settings-theme-btn` color |
 | `#737C88` | 2 | `.sidebar-settings, .sidebar-companion` color, `.settings-version` color |
 | `rgba(0,0,0,0.10)` | 2 | `.pill-act:hover` background, `.cslider` background |
 | `rgba(0,0,0,0.22)` | 2 | `.ph-state` border, `.task-check` border |
@@ -185,11 +188,9 @@ in this table is a defect (D4).
 | `rgba(255,255,255,0.5)` | 2 | `.dashboard .row-add:hover` background, `.landing-hotspot--toggle:hover` background |
 | `rgba(255,255,255,0.65)` | 2 | `.th-title-input` background, `.th-text-input` background |
 | `rgba(58,42,20,0.08)` | 1 | `.settings-panel` box-shadow |
-| `rgba(58,42,20,0.12)` | 2 | `.panel-toggle-btn.active` box-shadow, `(privacy.html)` box-shadow |
 | `rgba(58,42,20,0.14)` | 1 | `.landing-seg button[aria-pressed="true"]` box-shadow |
 | `#1F2A34` | 1 | `.settings-chevron` color |
 | `#3F4854` | 1 | `.settings-row-icon` color |
-| `#4D5870` | 1 | `.settings-row:hover .settings-row-title` color |
 | `#69717D` | 1 | `.settings-close` color |
 | `#6d6d6d` | 1 | `.landing-card-label` color |
 | `#6F7480` | 1 | `.settings-panel-head h2` color |
@@ -260,8 +261,8 @@ Settings close × on 24 px, and the glance hero on 31 px; the setup screen and l
 |---|---|---|
 | `13px` | 20 | `.archive-empty`, `.settings-panel-head h2`, `.confirm-panel-line` |
 | `14px` | 17 | `.sidebar-settings, .sidebar-companion`, `.time-date`, `.task-add` |
+| `11px` | 10 | `.pill-sub`, `.settings-row-subtitle`, `.settings-theme-btn` |
 | `12px` | 10 | `.toggle-glyph`, `.time-foot`, `.th-title` |
-| `11px` | 9 | `.pill-sub`, `.settings-row-subtitle`, `.glance-eyebrow` |
 | `15px` | 9 | `body`, `.glance-cue`, `.task-text` |
 | `14.5px` | 7 | `.sidebar-label`, `.project-pill`, `.confirm-panel-title` |
 | `16px` | 5 | `.pill-del`, `.task-delete`, `.setup .icon-btn` |
@@ -291,7 +292,7 @@ Baskerville upright and italic), not a usage.
 | `600` | 13 | `@font-face`, `.pill-plus`, `.settings-panel-head h2` |
 | `700` | 12 | `@font-face`, `.glance-hero`, `.glance-hero-input` |
 | `400` | 11 | `@font-face`, `.pill-sub`, `.settings-row-subtitle` |
-| `500` | 10 | `@font-face`, `.sidebar-label`, `.project-pill` |
+| `500` | 11 | `@font-face`, `.sidebar-label`, `.project-pill` |
 | `400 700` | 3 | `@font-face` |
 
 ### DS §3.5 Line heights
@@ -305,8 +306,8 @@ setup variable (§9.2).
 | `1` | 9 | `.pill-act`, `.settings-close`, `.bubble-title` |
 | `1.25` | 7 | `.archived-pill .pill-name`, `.settings-row-title`, `.glance-hero` |
 | `1.5` | 6 | `.archive-empty`, `.dashboard .row-add`, `.task-text` |
+| `1.2` | 5 | `.sidebar-settings, .sidebar-companion`, `.settings-panel-head h2`, `.settings-theme-btn` |
 | `1.35` | 5 | `.project-pill`, `.confirm-panel-title`, `.setup .card-head p` |
-| `1.2` | 4 | `.sidebar-settings, .sidebar-companion`, `.settings-panel-head h2`, `.confirm-panel-cancel, .confirm-panel-delete` |
 | `1.45` | 4 | `.settings-row-subtitle`, `.confirm-panel-line`, `.dashboard .row-name` |
 | `1.55` | 2 | `body`, `.landing-card-copy` |
 | `1.6` | 2 | `.landing-task-copy`, `.landing-thought-copy` |
@@ -356,7 +357,7 @@ inherited radius or, inside a shorthand, shapes the landing's arch and quarter-r
 <!-- census: border-radius -->
 | value | uses | where |
 |---|---|---|
-| `var(--r-pill)` | 14 (token) | `.project-pill`, `.confirm-panel-cancel, .confirm-panel-delete`, `.glance-bar-wrap` |
+| `var(--r-pill)` | 15 (token) | `.project-pill`, `.settings-theme-options`, `.confirm-panel-cancel, .confirm-panel-delete` |
 | `50%` | 13 | `.pill-dot`, `.pill-act`, `.settings-close` |
 | `0` | 10 | `.time-hours-input`, `.ph-days-input`, `.lr-pct-input` |
 | `var(--r-input)` | 7 (token) | `.dashboard .row`, `.dashboard .row-add`, `.task-item` |
@@ -366,13 +367,13 @@ inherited radius or, inside a shorthand, shapes the landing's arch and quarter-r
 | `10px` | 3 | `.th-group-list .th-row`, `.setup .setup-cancel`, `.setup .setup-archive-link` |
 | `28px` | 3 | `.settings-panel`, `.landing-shape-arch` |
 | `6px` | 3 | `.auth-link`, `.pill-rename`, `.th-title-input` |
+| `999px` | 2 | `.settings-theme-btn`, `.panel-toggle-btn` |
 | `var(--setup-radius-button)` | 2 (token) | `.setup .archive-restore`, `.setup .cta` |
 | `100%` | 1 | `.landing-shape-quarter` |
 | `14px` | 1 | `.landing-hotspot--toggle` |
 | `22px` | 1 | `.landing-thought-card` |
 | `26px` | 1 | `.landing-hotspot` |
 | `3px` | 1 | `.glance-bar` |
-| `999px` | 1 | `.panel-toggle-btn` |
 | `var(--setup-radius-section)` | 1 (token) | `.setup .card` |
 
 ## DS §5 Spacing
@@ -400,18 +401,18 @@ Shorthand values are split into their parts and the longhands (`padding-top`, `p
 <!-- census: padding -->
 | value | uses | where |
 |---|---|---|
-| `0` | 43 | `*`, `.sidebar-label`, `.sidebar-settings, .sidebar-companion` |
+| `0` | 45 | `*`, `.sidebar-label`, `.sidebar-settings, .sidebar-companion` |
+| `10px` | 11 | `.settings-theme-btn`, `.task-item`, `.th-row` |
 | `2px` | 11 | `.pill-rename`, `.dashboard .row-name-input`, `.dashboard .row-del` |
-| `10px` | 10 | `.task-item`, `.th-row`, `.companion-thought` |
 | `var(--space-2)` | 10 (token) | `.project-pill`, `.dashboard .col-head`, `.dashboard .row` |
 | `8px` | 9 | `.sidebar-settings, .sidebar-companion`, `.th-group-chip`, `.th-action-bar` |
 | `var(--space-3)` | 9 (token) | `.sidebar`, `.sidebar-label`, `.project-pill` |
 | `6px` | 8 | `.pill-rename`, `.dashboard .row-name-input`, `.task-text-input` |
 | `22px` | 6 | `.settings-panel`, `.settings-version`, `.setup .card` |
 | `28px` | 6 | `.settings-panel`, `.setup`, `.landing-topbar` |
+| `3px` | 6 | `.settings-theme-options`, `.panel-toggle`, `.th-text-input` |
+| `12px` | 5 | `.settings-row`, `.settings-theme`, `.setup .project-title-input` |
 | `24px` | 5 | `.settings-panel`, `.setup .card`, `.landing-thought-card` |
-| `3px` | 5 | `.panel-toggle`, `.th-text-input`, `.setup .project-title-input` |
-| `12px` | 4 | `.settings-row`, `.setup .project-title-input`, `.setup input.project-title-input[type="text"` |
 | `14px` | 4 | `.th-action-btn`, `.setup .archive-restore`, `.setup` |
 | `1px` | 4 | `.time-hours-input`, `.ph-days-input`, `.lr-pct-input` |
 | `20px` | 4 | `.setup`, `.setup .learning-card`, `.setup .card` |
@@ -439,6 +440,8 @@ Shorthand values are split into their parts and the longhands (`padding-top`, `p
 | `58px` | 1 | `.setup .with-unit input` |
 | `72px` | 1 | `.landing-demo` |
 | `96px` | 1 | `.landing-hero` |
+| `calc(var(--space-3) - 1px)` | 1 (token) | `[data-theme="sand"] .sidebar` |
+| `calc(var(--space-6) - 1px)` | 1 (token) | `[data-theme="sand"] .sidebar` |
 | `var(--setup-row-pad)` | 1 (token) | `.setup .row` |
 | `var(--space-4)` | 1 (token) | `.companion .bubble` |
 | `var(--space-6)` | 1 (token) | `.sidebar` |
@@ -489,8 +492,8 @@ would stop the collapse and widen that gap to 42 px.
 | value | uses | where |
 |---|---|---|
 | `var(--space-2)` | 13 (token) | `.project-pill`, `.bubble-header`, `.glance-hero-row` |
-| `2px` | 7 | `.dashboard .list`, `.task-list`, `.panel-toggle` |
-| `10px` | 6 | `.sidebar-settings, .sidebar-companion`, `.settings-panel-head`, `.settings-row` |
+| `2px` | 8 | `.settings-theme-options`, `.dashboard .list`, `.task-list` |
+| `10px` | 7 | `.sidebar-settings, .sidebar-companion`, `.settings-panel-head`, `.settings-row` |
 | `4px` | 6 | `.settings-row-copy`, `.glance-spark`, `.hist-toggle` |
 | `var(--space-1)` | 4 (token) | `.sidebar`, `.project-pills`, `.confirm-panel-actions` |
 | `14px` | 3 | `.setup`, `.setup .interview-sections`, `.setup .time-flow` |
@@ -598,12 +601,13 @@ would stop the collapse and widen that gap to 42 px.
 | `13px` | 4 | `.pill-archive-icon`, `.glance-clock svg`, `.panel-toggle-btn svg` |
 | `14px` | 4 | `.settings-close-icon`, `.dashboard .row-handle`, `.task-handle` |
 | `15px` | 4 | `.settings-chevron`, `.cslider-knob`, `.th-check` |
+| `22px` | 3 | `.settings-theme-btn`, `.task-check`, `.panel-toggle-btn` |
 | `36px` | 3 | `.glance-spark`, `.glance-clock`, `.setup .icon-btn` |
 | `84px` | 3 | `.landing-shape-circle`, `.landing-shape-quarter`, `.landing-shape-square` |
 | `auto` | 3 | `.glance-hero-input-narrow`, `.companion .glance-hero`, `.landing-hero-pic` |
 | `1px` | 2 | `.settings-divider`, `.setup .progress-step::before` |
 | `20px` | 2 | `.ph-days-input`, `.lr-pct-input` |
-| `22px` | 2 | `.task-check`, `.panel-toggle-btn` |
+| `28px` | 2 | `.settings-theme-options`, `.panel-toggle` |
 | `5px` | 2 | `.glance .cslider`, `.glance-bar-wrap` |
 | `78px` | 2 | `.glance-hero`, `.glance-hero-input` |
 | `100vh` | 1 | `.companion` |
@@ -612,7 +616,6 @@ would stop the collapse and widen that gap to 42 px.
 | `16px` | 1 | `.setup .grip svg` |
 | `24px` | 1 | `.setup .progress-step::before` |
 | `26px` | 1 | `.settings-close` |
-| `28px` | 1 | `.panel-toggle` |
 | `42px` | 1 | `.landing-shape-outline` |
 | `7px` | 1 | `.cslider` |
 | `80vh` | 1 | `.app` |
@@ -673,10 +676,11 @@ insertion lines, in a module accent or a 35% black; `0 0 0 3px …` rings are fo
 | value | uses | where |
 |---|---|---|
 | `none` | 9 | `.th-action-btn-ghost:hover`, `.companion .bubble`, `.companion .bubble:hover` |
+| `var(--shadow-rest)` | 4 (token) | `[data-theme="sand"] .sidebar`, `.confirm-panel`, `.bubble` |
 | `0 0 0 3px color-mix(in srgb, var(--primary-500) 32%, transparent)` | 3 (token) | `.auth-primary-button:focus-visible, .auth-se`, `.pill-act:focus-visible`, `.confirm-panel-cancel:focus-visible, .confir` |
-| `var(--shadow-rest)` | 3 (token) | `.confirm-panel`, `.bubble`, `.dashboard .row.dragging` |
 | `0 0 0 3px color-mix(in srgb, var(--primary-500) 28%, transparent)` | 2 (token) | `.auth-input:focus`, `.cslider:focus-visible` |
 | `0 0 0 3px var(--setup-input-focus-ring)` | 2 (token) | `.setup input:focus`, `.setup .level-select:focus` |
+| `0 1px 3px rgba(58, 42, 20, 0.12)` | 2 | `.settings-theme-btn.active`, `.panel-toggle-btn.active` |
 | `0 4px 0 -1px var(--setup-input-focus-ring)` | 2 (token) | `.setup .project-title-input:focus`, `.setup input.project-title-input[type="text"` |
 | `inset 0 -2px 0 rgba(0, 0, 0, 0.35)` | 2 | `.project-pill.drop-after`, `.dashboard .row.drop-after` |
 | `inset 0 -2px 0 var(--accent-task)` | 2 (token) | `.th-row.drop-after`, `.th-group.drop-after` |
@@ -688,7 +692,6 @@ insertion lines, in a module accent or a 35% black; `0 0 0 3px …` rings are fo
 | `0 0 0 3px rgba(244, 132, 95, 0.5)` | 1 | `.glance-clock:focus-visible` |
 | `0 0 0 4px color-mix(in srgb, var(--step-accent) 16%, transparent)` | 1 (token) | `.setup .progress-step.is-active .progress-no` |
 | `0 10px 22px color-mix(in srgb, var(--primary-800) 22%, transparent)` | 1 (token) | `.setup .cta:hover:not(:disabled)` |
-| `0 1px 3px rgba(58, 42, 20, 0.12)` | 1 | `.panel-toggle-btn.active` |
 | `0 1px 3px rgba(58, 42, 20, 0.22)` | 1 | `.cslider-knob` |
 | `0 1px 4px rgba(58, 42, 20, 0.14)` | 1 | `.landing-seg button[aria-pressed="true"]` |
 | `0 24px 54px rgba(58, 42, 20, 0.16), 0 7px 18px rgba(58, 42, 20, 0.08)` | 1 | `.settings-panel` |
@@ -718,9 +721,9 @@ keyframe animations.
 | `opacity 200ms ease` | 7 | `.glance-cue`, `.dashboard .row-handle`, `.ph-state svg` |
 | `color 150ms ease` | 5 | `.sidebar-toggle`, `.sidebar-settings, .sidebar-companion`, `.settings-row-title` |
 | `opacity 160ms ease` | 5 | `.cslider-knob`, `.th-add-input`, `.setup .row` |
+| `background 150ms ease, color 150ms ease` | 4 | `.settings-close`, `.settings-theme-btn`, `.panel-toggle-btn` |
 | `opacity 150ms ease` | 4 | `.th-check`, `.th-title-empty`, `.th-pop` |
 | `background 150ms ease` | 3 | `.dashboard .row`, `.task-item`, `.th-row` |
-| `background 150ms ease, color 150ms ease` | 3 | `.settings-close`, `.panel-toggle-btn`, `.th-ungroup` |
 | `background 160ms ease, color 160ms ease` | 3 | `.setup .setup-cancel`, `.setup .setup-archive-link`, `.setup .add` |
 | `border-color 200ms ease, background 200ms ease` | 3 | `.ph-state`, `.focus-target`, `.task-check` |
 | `background 200ms ease, color 200ms ease` | 2 | `.project-pill`, `.landing-seg button` |
@@ -985,7 +988,8 @@ overhaul in `docs/ideas.md`). Nothing here is a rule.
 
 ## DS §11 Token inventory (styles.css)
 
-The complete `:root` inventory, for the two-way check.
+The complete inventory of token definitions, for the two-way check: `:root`, then the Sand
+theme's overrides of nine of those tokens (§12).
 
 <!-- census: tokens:styles.css -->
 | token | value | defined at |
@@ -1047,3 +1051,50 @@ The complete `:root` inventory, for the two-way check.
 | `--font-metric` | `'Lexend Deca', 'PingFang SC', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif` | `:root` · §3.2 — type roles |
 | `--font-task` | `'Libre Baskerville', Georgia, serif` | `:root` · §3.2 — type roles |
 | `--font-thought` | `'Libre Baskerville', Georgia, serif` | `:root` · §3.2 — type roles |
+| `--bg` | `var(--primary-200)` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--bg-time` | `var(--primary-100)` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--bg-timeline` | `var(--primary-100)` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--bg-learning` | `var(--primary-100)` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--bg-task` | `var(--primary-100)` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--edge-time` | `color-mix(in srgb, var(--primary-300) 60%, var(--primary-100))` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--edge-timeline` | `color-mix(in srgb, var(--primary-300) 60%, var(--primary-100))` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--edge-learning` | `color-mix(in srgb, var(--primary-300) 60%, var(--primary-100))` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+| `--edge-task` | `color-mix(in srgb, var(--primary-300) 60%, var(--primary-100))` | `:root[data-theme="sand"]` · §12 — the Sand theme (the dashboard on the sand family alone) |
+
+## DS §12 Themes
+
+The dashboard has two looks, chosen in Settings (spec §14). Classic is the dashboard as the
+sections above describe it: each card on its module's wash, the sidebar flat on the page.
+Sand is the same dashboard on the sand family alone. A theme is one block of overrides of
+existing tokens in `styles.css` (anchor `DS §12`), under `:root[data-theme="sand"]`, and one
+rule for the sidebar. It adds no token, and no component has a themed variant: accents, inks,
+type, shape, spacing, elevation and motion are shared by both looks.
+
+| Unit | Classic | Sand |
+|---|---|---|
+| The page, `--bg` | `--primary-300` | `--primary-200` |
+| The four washes, `--bg-time`, `--bg-timeline`, `--bg-learning`, `--bg-task` | the module washes (§2.2) | `--primary-100`, one wash for all four |
+| The four edges, `--edge-time`, `--edge-timeline`, `--edge-learning`, `--edge-task` | the accent-tinted hairlines (§2.2) | `color-mix(in srgb, var(--primary-300) 60%, var(--primary-100))`, one sand hairline for all four |
+| The sidebar | `--sidebar-bg`, no border, no shadow | `--sidebar-bg`, with the bubble's border `rgba(0,0,0,0.04)` and `--shadow-rest`; its padding gives up the border's 1 px on each side |
+
+- **The page is one step lighter and the cards one step lighter still**, so a card is told
+  from the page by its shadow and its hairline, not by a hue. The sidebar is already
+  `--primary-100`, the cards' surface in Sand, so it takes the bubble's border and resting
+  shadow and reads as one more card. Its padding is 1 px less on each side, the border's
+  width, so nothing inside it moves or truncates differently between the two looks.
+- **The edge is a mix**, the form material's idiom (§2.5), between `--primary-200` and
+  `--primary-300`: `--primary-200` is the page in Sand, so a hairline in it would vanish
+  against the page, and `--primary-300` is heavy enough to read as a drawn outline.
+- **Module color in Sand is the accent only** (D11): the header dots, the progress fills, the
+  slider, the checks, the inks and the accent-alpha state colors (§2.2). The task panel's
+  active toggle fills with `--bg-task`, so it is sand too.
+- **Only the dashboard is themed.** The mark is on the document root only while the dashboard
+  shows (spec §14), so the landing page's demo cards keep the module washes, and the auth
+  screens, the setup and the archive screen are the same under both. The companion window
+  (§9.6) is the dashboard's, so its document root carries the same mark (spec §23) and its
+  cards are sand when the dashboard's are.
+- **The Theme control in Settings** is the task panel's toggle recipe (`.panel-toggle`) with
+  words in place of glyphs: a `rgba(0,0,0,0.05)` track 28 px high with 3 px of padding, 22 px
+  buttons, and the pressed one lifted by `0 1px 3px rgba(58,42,20,0.12)`. The pressed button
+  fills with `--surface`, not Task yellow, because Settings belongs to no module (§2.3); its
+  text uses two of the Settings grays, `#4D5870` at rest and `#2F3338` pressed or hovered.

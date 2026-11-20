@@ -105,12 +105,17 @@ describe("what Settings offers", () => {
     expect(container.querySelector(".settings-panel"), "the dialog closed").toBeNull();
   });
 
-  it(`${CHECK} — on this device: the one line and the version, and nothing to press but the close button`, async () => {
+  it(`${CHECK} — on this device: the theme, the one line and the version, and nothing to press but the theme and the close button`, async () => {
     seam.onThisDevice = true;
     const panel = await openSettings();
 
-    expect(words(panel)).toBe("SettingsSaved on this deviceNo account. Your work stays on this device.Version 0.0.0-test");
-    expect(panel.querySelector(".settings-row, .settings-divider, a")).toBeNull();
-    expect(Array.from(panel.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Close settings"]);
+    expect(words(panel)).toBe(
+      "SettingsThemeClassicSandSaved on this deviceNo account. Your work stays on this device.Version 0.0.0-test",
+    );
+    expect(panel.querySelector(".settings-row, a")).toBeNull();
+    expect(panel.querySelectorAll(".settings-divider")).toHaveLength(1);
+    expect(
+      Array.from(panel.querySelectorAll("button")).map((b) => b.getAttribute("aria-label") ?? b.textContent),
+    ).toEqual(["Close settings", "Classic", "Sand"]);
   });
 });

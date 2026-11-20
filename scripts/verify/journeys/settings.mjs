@@ -9,6 +9,22 @@ function settingsDialog(page) {
   return page.getByRole("dialog", { name: "Settings" });
 }
 
+function themeButton(page, name) {
+  return settingsDialog(page).getByRole("group", { name: "Theme" }).getByRole("button", { name, exact: true });
+}
+
+const CARDS = [".bubble-time", ".bubble-timeline", ".bubble-learning", ".bubble-task"];
+
+function background(page, selector) {
+  return page.locator(selector).first().evaluate((el) => el.ownerDocument.defaultView.getComputedStyle(el).backgroundColor);
+}
+
+async function cardBackgrounds(page) {
+  const found = [];
+  for (const selector of CARDS) found.push(await background(page, selector));
+  return found;
+}
+
 export default {
   name: "settings",
   section: "§14",
@@ -16,7 +32,7 @@ export default {
   steps: [
     {
       id: "set-open",
-      what: `Settings at the bottom of the sidebar opens a non-modal dialog "Settings", focus on its close ×; the trigger carries aria-haspopup, aria-expanded and, while open, aria-controls; the rows are Privacy Notice, Log out and "Version ${VERSION}"`,
+      what: `Settings at the bottom of the sidebar opens a non-modal dialog "Settings", focus on its close ×; the trigger carries aria-haspopup, aria-expanded and, while open, aria-controls; the rows are Theme with Classic pressed and Sand not, Privacy Notice, Log out and "Version ${VERSION}"`,
       async run(j) {
         const { page, expect } = j;
         await j.signIn();
@@ -32,6 +48,8 @@ export default {
         await expect(trigger).toHaveAttribute("aria-expanded", "true");
         await expect(trigger).toHaveAttribute("aria-controls", (await dialog.getAttribute("id")) ?? "missing");
         await expect(dialog.getByRole("button", { name: "Close settings" })).toBeFocused();
+        await expect(themeButton(page, "Classic")).toHaveAttribute("aria-pressed", "true");
+        await expect(themeButton(page, "Sand")).toHaveAttribute("aria-pressed", "false");
         const privacy = dialog.getByRole("link", { name: "Privacy Notice, read our privacy policy" });
         await expect(privacy).toHaveAttribute("href", "/privacy.html");
         await expect(privacy).not.toHaveAttribute("target", /.+/);
@@ -55,6 +73,40 @@ export default {
         await settingsDialog(page).getByRole("button", { name: "Close settings" }).click();
         await expect(settingsDialog(page)).toHaveCount(0);
         await expect(dashboardShown(page)).toBeFocused();
+      },
+    },
+    {
+      id: "set-theme",
+      what: "Sand marks the page data-theme=\"sand\", puts the four cards on the sidebar's one sand surface, leaves the dialog open, is stored in this browser and shows again after a reload; Classic takes the mark off and gives each card its own wash again",
+      async run(j) {
+        const { page, expect } = j;
+        const html = page.locator("html");
+        await expect(html).not.toHaveAttribute("data-theme", /.+/);
+        const classic = await cardBackgrounds(page);
+        if (new Set(classic).size !== CARDS.length) throw new Error(`In Classic each card has its own wash, and these were shown: ${classic.join(", ")}.`);
+        await dashboardShown(page).click();
+        await themeButton(page, "Sand").click();
+        await expect(themeButton(page, "Sand")).toHaveAttribute("aria-pressed", "true");
+        await expect(themeButton(page, "Classic")).toHaveAttribute("aria-pressed", "false");
+        await expect(settingsDialog(page)).toBeVisible();
+        await expect(html).toHaveAttribute("data-theme", "sand");
+        const sidebar = await background(page, "aside.sidebar");
+        const sand = await cardBackgrounds(page);
+        if (sand.some((one) => one !== sidebar)) throw new Error(`In Sand every card is on the sidebar's surface, ${sidebar}, and these were shown: ${sand.join(", ")}.`);
+        const stored = await page.evaluate(() => globalThis.localStorage.getItem("compass.theme"));
+        if (stored !== "sand") throw new Error(`The browser holds the theme "${stored}", not "sand".`);
+        await j.snap("sand");
+        await page.reload();
+        await expect(dashboardShown(page)).toBeVisible();
+        await expect(html).toHaveAttribute("data-theme", "sand");
+        await dashboardShown(page).click();
+        await expect(themeButton(page, "Sand")).toHaveAttribute("aria-pressed", "true");
+        await themeButton(page, "Classic").click();
+        await expect(html).not.toHaveAttribute("data-theme", /.+/);
+        const again = await cardBackgrounds(page);
+        if (again.join() !== classic.join()) throw new Error(`Back in Classic the cards showed ${again.join(", ")}, not ${classic.join(", ")}.`);
+        await page.keyboard.press("Escape");
+        await expect(settingsDialog(page)).toHaveCount(0);
       },
     },
     {

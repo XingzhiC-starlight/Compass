@@ -15,7 +15,7 @@ import TimelineCard from "./TimelineCard";
 import LearningCard from "./LearningCard";
 import TaskPanel from "./TaskPanel";
 import Companion from "../companion/Companion";
-import { onCaptureAsked, openCompanionWindow, showCompass } from "../companion/companionWindow";
+import { followTheme, onCaptureAsked, openCompanionWindow, showCompass } from "../companion/companionWindow";
 
 type ViewMode = "summary" | "depth";
 
@@ -165,9 +165,12 @@ export default function Dashboard({
     const closeIt = () => companionWin.close();
     companionWin.addEventListener("pagehide", gone);
     window.addEventListener("pagehide", closeIt);
+    // The companion is part of the dashboard, so it wears the dashboard's theme (spec §14).
+    const stopFollowing = followTheme(document, companionWin.document);
     return () => {
       companionWin.removeEventListener("pagehide", gone);
       window.removeEventListener("pagehide", closeIt);
+      stopFollowing();
     };
   }, [companionWin]);
 

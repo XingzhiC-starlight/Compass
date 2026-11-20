@@ -143,6 +143,19 @@
   --font-thought: 'Libre Baskerville', Georgia, serif;
 }
 
+/* DS §12 — the Sand theme (the dashboard on the sand family alone) */
+:root[data-theme="sand"] {
+  --bg: var(--primary-200);
+  --bg-time: var(--primary-100);
+  --bg-timeline: var(--primary-100);
+  --bg-learning: var(--primary-100);
+  --bg-task: var(--primary-100);
+  --edge-time: color-mix(in srgb, var(--primary-300) 60%, var(--primary-100));
+  --edge-timeline: color-mix(in srgb, var(--primary-300) 60%, var(--primary-100));
+  --edge-learning: color-mix(in srgb, var(--primary-300) 60%, var(--primary-100));
+  --edge-task: color-mix(in srgb, var(--primary-300) 60%, var(--primary-100));
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -256,6 +269,12 @@ body {
   flex-direction: column;
   gap: var(--space-1);
   position: relative;
+}
+
+[data-theme="sand"] .sidebar {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: calc(var(--space-6) - 1px) calc(var(--space-3) - 1px);
+  box-shadow: var(--shadow-rest);
 }
 
 .sidebar-label {
@@ -450,7 +469,8 @@ body {
 .sidebar-settings:focus-visible,
 .sidebar-companion:focus-visible,
 .settings-close:focus-visible,
-.settings-row:focus-visible {
+.settings-row:focus-visible,
+.settings-theme-btn:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--primary-500) 55%, transparent);
   outline-offset: 3px;
 }
@@ -619,6 +639,50 @@ body {
   font-weight: 400;
   line-height: 1.45;
   color: #7C838C;
+}
+
+.settings-theme {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+}
+
+.settings-theme-options {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: var(--r-pill);
+}
+
+.settings-theme-btn {
+  height: 22px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #4D5870;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.settings-theme-btn:hover {
+  color: #2F3338;
+}
+
+.settings-theme-btn.active {
+  background: var(--surface);
+  color: #2F3338;
+  box-shadow: 0 1px 3px rgba(58, 42, 20, 0.12);
 }
 
 .settings-divider {
