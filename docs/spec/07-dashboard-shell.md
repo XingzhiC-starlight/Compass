@@ -55,4 +55,10 @@ reordering pills, phases, learning items, tasks or thoughts.
 **Derived for the cards.** The current phase start (the latest completion day among done
 phases, else the project's start day), the remaining days (the sum of estimated days over
 unfinished phases), and whether all phases are done (at least one phase, every one done) are
-computed here and passed down.
+computed here, by `phasePacing` of `src/dashboard/projectTime.ts`, and passed down.
+
+**The companion.** The dashboard owns the companion's window (§23): the sidebar's Companion
+button (§6) opens it or brings it forward, it shows the active project across a project
+switch and a load, and it closes with the dashboard. After a save made in the companion, the
+cards are refreshed quietly, exactly as after a failed save above but with no note: the
+payload is re-read and the mounted cards adopt it in place.

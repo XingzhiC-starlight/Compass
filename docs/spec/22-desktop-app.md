@@ -1,6 +1,6 @@
 ## §22 The desktop app
 
-Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/icons/make-icons.mjs`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20
+Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/icons/make-icons.mjs`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20, I21
 
 Compass also runs as a desktop app, built with Electron: the same page in a window of its
 own, with its data in a file on the computer and a clock in the menu bar. Everything a person
@@ -36,7 +36,8 @@ no-referrer`. So the page loads its own files and connects to nothing.
 The page is a web page and no more (I20): context isolation and the sandbox are on and Node
 is off, so it has no `require`, no `process` and no disk. A link to a web address, `http` or
 `https`, opens in the person's browser; the window itself never leaves the app's address,
-and any other kind of link goes nowhere. The page's own storage holds what it holds in a
+and any other kind of link goes nowhere. The one window the page may open is its companion
+(below). The page's own storage holds what it holds in a
 browser, the active project's id (§3), and not the tables.
 
 On a Mac, closing the window hides it and leaves Compass running in the menu bar; the Dock
@@ -69,12 +70,36 @@ engine the browser's backend uses.
 - A check starts the app with `COMPASS_DATA_FOLDER` naming a folder of its own, which
   replaces the application-data folder, so it never opens the person's file.
 
+### The companion's window
+
+The companion (§23) is the same in the desktop app as in a browser, drawn by the page into a
+window the page opens. The app's part is the window. The main window's open handler allows
+one window and no other: an empty one, at `about:blank`, opened under the name
+`compass-companion` (`isTheCompanion` in `desktop/appFiles.ts`), which is how the page asks
+for it (§23). It is given the app's own shape for it (`COMPANION_WINDOW`), whatever the page
+asked: 300 by 250, no smaller than 240 by 160, titled "Compass Companion", above other
+windows, never full screen, never maximized, and with no entry of its own in a taskbar.
+When it has been made it is set to float above other apps' windows too and, on a Mac, to
+show on every desktop and beside a full-screen app. The page can resize it, which is how it
+grows for the summary. It is a window of the page's, not a page: its document stays at
+`about:blank` and is given no bridge, it may navigate nowhere, and it may open nothing; a
+link to a web address in it opens in the person's browser. Since it shares the page, it
+needs no channel for the data.
+
+On a Mac, closing the main window hides it and leaves the companion where it is, with its
+clock ticking and its saves going to the file; the companion's **Open Compass** shows the
+main window again through the bridge's `show`. Closing the companion closes that window
+alone. Where closing the main window ends the app, the companion goes with it.
+
 ### The bridge
 
-The page reaches the file by one way. `desktop/preload.cjs` gives it `window.compassDesktop`
-with one function, `send(request)`, which hands a request of the local client (§21), as
+The page reaches the app by one way. `desktop/preload.cjs` gives it `window.compassDesktop`
+with two functions. `send(request)` hands a request of the local client (§21), as
 plain data, to the main process on the channel `compass:database` and answers the answer.
-The main process answers only a request from a page at the app's own address. In the page,
+`show()` asks, on the channel `compass:show-window`, for the main window to be shown, as the
+menu's "Open Compass" shows it; it carries nothing and answers nothing, and
+`src/companion/companionWindow.ts` is its one caller (§23).
+The main process answers only a page at the app's own address, on either channel. In the page,
 `getSupabase()` looks for the bridge first: when it is there the client is
 `createLocalClient(desktopBackend(window.compassDesktop))`, whatever the two Supabase values
 are, so the desktop app is never over a Supabase project (I19). A request whose bridge call
@@ -103,15 +128,21 @@ and cannot be pressed, since the setting would open the bare Electron program.
 ### What checks it
 
 The pure parts each have tests in the suite (§19): the file's holder over a pretend disk,
-the menu bar's text and menu, the files the window is handed and the policy they carry, and
+the menu bar's text and menu, the files the window is handed and the policy they carry, which
+window the page may open and its shape, and
 in `src/lib/` the choice of the bridge and the bridge's backend. `npm run test:desktop`
 builds the app, starts the real one with Playwright on a data folder of its own and drives
 its window (`desktop/the-desktop-app.desktop.ts`): a first open shows the setup at
 `compass://app/` with no sign-in; a project, a task and a running clock are in the file,
 the page's storage holds no tables and Settings says "Saved on this device" (§14); opened again, the same project, task and running clock
-are there; the page has the bridge's one function and no Node, a request to a web address
+are there; the companion opens from the sidebar as a second window at `about:blank`, it
+alone is above the others and its document has no bridge, a press on the clock in either
+window moves the other, its summary shows the phase and the focus, a task ticked and a
+thought typed there are in the file and on the dashboard, a task added on the dashboard
+appears in it, and with the main window hidden its Open Compass shows it again; the page has the bridge's two functions and no Node, a request to a web address
 from the page is refused, and a second copy opens no window. On a machine with no screen it
 runs under `xvfb-run`, and on Linux it starts the app with Chromium's sandbox off, which
 test machines there lack the setting for. The menu bar's icon, its text on a real Mac, the
-hiding window and Open at Login are checked by no test: they are the operating system's, and
+hiding window, Open at Login, and the companion staying above other apps, on every desktop
+and beside a full-screen app are checked by no test: they are the operating system's, and
 are tried by hand on a Mac.

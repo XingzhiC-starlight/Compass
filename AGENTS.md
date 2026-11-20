@@ -63,7 +63,8 @@ you ran and what it printed.
   databases (I19): with no Supabase values set, the local database on this device, with no
   accounts; with both set, Supabase (Postgres, Auth, owner-only RLS); pure logic in
   `src/lib/transforms.ts`; screens switched by state in `App.tsx` (I9); the same page in an
-  Electron window with its data in a file (`desktop/`, I20, spec §22); the hosted service's
+  Electron window with its data in a file (`desktop/`, I20, spec §22); the companion, a small
+  second window the dashboard draws into (`src/companion/`, I21, spec §23); the hosted service's
   headers in `vercel.json`. Spec §1–§4, and
   §21 for the layers, who owns which state, the seam's operations and the flows. A change to
   what `src/lib/db.ts` exports updates §21's table in the same pull request; the docs check
@@ -74,7 +75,8 @@ you ran and what it printed.
   `.claude/skills/` the project's skills.
 - Most often at stake: I1 (the seam), I2 (secrets), I3 (per-project scoping), I4 (day keys),
   I5–I7 and I18 (auth, hosting), I8 with D1 (visual changes reuse existing units), I9, I19
-  (which database is behind the seam), I20 (the desktop page is only a page).
+  (which database is behind the seam), I20 (the desktop page is only a page), I21 (the
+  companion holds nothing of its own).
 
 ## Which spec to read
 
@@ -89,7 +91,9 @@ file under `src/`, `supabase/`, `scripts/` or `browser/` is in no row.
 | `src/auth/`, `src/lib/recoveryLink.ts`, `supabase/templates/` | §5, §17 |
 | `src/dashboard/Sidebar.tsx`, `src/dashboard/Sidebar/`, `src/archive/`, `src/dashboard/DeleteConfirm.tsx`, `src/dashboard/useDeleteConfirm.tsx` | §6, §14 |
 | `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts`, `src/dashboard/a-drop-after-a-refresh.test.tsx`, `src/dashboard/the-boxes-under-strict-mode.test.tsx`, `src/dashboard/markup-shaped-text-appears-as-typed.test.tsx` | §7, §21 |
-| `src/dashboard/TimeCard.tsx`, `src/dashboard/TimeCard/`, `src/dashboard/hoursEdit.ts`, `src/dashboard/projectTime.ts` | §8 |
+| `src/companion/`, `src/dashboard/the-companion-belongs-to-the-dashboard.test.tsx` | §23, §7, §21, and §22 for its window in the desktop app |
+| `src/dashboard/TimeCard.tsx`, `src/dashboard/TimeCard/`, `src/dashboard/hoursEdit.ts` | §8 |
+| `src/dashboard/projectTime.ts` | §8, §9, §10, §23: the cards and the companion share its lines |
 | `src/dashboard/TimelineCard.tsx` | §9 |
 | `src/dashboard/TaskPanel.tsx` | §11 |
 | `src/dashboard/LearningCard.tsx`, `src/dashboard/learningFocus.ts`, `src/dashboard/CSlider.tsx` | §10 |
@@ -105,7 +109,7 @@ file under `src/`, `supabase/`, `scripts/` or `browser/` is in no row.
 | `scripts/docs-check.mjs`, `scripts/design-census.mjs` | §0, §16, §21 |
 | `scripts/verify/`, `.claude/skills/verify-compass/` | §19, and the section a journey walks (§5–§15) |
 | `closed/`, `vercel.json` | §17, §20 |
-| `desktop/` | §22, §17, and §21 for the local client it stands behind |
+| `desktop/` | §22, §17, §21 for the local client it stands behind, and §23 for the companion's window |
 
 ## Things to avoid
 

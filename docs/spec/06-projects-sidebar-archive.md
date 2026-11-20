@@ -66,4 +66,8 @@ clips it or receives its clicks. Archiving asks nothing.
 Accessible names in the sidebar: "Delete {name}", "Archive {name}", "Restore {name}"; the
 standalone archive screen's restore button is named only "Restore".
 
-The Settings button sits at the bottom of the sidebar (§14).
+The Settings button sits at the bottom of the sidebar (§14). Above it is the **Companion**
+button, a small window glyph and the word, in the Settings button's style: it opens the
+companion window, or brings it forward when it is open (§23). Its tooltip is "Open the small
+companion window", and while the companion is open "The companion is open: bring it forward"
+with the button shown as active.

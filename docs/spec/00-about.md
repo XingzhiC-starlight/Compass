@@ -22,7 +22,8 @@ present only: no intentions, no history, no state of git.
 - A fact that was verified on a date (a production check, a dashboard setting) carries that
   date inside a table. Headings never carry dates.
 - §21 holds the architecture a rebuild keeps: the layers, who owns which state, the seam's
-  operations and the flows.
+  operations and the flows. §22 is the desktop app around the page, and §23 the companion, a
+  second window of the same page.
 - Whether these documents alone are enough to rebuild Compass is measured, not assumed: the
   spec-rebuild-quiz skill (`.claude/skills/spec-rebuild-quiz/`) has a reader who sees only
   the documents answer its questions, and a grader check each answer against the code. An

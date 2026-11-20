@@ -1,6 +1,6 @@
 ## §10 Learning card
 
-Code: `src/dashboard/LearningCard.tsx`, `src/dashboard/learningFocus.ts`, `src/dashboard/CSlider.tsx` · Keeps: I11, I13, I14, I15
+Code: `src/dashboard/LearningCard.tsx`, `src/dashboard/learningFocus.ts`, `src/dashboard/CSlider.tsx`, `src/dashboard/projectTime.ts` · Keeps: I11, I13, I14, I15
 
 The upper-right bubble (`src/dashboard/LearningCard.tsx`, with the pure
 `src/dashboard/learningFocus.ts`), titled "Learning". It is navigational, not numerical: the

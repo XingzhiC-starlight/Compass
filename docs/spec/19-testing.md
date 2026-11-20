@@ -174,6 +174,11 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   (`desktop/the-desktop-app.desktop.ts`, run by Playwright with
   `desktop/playwright.config.ts`); §22 says what each shows. `npm run typecheck:desktop`
   type-checks `desktop/`, which the build's type check does not read.
+- The companion (§23) has tests in the suite for its pure parts, for the component drawn into
+  a document with the seam stood in for, and for the dashboard's ownership of its window
+  with the window stood in for; §23 names each. No test in the suite opens a real second
+  window. The desktop check does: it opens the real companion from the sidebar and drives
+  both windows (§22).
 
 ### The practice copy and the database checks
 

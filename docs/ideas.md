@@ -7,11 +7,10 @@ idea, write it here in a few lines. What Compass does today is in `docs/spec/` a
 
 ## Product
 
-- **Companion mode.** A small always-on-top window that keeps the running clock and a glance
-  at the four cards in view while the user works in another app: tick off a task or capture a
-  thought without switching back, and open the full dashboard from it. A working experiment,
-  about 1,900 lines in one commit, sits on the local branch `companion-mode-experiment`, which
-  was never pushed. Build on it or start fresh.
+- **Open the companion from the menu bar, and remember where it was put.** The companion
+  (spec §23) opens from the sidebar alone, at the place and size the system gives it each
+  time. A line in the menu bar's menu could open it without the main window, and its place
+  on the screen could be kept between openings.
 - **An installer for the desktop app.** The desktop app runs from the source (spec §22).
   Package it so a person can download and open it, and so Open at Login can be pressed.
 - **Start and stop the clock from the menu bar.** The menu bar shows the running clock (spec
