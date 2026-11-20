@@ -7,7 +7,7 @@ that picks one of eight screens from the session and the project list:
 
 | Screen | Shown when | Component |
 |---|---|---|
-| loading | the gate is resolving | inline in `App.tsx` |
+| loading | the gate's first run is resolving; a later run keeps the screen it has until it resolves (§21) | inline in `App.tsx` |
 | landing | no session | `src/landing/Landing.tsx` |
 | login | the landing's Log in pills; or no session on a page load that arrived from a failed auth redirect (an expired Google sign-in, or a used or expired email link), so its notice is visible | `src/auth/LoginScreen.tsx` |
 | recovery | the page load carries a password-recovery link — either a one-time token awaiting the Continue step, or an already-verified recovery session; sticky until the new password is saved or a new reset link is asked for, so the temporary recovery session is never treated as a sign-in | `src/auth/SetNewPassword.tsx` |
@@ -53,7 +53,8 @@ Rules the gate keeps:
   screen quietly refreshes from the server: the sidebar's data is re-read and replaced in
   place, and the dashboard re-reads its cards the same way (§7), so nothing unsaved lingers
   on screen. Several failures close together show one note, and a save that succeeds
-  refreshes nothing. A refresh that cannot reach the server leaves the screen as it is and
+  refreshes nothing, except one made in the companion, after which the cards are refreshed
+  quietly (§23). A refresh that cannot reach the server leaves the screen as it is and
   is tried again when the browser reports the connection back, when the tab is shown again,
   and every 15 seconds, until both its parts, the sidebar's data and the cards, have
   succeeded (§21); signing out drops it. No red, and the note never

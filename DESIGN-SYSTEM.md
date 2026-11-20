@@ -949,7 +949,10 @@ copy of the page's stylesheets, so it is built from the dashboard's units and ad
   shadow on hover: in a window this small the cards sit flat. The hero's fixed height (§9.1)
   is released, since one card stands alone. The summary scrolls with its scrollbar hidden;
   the clock card, the thought box and the last line do not scroll.
-- **Its own classes**, all from existing values: `.companion-line`, a card's one line, in the
+- **Its own classes**, all from existing values: `.companion`, the window's one column, as
+  tall as the window, which also carries `expanded` while the summary is open (no rule reads
+  it); `.companion-summary`, the scrolling region between the clock card and the thought box,
+  its scrollbar hidden; `.companion-line`, a card's one line, in the
   heading face at 15 px, weight 700, line height 1.25, clamped to two lines;
   `.companion-note`, a muted centered line at 13 px; `.companion-cue`, the header's ▸ as a
   bare button; `.companion-thought`, which boxes the thought input with the form material

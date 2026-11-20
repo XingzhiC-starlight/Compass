@@ -108,18 +108,20 @@ Under the summary, while it is open, is one box, "Add a thought", with the place
 "Capture a thought…", stopping at a thought's 4,000 characters (§3). Enter saves it, by the
 rule every field follows (I13): the text is trimmed and an empty box saves nothing; the box
 empties at once; `addThought` puts it in the active project's thought log (§12). When the
-save has answered, the placeholder reads "Saved to the thought log" for 2.4 seconds. A save
-that is refused puts the words back in the box, unless the person has typed new ones since.
+save has been kept, the placeholder reads "Saved to the thought log" for 2.4 seconds. A save
+that is refused shows no such line and puts the words back in the box, unless the person has
+typed new ones since.
 A switch to another project empties the box: nothing typed for one project is filed under
 another.
 
 ### The other lines
 
 Whenever a save fails, here or on the dashboard, the companion shows "Couldn't save just now
-— try again in a moment." for four seconds, the gate's own note (§2), since the note in the
-main window may be out of sight.
+— try again in a moment.", the words of the gate's note (§2), since the note in the main
+window may be out of sight. It shows for four seconds after the latest failure: unlike the
+gate's note, a second failure while it shows starts the four seconds again.
 
-At the bottom, **Open Compass** brings the main window forward (`showCompass`): the page
+At the bottom, whether the summary is open or not, **Open Compass** brings the main window forward (`showCompass`): the page
 focuses itself, and in the desktop app, where the main window may be hidden and a page cannot
 show a hidden window, it first asks the app through the bridge's `show` (§22).
 
@@ -129,8 +131,10 @@ The companion keeps a reading of its own, the active project's payload from
 `getProjectDashboardData` (§21), and never a copy handed over by the dashboard. It takes a
 reading:
 
-- when it opens, and when the active project changes, which also clears the listed tasks and
-  the thought box;
+- when it opens, and when the active project changes. A change of project first clears what
+  it holds, the reading, the clock, the listed tasks and the thought box, so until the new
+  reading arrives the line reads "Today", the clock shows `0:00` and stopped, and an open
+  summary shows "Loading…";
 - every time the last save in flight has answered, wherever the save came from, through the
   seam's `onSavesSettled` (§21); this is how a task added or a clock stopped on the dashboard
   reaches the companion with no press there;
@@ -139,10 +143,12 @@ reading:
   and the day count start again (I4).
 
 A reading that has been overtaken by a later one is dropped, and one that fails leaves the
-last reading showing until the next. In the other direction, after each save of its own, the
-clock, a task, a thought, the companion asks the dashboard for a quiet refresh (§7): the
-payload is read again and the mounted cards adopt it in place, with every open box kept. So
-neither window is told what changed; each reads what is stored.
+last reading showing until the next. In the other direction, the companion asks the dashboard
+for a quiet refresh (§7) after a save of its own: after the clock's and a task's save has
+answered, kept or refused, and after a thought that was kept. A thought that was refused is
+not asked for here; the gate's refresh after any failed save covers it (§2). The payload is
+read again and the mounted cards adopt it in place, with every open box kept. So neither
+window is told what changed; each reads what is stored.
 
 ### What checks it
 

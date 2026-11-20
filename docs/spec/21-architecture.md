@@ -98,7 +98,7 @@ as arguments; only `todayDate`, `dayNumber`, and the two that call `dayNumber`,
 | `src/lib/recoveryLink.ts` | The reset link's one-time token: find it in the query or the hash, take it, and replace the address without it (§5). It reads the page's address itself and rewrites it: the one module here that is not given its inputs. |
 | `src/lib/limits.ts` | `TEXT_LIMITS`: `projectName`, `phaseName`, `learningItemName`, `thoughtGroupName` and `thoughtTitle` at 200, `taskText` and `thoughtText` at 4,000, one per text column a person types into (§3); the accent color's length check has none, since the seam picks the color. |
 | `src/dashboard/dashboardLoad.ts` | `shouldAcceptProjectPayload`, true for the latest request and the active project, and `projectCardTreeKey`, the id and the version joined (I11). |
-| `src/dashboard/projectTime.ts` | `dayNumber`: the whole days from a day key to today on the local calendar, the key's day being day 1; the cards clamp it. `fmtH`: seconds as hours to one decimal, a whole number without it. What the cards and the companion (§23) both show, each worked out once: `phasePacing`, the current phase's start, the remaining days and whether every phase is done (§7); `commitmentEyebrow`, the Commitment card's line (§8); `timelineGlance`, the current phase, its name, its progress and the Timeline's line (§9); `learningGlance`, the focus item, its percent and the Learning card's line (§10). |
+| `src/dashboard/projectTime.ts` | `dayNumber`: the whole days from a day key to today on the local calendar, the key's day being day 1; the cards, and the shared lines below, clamp it. `fmtH`: seconds as hours to one decimal, a whole number without it. What the cards and the companion (§23) both show, each worked out once: `phasePacing`, the current phase's start, the remaining days and whether every phase is done (§7); `commitmentEyebrow`, the Commitment card's line (§8); `timelineGlance`, the current phase, its name, its progress and the Timeline's line (§9); `learningGlance`, the focus item, its percent and the Learning card's line (§10). |
 | `src/companion/companionSummary.ts` | The companion's own lines (§23): `clockSeconds`, the seconds to show from a reading and the moment it was taken; `formatClock`, the clock's face; `goalPct`, the share of the daily goal; `taskGlance`, the task heading and the open tasks; `listedTaskIds`, which tasks are listed when a reading arrives, four at most (`COMPANION_TASKS`). |
 | `src/dashboard/hoursEdit.ts` | `parseHoursEdit`: the number typed into an hours field, or nothing when the text is unchanged, empty or not a plain decimal (§8). |
 | `src/dashboard/learningFocus.ts` | The focus rules for a drag, an added item and a deletion (§10). |
@@ -167,8 +167,9 @@ Nothing else is kept in the browser: no theme, no view, no draft, no selection.
 
 ### The seam's operations
 
-Every write is wrapped in `tracked`, which counts it from the call until its answer, failed
-or not; reads and auth calls are not counted. A write that needs the project reads the
+Every write to the database is wrapped in `tracked`, which counts it from the call until its
+answer, failed or not; reads and auth calls are not counted, and neither is
+`setActiveProject`, which touches only the seam's variable and its `localStorage` copy. A write that needs the project reads the
 seam's active project id when it is called, except `setLoggedSecondsForDate`, which reads it
 when its queued job runs. A failed write is reported once: one console line holding the
 error's code and the first line of its message, and the same pair to every `onWriteError`
@@ -339,8 +340,9 @@ feed the seam answers; a drop of a thought on a group; a group's rename; deletin
 and restoring a project from the sidebar, and restoring one from the archive screen, after
 which the gate runs again; a delete on the archive screen, which re-reads that screen's list
 and runs the gate only when none remains (§6); signing out; and a stopped clock's re-read of
-today's total. A successful write refreshes nothing on the dashboard; an open companion
-reads again (below).
+today's total. A successful write from a card refreshes nothing on the dashboard; an open
+companion reads again, and a write made in the companion refreshes the cards quietly
+(below).
 
 **A failed save.** The seam reports it (above) before its own count drops. `App`'s listener
 shows the note (§2) and starts a quiet refresh of both parts. The sidebar's part reads
@@ -363,9 +365,9 @@ active project's id, and that project's name and accent from the sidebar's data.
 draws into the window's body through a portal and reads `getProjectDashboardData` for itself,
 with a request number of its own. From then on the two stay in step by reading, in both
 directions. Every tracked write, from a card or from the companion, ends in the seam's count
-reaching zero, which calls `onSavesSettled`; the companion reads again there. And after each
-write of its own, `startSession` or `stopSession`, `updateTask`, `addThought`, the companion
-calls back to `Dashboard`, which runs the cards' quiet refresh as for a failed save, without
+reaching zero, which calls `onSavesSettled`; the companion reads again there. And after a
+write of its own, `startSession` or `stopSession` and `updateTask` whatever they answered,
+`addThought` when it was kept, the companion calls back to `Dashboard`, which runs the cards' quiet refresh as for a failed save, without
 the note and without the sidebar's part: the payload is read, twice when saves were in
 flight, adopted in place by the sync version, and `App` is answered as after any quiet
 refresh, so a read that failed is retried (§2). A write the companion sends goes to the
