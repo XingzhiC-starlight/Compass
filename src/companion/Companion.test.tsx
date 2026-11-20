@@ -96,7 +96,7 @@ let host: HTMLDivElement;
 let written: ReturnType<typeof vi.fn<() => void>>;
 let opened: ReturnType<typeof vi.fn<() => void>>;
 
-async function show(projectId = "p1") {
+async function show(projectId = "p1", captureRequest = 0) {
   await act(async () => {
     root.render(
       <Companion
@@ -104,6 +104,7 @@ async function show(projectId = "p1") {
         projectId={projectId}
         projectName="Garden"
         accentColor="#9A7B4F"
+        captureRequest={captureRequest}
         onOpenCompass={opened}
         onDataWritten={written}
       />,
@@ -346,6 +347,42 @@ describe("a thought typed in the companion", () => {
     expect(companion().querySelector(".glance-hero")!.textContent).toBe("0:00");
     expect(companion().querySelector(".glance-eyebrow")!.textContent).toBe("Today");
     expect(button("Start work session")).not.toBeNull();
+  });
+});
+
+describe("a thought asked for from outside", () => {
+  it("opens the summary, grows the window and puts the cursor in the thought box", async () => {
+    await show();
+    expect(thoughtBox()).toBeNull();
+    await show("p1", 1);
+    expect(button("Show the clock alone")).not.toBeNull();
+    expect(window.resizeTo).toHaveBeenCalledWith(300, 640);
+    expect(document.activeElement).toBe(thoughtBox());
+  });
+
+  it("with the summary open already it only moves the cursor, and each new asking moves it again", async () => {
+    await show();
+    await expand();
+    expect(document.activeElement).not.toBe(thoughtBox());
+    await show("p1", 1);
+    expect(document.activeElement).toBe(thoughtBox());
+    expect(button("Show the clock alone")).not.toBeNull();
+
+    thoughtBox().blur();
+    await show("p1", 2);
+    expect(document.activeElement).toBe(thoughtBox());
+  });
+
+  it("a companion opened for a thought starts with its summary open; one opened by its button does not", async () => {
+    await show("p1", 1);
+    expect(document.activeElement).toBe(thoughtBox());
+  });
+
+  it("closing the summary by hand afterwards does not bring the cursor back when it is opened again", async () => {
+    await show("p1", 1);
+    await press(button("Show the clock alone")!);
+    await expand();
+    expect(document.activeElement).not.toBe(thoughtBox());
   });
 });
 

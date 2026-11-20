@@ -15,7 +15,7 @@ import TimelineCard from "./TimelineCard";
 import LearningCard from "./LearningCard";
 import TaskPanel from "./TaskPanel";
 import Companion from "../companion/Companion";
-import { openCompanionWindow, showCompass } from "../companion/companionWindow";
+import { onCaptureAsked, openCompanionWindow, showCompass } from "../companion/companionWindow";
 
 type ViewMode = "summary" | "depth";
 
@@ -64,6 +64,9 @@ export default function Dashboard({
   const companionWinRef = useRef<Window | null>(null);
   companionWinRef.current = companionWin;
   const mounted = useRef(true);
+  // How many times the desktop app has asked for a thought since the companion last opened:
+  // each one opens the companion's summary and puts the cursor in its thought box (§23).
+  const [captureRequest, setCaptureRequest] = useState(0);
 
   async function loadProject() {
     if (!activeProjectId) return;
@@ -121,25 +124,44 @@ export default function Dashboard({
   // eslint-disable-next-line react-hooks/exhaustive-deps -- answers a new refresh request, and nothing else
   }, [quietRefreshRequest]);
 
-  async function openCompanion() {
+  /** Opens the companion or brings it forward; answers whether there is one now. */
+  async function openCompanion(): Promise<boolean> {
     const open = companionWinRef.current;
     if (open && !open.closed) {
       open.focus();
-      return;
+      return true;
     }
     const win = await openCompanionWindow();
-    if (!win) return;
+    if (!win) return false;
     if (!mounted.current) {
       win.close();
-      return;
+      return false;
     }
     setCompanionWin(win);
+    return true;
   }
+
+  const openCompanionRef = useRef(openCompanion);
+  openCompanionRef.current = openCompanion;
+
+  // The desktop app's capture keys: the companion opens, or comes forward, ready for a thought.
+  useEffect(
+    () =>
+      onCaptureAsked(() => {
+        void openCompanionRef.current().then((open) => {
+          if (open) setCaptureRequest((n) => n + 1);
+        });
+      }),
+    [],
+  );
 
   // The person closing the companion clears it here, and this page going takes it along.
   useEffect(() => {
     if (!companionWin) return;
-    const gone = () => setCompanionWin(null);
+    const gone = () => {
+      setCompanionWin(null);
+      setCaptureRequest(0);
+    };
     const closeIt = () => companionWin.close();
     companionWin.addEventListener("pagehide", gone);
     window.addEventListener("pagehide", closeIt);
@@ -210,7 +232,7 @@ export default function Dashboard({
         onArchiveProject={onArchiveProject}
         onUnarchiveProject={onUnarchiveProject}
         onSignOut={onSignOut}
-        onOpenCompanion={openCompanion}
+        onOpenCompanion={() => void openCompanion()}
         companionOpen={!!companionWin}
       />
       <main className={"dashboard" + (depth ? " depth" : "")}>
@@ -258,6 +280,7 @@ export default function Dashboard({
           projectId={activeProjectId}
           projectName={activeProject.name}
           accentColor={activeProject.accentColor}
+          captureRequest={captureRequest}
           onOpenCompass={showCompass}
           onDataWritten={() => void refreshQuietly()}
         />

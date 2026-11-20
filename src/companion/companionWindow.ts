@@ -73,6 +73,20 @@ export async function openCompanionWindow(): Promise<Window | null> {
 }
 
 /**
+ * Hear the desktop app ask for a thought to be captured, by its keys or its menu (§22). In a
+ * browser nothing ever asks. Returns the way to stop listening.
+ */
+export function onCaptureAsked(listener: () => void): () => void {
+  const desktop = (window as { compassDesktop?: { onCapture?: (heard: () => void) => () => void } }).compassDesktop;
+  if (!desktop?.onCapture) return () => undefined;
+  try {
+    return desktop.onCapture(listener);
+  } catch {
+    return () => undefined;
+  }
+}
+
+/**
  * Bring the main window forward. In the desktop app the window may be hidden, which a page
  * cannot undo, so the app is asked through the bridge (§22).
  */
