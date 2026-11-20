@@ -58,8 +58,10 @@ engine the browser's backend uses.
 
 - The file is read once, at the first request, and the tables are held from then on; a
   request is run against the held tables and, when it changed a row, the whole text is
-  written before the request is answered. A read writes nothing, and there is no file until
-  the first save.
+  written before the request is answered. Requests are run one at a time, in the order they
+  come: each one's read, run and save finish before the next starts, so no save is made from
+  tables an earlier request is still changing. A read writes nothing, and there is no file
+  until the first save: a file that is not there reads as the seven tables, empty.
 - A save writes a second file beside the first, `compass-data.json.saving`, readable by its
   owner alone, and renames it over the first, so a save cut short leaves the old file whole.
 - A file that cannot be read, or that is not this format and version, is left exactly as it
@@ -203,32 +205,36 @@ On a Mac it makes `Compass.app`, one app for Apple Silicon and Intel alike, with
 download, `Compass-<version>-mac.dmg`, the version being `package.json`'s; it is about 230
 MB, since it carries Electron twice, once for each kind of Mac. Its icon is `desktop/icons/appIcon.png`, drawn by `make-icons.mjs` with
 the menu-bar icons: the same ring, its needle in the Time accent, on a rounded square of the
-sidebar's cream (DS §2). The app is signed ad hoc, with no Apple Developer certificate, and
-is not notarized: an Apple Silicon Mac starts no program that is not signed at all, and an
-ad hoc signature is the least it accepts. So macOS stops the first open of a downloaded copy
+sidebar's cream (DS §2). The app is signed ad hoc, with no Apple Developer certificate, with
+the hardened runtime off and no entitlements, and is not notarized: an Apple Silicon Mac
+starts no program that is not signed at all, and an ad hoc signature is the least it
+accepts. So macOS stops the first open of a downloaded copy
 and the person allows it once, in System Settings under Privacy & Security (README). On
 Linux the same settings make only a folder, `desktop/release/linux-unpacked/`, which is
 there for the check below; there is no download for Linux or Windows, where the app runs
 from the source.
 
 The downloaded app is the same program as the one run from the source. It has the same
-name, so the same data folder and the same data file, and the one-copy rule (I20) holds
-between the two: with one open, the other hands over to it and ends. Two things differ.
-Open at Login can be pressed (below). And nothing in it looks for a newer version or
-fetches one: an update is a new download, put in the old one's place, and the data file
-stays where it is.
+name, "Compass", which the package is given as its product's name and the main process
+sets for itself as it starts (`app.setName`), so both use the same data folder and the same
+data file, and the one-copy rule (I20) holds between the two: with one open, the other
+hands over to it and ends. One thing differs: Open at Login can be pressed, since the app
+knows it is packaged (the menu bar, above). Neither looks for a newer version or fetches
+one: an update is a new download, put in the old one's place, and the data file stays where
+it is.
 
 The download is made on GitHub, by `.github/workflows/desktop-download.yml`. Its first job
 runs on a Mac: `npm ci`, `npm run desktop:package`, then it checks that the app's signature
 is ad hoc and covers every file and that the program is made for both kinds of Mac, runs
 the desktop check on the packaged app, writes the file's SHA-256 sum to
 `SHA256SUMS.txt` and keeps both on the run's page. On a pull request electron-builder signs
-nothing unless told to, so the job tells it to (`CSC_FOR_PULL_REQUEST`): the signature needs
-no certificate and no secret, and the app checked is then the app released. It runs on a pull request that
+nothing unless told to, so the job tells it to on every run (`CSC_FOR_PULL_REQUEST`): the
+signature needs no certificate and no secret, and the app checked is then the app released. It runs on a pull request that
 changes `desktop/`, `package.json`, `package-lock.json` or the workflow itself, and
-publishes nothing. Started by hand on `main`, a second job then drafts a GitHub release
-named `v<version>` with the two files attached, and refuses when that version already has
-a release. A draft is seen by the repository's owners alone; the release is public, and its
+publishes nothing. Started by hand, it runs the same job on the branch it was started on;
+and when that branch is `main` and the first job passed, a second job drafts a GitHub
+release titled "Compass <version>", whose tag will be `v<version>` on the run's commit, with
+the two files attached. It refuses when a release with that tag is already there. A draft is seen by the repository's owners alone; the release is public, and its
 tag made, only when a person publishes it on GitHub. Nothing publishes one by itself.
 
 ### What checks it

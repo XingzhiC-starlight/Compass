@@ -94,12 +94,13 @@ download, compare `shasum -a 256` of the file with the release's `SHA256SUMS.txt
 
 ### Making a release
 
-The download is made on GitHub, never on someone's own computer (spec §22). To release:
+A release's download is made on GitHub, never on someone's own computer (spec §22). To release:
 raise `version` in `package.json` in a pull request and merge it; on GitHub, open Actions,
 choose "Desktop download", press "Run workflow" and pick `main`; when the run is green, open
 Releases, where a draft named for the version waits with the files attached; read it over
-and press "Publish release". Until that press nothing is public. `npm run desktop:package`
-makes the same package on your own machine, into `desktop/release/`.
+and press "Publish release". Until that press nothing is public. On a Mac,
+`npm run desktop:package` makes the same file on your own machine, into `desktop/release/`,
+for trying it; a release's file is the one GitHub made.
 
 ## The spec
 
