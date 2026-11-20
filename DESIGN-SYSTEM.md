@@ -1090,7 +1090,9 @@ type, shape, spacing, elevation and motion are shared by both looks.
   active toggle fills with `--bg-task`, so it is sand too.
 - **Only the dashboard is themed.** The mark is on the document root only while the dashboard
   shows (spec §14), so the landing page's demo cards keep the module washes, and the auth
-  screens, the setup and the archive screen are the same under both.
+  screens, the setup and the archive screen are the same under both. The companion window
+  (§9.6) is the dashboard's, so its document root carries the same mark (spec §23) and its
+  cards are sand when the dashboard's are.
 - **The Theme control in Settings** is the task panel's toggle recipe (`.panel-toggle`) with
   words in place of glyphs: a `rgba(0,0,0,0.05)` track 28 px high with 3 px of padding, 22 px
   buttons, and the pressed one lifted by `0 1px 3px rgba(58,42,20,0.12)`. The pressed button

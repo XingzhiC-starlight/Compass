@@ -44,7 +44,9 @@ title "Compass Companion", the page's language, a `<base>` at the page's own add
 of the rules of every stylesheet the page has (a sheet whose rules cannot be read is linked
 instead), and the class `companion-body` on its body. That copy is how the design system
 reaches it (DS §9.6). A window found again by its name, already made ready, is left as it
-is.
+is. The companion wears the dashboard's theme (§14): while the window is open the dashboard
+keeps the root of the window's document marked as the page's own root is (`followTheme`,
+`data-theme="sand"` or no mark), copied as the window opens and again after every change.
 
 ### The clock
 

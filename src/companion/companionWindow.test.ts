@@ -3,6 +3,7 @@ import {
   COMPANION_NAME,
   COMPANION_SMALL_HEIGHT,
   COMPANION_WIDTH,
+  followTheme,
   onCaptureAsked,
   openCompanionWindow,
   prepareCompanionDocument,
@@ -17,6 +18,7 @@ function emptyWindow(): Window {
 }
 
 afterEach(() => {
+  document.documentElement.removeAttribute("data-theme");
   delete (window as Extras).documentPictureInPicture;
   delete (window as Extras).compassDesktop;
   document.head.querySelectorAll("style[data-check]").forEach((el) => el.remove());
@@ -52,6 +54,46 @@ describe("making the companion's document ready", () => {
     const target = document.implementation.createHTMLDocument("");
     prepareCompanionDocument(source as unknown as Document, target);
     expect(target.querySelector("link")!.getAttribute("href")).toBe("https://example.test/app.css");
+  });
+});
+
+describe("the companion wearing the dashboard's theme", () => {
+  /** Lets the page's watchers hear a change just made. */
+  const heard = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+  it("takes the page's mark as it is, and no mark when the page has none", () => {
+    const target = document.implementation.createHTMLDocument("");
+    const stop = followTheme(document, target);
+    expect(target.documentElement.hasAttribute("data-theme")).toBe(false);
+    stop();
+
+    document.documentElement.setAttribute("data-theme", "sand");
+    const stopAgain = followTheme(document, target);
+    expect(target.documentElement.getAttribute("data-theme")).toBe("sand");
+    stopAgain();
+  });
+
+  it("follows the mark put on and taken off while it is open", async () => {
+    const target = document.implementation.createHTMLDocument("");
+    const stop = followTheme(document, target);
+
+    document.documentElement.setAttribute("data-theme", "sand");
+    await heard();
+    expect(target.documentElement.getAttribute("data-theme")).toBe("sand");
+
+    document.documentElement.removeAttribute("data-theme");
+    await heard();
+    expect(target.documentElement.hasAttribute("data-theme")).toBe(false);
+    stop();
+  });
+
+  it("stops following once told to", async () => {
+    const target = document.implementation.createHTMLDocument("");
+    followTheme(document, target)();
+
+    document.documentElement.setAttribute("data-theme", "sand");
+    await heard();
+    expect(target.documentElement.hasAttribute("data-theme")).toBe(false);
   });
 });
 

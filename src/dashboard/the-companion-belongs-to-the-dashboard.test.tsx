@@ -35,6 +35,7 @@ vi.mock("../companion/companionWindow", () => ({
     return world.next;
   },
   showCompass: () => undefined,
+  followTheme: () => () => undefined,
   onCaptureAsked: (cb: () => void) => {
     world.captureAsked.push(cb);
     return () => {

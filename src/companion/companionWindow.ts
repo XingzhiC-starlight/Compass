@@ -48,6 +48,23 @@ export function prepareCompanionDocument(source: Document, target: Document): vo
 }
 
 /**
+ * The companion wears the dashboard's theme (spec §14): its document's root carries the mark
+ * the page's root carries, at once and after every change, until the returned function is
+ * called.
+ */
+export function followTheme(source: Document, target: Document): () => void {
+  const copy = () => {
+    const theme = source.documentElement.getAttribute("data-theme");
+    if (theme === null) target.documentElement.removeAttribute("data-theme");
+    else target.documentElement.setAttribute("data-theme", theme);
+  };
+  copy();
+  const watch = new MutationObserver(copy);
+  watch.observe(source.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => watch.disconnect();
+}
+
+/**
  * Open the companion's window, from inside a click, and make its document ready. Null when the
  * browser refused it.
  */

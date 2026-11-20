@@ -213,6 +213,19 @@ test(`${COMPANION}`, async () => {
   await page.keyboard.press("Enter");
   await expect(companion.getByText("Water the beds")).toBeVisible();
 
+  // The Sand theme chosen in Settings is the companion's too, at once, and so is Classic again.
+  await dashboard(page).click();
+  await page.getByRole("button", { name: "Sand", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sand");
+  await expect(companion.locator("html")).toHaveAttribute("data-theme", "sand");
+  expect(await page.evaluate(() => window.localStorage.getItem("compass.theme"))).toBe("sand");
+  await page.screenshot({ path: path.join(HERE, "results", "the-desktop-app-in-sand.png") });
+  await companion.screenshot({ path: path.join(HERE, "results", "the-companion-in-sand.png") });
+  await page.getByRole("button", { name: "Classic", exact: true }).click();
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+  await expect(companion.locator("html")).not.toHaveAttribute("data-theme");
+  await page.keyboard.press("Escape");
+
   // With the main window hidden, as closing it leaves it on a Mac, the companion brings it back.
   await running!.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().find((w) => !w.isAlwaysOnTop())!.hide());
   expect((await windows()).filter((w) => !w.onTop)[0].shown).toBe(false);

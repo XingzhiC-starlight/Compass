@@ -33,10 +33,10 @@ Anything but `sand` there, or storage that cannot be read, is Classic; where sto
 the write, the choice holds until the page is closed. The sidebar reads the choice once as
 it mounts (`useTheme`) and, while it is mounted, marks the document root `data-theme="sand"`
 for Sand and leaves it unmarked for Classic; it takes the mark off as it unmounts. So only
-the dashboard changes: the landing page, the sign-in and recovery screens, the setup, the
-archive screen and the privacy notice look the same under either choice. In the desktop app
-(§22) the choice is kept the same way, in the storage of the app's own page, and not in the
-data file.
+the dashboard changes, and its companion with it, whose window carries the same mark (§23):
+the landing page, the sign-in and recovery screens, the setup, the archive screen and the
+privacy notice look the same under either choice. In the desktop app (§22) the choice is
+kept the same way, in the storage of the app's own page, and not in the data file.
 
 **The privacy notice** (`public/privacy.html`) is a standalone static page titled "Compass
 Privacy Notice" with a "Back to Compass" link. It states what Compass stores (account
