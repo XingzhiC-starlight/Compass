@@ -128,10 +128,10 @@ Either way the main process tells the page (`onCapture`, above), and the dashboa
 companion, or brings it forward, with its summary open and the cursor in its thought box
 (§23); what is typed and entered there is a thought like any other (§12). The main process
 also brings the companion to the front itself, since a page cannot take the keyboard from
-another app: on a Mac it brings the app forward, an open companion is shown and focused, and
-a companion just made is focused as it is made. A main window hidden on a Mac is told like
-any other and stays hidden. With no main window at all the keys open one and nothing more,
-and on a screen with no dashboard, the setup, nothing listens.
+another app: on a Mac it brings the app forward, and on every system an open companion is
+shown and focused and every companion is focused as it is made. A main window hidden on a
+Mac is told like any other and stays hidden. With no main window at all the keys open one
+and nothing more, and on a screen with no dashboard, the setup, nothing listens.
 
 ### The note at the goal
 
