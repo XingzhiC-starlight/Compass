@@ -22,7 +22,8 @@ https://builder-compass.vercel.app (spec §20).
   address finds it again, and clearing the site's data deletes it. Nothing is sent anywhere.
 - To run it with accounts on a Supabase project of your own instead, copy `.env.example` to
   `.env.local` and fill in `VITE_SUPABASE_URL` and
-  `VITE_SUPABASE_ANON_KEY`, both or neither: one alone stops the app with a message (both public by design — Row-Level Security limits what they can
+  `VITE_SUPABASE_ANON_KEY`, both or neither: with one alone, or one left empty, the page stays
+  blank and the browser's console says both are needed (both public by design — Row-Level Security limits what they can
   do) and `VITE_TURNSTILE_SITE_KEY` (the public Turnstile site key; email auth needs it because
   CAPTCHA is enabled on the Supabase project — the widget renders only when the key is
   present). The Turnstile secret key lives only in Supabase.

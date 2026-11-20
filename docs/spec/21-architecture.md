@@ -29,7 +29,10 @@ Four layers, and nothing reaches across one.
    the client itself. With neither, it is the local client,
    `createLocalClient(browserBackend(() => window.localStorage))` from
    `src/lib/localClient.ts`, handed back under the Supabase client's type. With one alone,
-   the call throws. The late creation is load-bearing: the gate reads the address for a
+   the call throws an error whose message names both values, keeps no client, and throws
+   again at every later call. A value is given when it is not empty: an empty text is the
+   same as a value never set, so a build with both left blank, as the suite's is (§19),
+   gets the local client. The late creation is load-bearing: the gate reads the address for a
    recovery token and a failed-redirect error before the first call creates the client, and
    the Supabase client reads the address for a session when it is created, so the order of
    the two is kept.
@@ -287,6 +290,11 @@ the login screen are never reached, and the rest is as above: the sidebar's data
 setup or the dashboard. Every flow below runs unchanged over the local client; "the server"
 in them is then this device's storage, and a read or a save fails only when that storage
 cannot be read or refuses the save (§3).
+
+**A page load, half configured** (I19). The address is read; the first subscription is the
+first call that creates the client, and it throws there, inside the mount and before the
+gate, so the gate's error screen is not what shows. Nothing catches the error: the page
+stays blank, and the message, which names both values, is in the browser's console.
 
 `Dashboard` mounts with the active project id and the sidebar's data, and loads the payload:
 it takes a request number, blanks the cards to "Loading…", calls `getProjectDashboardData`,
