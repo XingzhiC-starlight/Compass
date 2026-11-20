@@ -188,7 +188,7 @@ counted from 0.
 <!-- census: seam -->
 | operation | group | takes | does | scope | on failure |
 |---|---|---|---|---|---|
-| `storesOnThisDevice` | auth | nothing | answers whether the client is the local one (I19), by its mark; creates the client when it is the first call | none | throws when the client is half configured |
+| `storesOnThisDevice` | auth | nothing | answers at once, with no promise, whether the client is the local one (I19), by its mark; creates the client when it is the first call | none | throws when the client is half configured |
 | `getCurrentUser` | auth | nothing | reads the stored session and caches its user; on this device, always the one local person | user | throws when the client is half configured; an auth error reads as no session |
 | `signInWithGoogle` | auth | nothing | starts the Google redirect with the page's origin as the return address (I5) | none | throws |
 | `signUpWithEmail` | auth | email, password, a CAPTCHA token when there is one | signs up, with the origin as the confirmation's return address; answers whether confirmation is needed | none | throws |
@@ -198,8 +198,8 @@ counted from 0.
 | `updatePassword` | auth | the new password | sets the signed-in user's password; the user id stays, so the gate does not re-run | none | throws |
 | `verifyRecoveryToken` | auth | the token hash | spends a reset link's one-time token; on success the client stores the recovery session and fires the recovery event | none | throws |
 | `signOut` | auth | nothing | signs out of every session of the user and forgets the cached user; the local session goes even when the server call fails | user | never throws |
-| `onAuthChange` | auth | a callback | subscribes to the client's auth events; updates the cached user on each; calls back only when the user id changed, and never on the recovery event; answers the unsubscribe | none | none |
-| `onPasswordRecovery` | auth | a callback | a second subscription that calls back only on the recovery event | none | none |
+| `onAuthChange` | auth | a callback | subscribes to the client's auth events; updates the cached user on each; calls back only when the user id changed, and never on the recovery event; answers the unsubscribe | none | throws when the client is half configured |
+| `onPasswordRecovery` | auth | a callback | a second subscription that calls back only on the recovery event | none | throws when the client is half configured |
 | `isPasswordRecoveryUrl` | links | an address, the page's when omitted | whether the query or the hash carries `type=recovery` or `redirect_type=recovery` | none | false on a malformed address |
 | `getAuthRedirectError` | links | an address, the page's when omitted | the error a failed auth redirect put in the query, else in the hash, in the parameters `error`, `error_code` and `error_description`: `{code, description}`, the code from `error_code`, else `error`, else `auth_error`; the description from `error_description`, else `error`, else "Authentication did not finish." | none | null when there is none or the address is malformed |
 | `cleanAuthRedirectErrorUrl` | links | an address | the address without `error`, `error_code` and `error_description`, in the query and in the hash, an emptied hash dropped | none | a malformed address is answered unchanged |
