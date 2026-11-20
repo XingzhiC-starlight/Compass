@@ -115,6 +115,14 @@ typed new ones since.
 A switch to another project empties the box: nothing typed for one project is filed under
 another.
 
+In the desktop app a thought can be asked for from anywhere, by the capture keys or the
+menu's line (§22). The dashboard hears it (`onCaptureAsked` in
+`src/companion/companionWindow.ts`; in a browser nothing ever asks), opens the companion or
+brings it forward, and counts the asking for it; each new count opens the summary if it is
+closed, growing the window, and puts the cursor in this box. The count starts again when the
+companion closes, so one opened later by its button opens small. When the window is refused,
+nothing is counted.
+
 ### The other lines
 
 Whenever a save fails, here or on the dashboard, the companion shows "Couldn't save just now

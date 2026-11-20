@@ -11,6 +11,9 @@ idea, write it here in a few lines. What Compass does today is in `docs/spec/` a
   (spec §23) opens from the sidebar alone, at its fixed size and at the place the system gives
   it each time. A line in the menu bar's menu could open it without the main window, and its place
   on the screen could be kept between openings.
+- **Choose the capture keys.** The desktop app's keys for capturing a thought are fixed
+  (spec §22). When another program holds them they do nothing, and the menu's line is the
+  only other way.
 - **An installer for the desktop app.** The desktop app runs from the source (spec §22).
   Package it so a person can download and open it, and so Open at Login can be pressed.
 - **Start and stop the clock from the menu bar.** The menu bar shows the running clock (spec

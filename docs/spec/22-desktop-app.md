@@ -1,9 +1,10 @@
 ## §22 The desktop app
 
-Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/icons/make-icons.mjs`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20, I21
+Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/notices.ts`, `desktop/preferences.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/icons/make-icons.mjs`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20, I21
 
 Compass also runs as a desktop app, built with Electron: the same page in a window of its
-own, with its data in a file on the computer and a clock in the menu bar. Everything a person
+own, with its data in a file on the computer and a clock in the menu bar, keys that capture a
+thought from anywhere, and one quiet note at the day's goal. Everything a person
 does in the window is the behavior of §6 to §14, unchanged; this section is what the desktop
 app adds around the page. It has no accounts and talks to no server (I19, I20).
 
@@ -94,18 +95,67 @@ alone. Where closing the main window ends the app, the companion goes with it.
 ### The bridge
 
 The page reaches the app by one way. `desktop/preload.cjs` gives it `window.compassDesktop`
-with two functions. `send(request)` hands a request of the local client (§21), as
+with three functions. `send(request)` hands a request of the local client (§21), as
 plain data, to the main process on the channel `compass:database` and answers the answer.
 `show()` asks, on the channel `compass:show-window`, for the main window to be shown, as the
 menu's "Open Compass" shows it; it carries nothing and answers nothing, and
 `src/companion/companionWindow.ts` is its one caller (§23).
-The main process answers only a page at the app's own address, on either channel. In the page,
+`onCapture(listener)` is the one way the app speaks to the page: the listener is called, with
+nothing, each time the app says on the channel `compass:capture` that a thought is to be
+captured (below), and the function answers the way to stop listening;
+`src/companion/companionWindow.ts` is its one caller too.
+The main process answers only a page at the app's own address, on either channel the page
+sends on, and sends on the third to the main window's page alone. In the page,
 `getSupabase()` looks for the bridge first: when it is there the client is
 `createLocalClient(desktopBackend(window.compassDesktop))`, whatever the two Supabase values
 are, so the desktop app is never over a Supabase project (I19). A request whose bridge call
 fails, because the main process refuses the sender or nothing listens on the channel, is
 answered in the page with `COMPASS_LOCAL_UNREACHABLE` and not thrown. There is no time limit:
 a request the main process has not answered yet stays waiting (§7).
+
+### The capture keys
+
+Option, Shift and T on a Mac, Alt, Shift and T elsewhere (`CAPTURE_KEYS`, Electron's
+`Alt+Shift+T`), pressed in any app, ask for a thought to be captured. The app registers them
+with the system when it starts and gives them back when it quits. When another program
+already holds them the keys do nothing here, and the menu's **Capture a Thought** does the
+same thing.
+
+Either way the main process tells the page (`onCapture`, above), and the dashboard opens the
+companion, or brings it forward, with its summary open and the cursor in its thought box
+(§23); what is typed and entered there is a thought like any other (§12). The main process
+also brings the companion to the front itself, since a page cannot take the keyboard from
+another app: on a Mac it brings the app forward, an open companion is shown and focused, and
+a companion just made is focused as it is made. With the main window gone the keys open it
+and nothing more, and on a screen with no dashboard, the setup, nothing listens.
+
+### The note at the goal
+
+The app sends one notification and no other: the day's goal reached. It is the operating
+system's own notification, silent, titled with the project's name ("Compass" when it has
+none) and reading "You've reached today's goal of 2h.", the hours written as the cards
+write them (`fmtH`, §21). A press on it shows the main window. It carries the project's name
+and the goal and nothing else a person typed (§17).
+
+The rule is `goalNotice(before, now)` in `desktop/notices.ts`, over two readings of the
+running clock (`clockReading` in `desktop/menuBar.ts`: the project, the local day, today's
+seconds on it with the running session counted, and its daily goal in seconds). The note is
+sent only when the crossing is seen: the look before was at the same project on the same day
+and under its goal, and this look is at the goal or past it. So it comes once; opening the
+app or starting a clock with the goal already behind says nothing; a goal lowered under the
+time already done says nothing; and a project with no goal, a clock stopped, or time typed in
+by hand never sends one. The app looks whenever it works out the menu bar's text: when the
+file is first read, after every save, and every five seconds.
+
+The note can be turned off with the menu's **Tell Me When I Reach Today's Goal**, which is
+ticked at first. That choice is the one thing in the app's preferences
+(`desktop/preferences.ts`): a file of its own, `compass-preferences.json`, beside the data
+file and written as the data file is, holding `{"format": "compass-preferences", "version":
+1, "goalNotice": true}`. It is read once, when first asked; a file that is missing, cannot be
+read or is not understood gives the default, on; nothing is written until the tick is
+changed; and a change the disk refuses still holds until the app closes. Each note is also
+announced inside the main process, on Electron's `app` as the event `compass-goal-notice`,
+which is how the check hears a note on a machine that shows none.
 
 ### The menu bar
 
@@ -120,15 +170,18 @@ worked out from the held tables when it is first read, after every save and ever
 seconds. On every system the same text is in the icon's tooltip, "Compass · 0:25 today", and
 the tooltip is "Compass" when no clock runs; other systems have the tooltip alone.
 
-The icon's menu: **Open Compass**, which shows the window; **Open at Login**, a tick; and
-**Quit Compass**. Open at Login is the operating system's own setting for an installed app:
+The icon's menu, in order (`menuLines`): **Open Compass**, which shows the window; **Capture
+a Thought**, with the capture keys beside it when the system gave them to the app; a
+separator; **Tell Me When I Reach Today's Goal**, a tick; **Open at Login**, a tick; a
+separator; and **Quit Compass**. Open at Login is the operating system's own setting for an installed app:
 pressed, it flips the setting and the tick follows. Run from the source the line is shown
 and cannot be pressed, since the setting would open the bare Electron program.
 
 ### What checks it
 
 The pure parts each have tests in the suite (§19): the file's holder over a pretend disk,
-the menu bar's text and menu, the files the window is handed and the policy they carry, which
+the menu bar's text and menu, the running clock's reading, the note's rule, the preferences'
+holder over a pretend disk, the files the window is handed and the policy they carry, which
 window the page may open and its shape, and
 in `src/lib/` the choice of the bridge and the bridge's backend. `npm run test:desktop`
 builds the app, starts the real one with Playwright on a data folder of its own and drives
@@ -139,10 +192,15 @@ are there; the companion opens from the sidebar as a second window at `about:bla
 alone is above the others and its document has no bridge, a press on the clock in either
 window moves the other, its summary shows the phase and the focus, a task ticked and a
 thought typed there are in the file and on the dashboard, a task added on the dashboard
-appears in it, and with the main window hidden its Open Compass shows it again; the page has the bridge's two functions and no Node, a request to a web address
+appears in it, and with the main window hidden its Open Compass shows it again; the app holds the capture keys, and told that a thought is to be
+captured the page opens the companion with its summary open and the cursor in the thought
+box, what is typed there is in the file, and asked again it opens no second window; with the
+running clock's start moved so the goal is ten seconds on, the app announces the note for
+"Garden" once, and with the preferences file saying off it announces none; the page has the bridge's three functions and no Node, a request to a web address
 from the page is refused, and a second copy opens no window. On a machine with no screen it
 runs under `xvfb-run`, and on Linux it starts the app with Chromium's sandbox off, which
 test machines there lack the setting for. The menu bar's icon, its text on a real Mac, the
-hiding window, Open at Login, and the companion staying above other apps, on every desktop
-and beside a full-screen app are checked by no test: they are the operating system's, and
+hiding window, Open at Login, the companion staying above other apps, on every desktop
+and beside a full-screen app, the capture keys pressed in another app, and the notification
+as the system shows it are checked by no test: they are the operating system's, and
 are tried by hand on a Mac.

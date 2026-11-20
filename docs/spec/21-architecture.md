@@ -122,7 +122,7 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | `src/archive/ArchiveScreen.tsx` | The standalone archive list; it reads its own list (§6). |
 | `src/dashboard/Dashboard.tsx` | The active project's payload, its loading and failure states, the summary ⇄ depth view, the keyed card tree, the values derived for the cards (§7), and the companion's window (§23). |
 | `src/companion/Companion.tsx` | The companion (§23), drawn through a portal into the window `Dashboard` hands it: its own reading of the active project, its clock, which tasks it lists, the thought being typed, and the writes it sends. |
-| `src/companion/companionWindow.ts` | Opening the companion's window and making its empty document ready; bringing the main window forward. Beside `src/lib/supabase.ts`, the one module that looks at `window.compassDesktop`: whether it is there, and its `show` (§22). |
+| `src/companion/companionWindow.ts` | Opening the companion's window and making its empty document ready; bringing the main window forward; hearing the desktop app ask for a thought. Beside `src/lib/supabase.ts`, the one module that looks at `window.compassDesktop`: whether it is there, its `show` and its `onCapture` (§22). |
 | `src/dashboard/useServerState.ts` | A card's copy of a server value, re-adopted in place when the sync version changes. |
 | `src/dashboard/Sidebar.tsx`, `TimeCard.tsx`, `TimelineCard.tsx`, `LearningCard.tsx`, `TaskPanel.tsx`, `ThoughtLog.tsx` | Each card's list, its open editors and drafts, its drag state, its selection, and the writes it sends (§6, §8 to §12). |
 | `src/dashboard/useAddBox.ts` | An add box that waits for its save, with no time-out (§7). |
@@ -133,7 +133,7 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | `src/lib/localDatabase.ts` | The pure engine: the seven tables' columns and rules, a request run over tables, the setup's save, and the kept text's format (§3). |
 | `src/lib/types.ts` | The domain types, one per table, plus `User` and `InterviewInput` (§3). |
 | `supabase/migrations/` | The schema of record and the one database function (§18). |
-| `desktop/` | The desktop app around the page: the main process, the bridge, the data file's holder, the menu bar, and its build (§22). Not part of the page, and imported by nothing under `src/`. |
+| `desktop/` | The desktop app around the page: the main process, the bridge, the data file's holder, the menu bar, the note at the goal, the preferences file, and its build (§22). Not part of the page, and imported by nothing under `src/`. |
 
 ### State ownership
 
@@ -150,6 +150,7 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | The card tree's version | `Dashboard` | `projectDataVersion`, part of the tree's key | each accepted load, which remounts the cards (I11) |
 | The sync version | `Dashboard` | `syncVersion` | each accepted quiet refresh; the cards adopt the new payload in place |
 | The companion's window (§23) | `Dashboard` | `companionWin` state, the window or null | the sidebar's Companion button opens it or brings it forward; the window closing clears it; the dashboard unmounting or the page going closes it; it survives a project switch and a load |
+| How many times a thought was asked for from outside (§22, §23) | `Dashboard` | `captureRequest` state, 0 for none | the desktop app's asking, heard through the bridge, adds one once the companion is open; the companion closing sets it to 0 |
 | The companion's reading: the payload, the clock as `{baseSeconds, baseAtMs, running, date}`, the listed task ids | `Companion` | plain state, beside the dashboard's payload and never copied from it | a read of `getProjectDashboardData` when it mounts, on a project switch, whenever saves have settled, when its summary opens and on a new day; its own presses first, then the seam (§23) |
 | Summary ⇄ depth | `Dashboard` | `view` state, not persisted | a click on a card's negative space; it survives a project switch and resets when the dashboard unmounts |
 | A card's list: phases, learning items, tasks, thoughts and groups, the day series, today's seconds, the running flag, the daily goal | the card | `useServerState` copies of the payload | the card's own edits first, then the seam; re-adopted when the sync version changes |
