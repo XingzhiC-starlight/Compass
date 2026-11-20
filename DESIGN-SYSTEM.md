@@ -109,7 +109,7 @@ use:
 | value | uses | where |
 |---|---|---|
 | `none` | 23 | `.auth-input`, `.auth-primary-button:focus-visible, .auth-se`, `.pill-rename` |
-| `2px solid color-mix(in srgb, var(--primary-500) 55%, transparent)` | 1 (token) | `.sidebar-settings:focus-visible, .settings-c` |
+| `2px solid color-mix(in srgb, var(--primary-500) 55%, transparent)` | 1 (token) | `.sidebar-settings:focus-visible, .sidebar-co` |
 | `2px solid var(--primary-600)` | 1 (token) | `.landing-hotspot:focus-visible` |
 
 ### DS §2.4 Surfaces and text
@@ -173,10 +173,10 @@ in this table is a defect (D4).
 | `rgba(0,0,0,0.35)` | 4 | `.project-pill.drop-before` box-shadow, `.project-pill.drop-after` box-shadow, `.dashboard .row.drop-before` box-shadow |
 | `rgba(255,255,255,0.7)` | 4 | `.project-pill.active .pill-dot` background, `.dashboard .row.dragging` background, `.dashboard .row-name-input` background |
 | `rgba(0,0,0,0.05)` | 3 | `.settings-close:hover` background, `.confirm-panel-cancel:hover` background, `.panel-toggle` background |
-| `rgba(0,0,0,0.08)` | 3 | `.sidebar-settings` border-top, `.settings-divider` background, `src/App.tsx` box-shadow |
+| `rgba(0,0,0,0.08)` | 3 | `.sidebar-settings, .sidebar-companion` border-top, `.settings-divider` background, `src/App.tsx` box-shadow |
 | `rgba(0,0,0,0.18)` | 3 | `.new-pill` border, `.th-group` border, `.th-action-btn-ghost` border |
 | `#2F3338` | 2 | `.settings-row:disabled:hover .settings-r` color, `.settings-row-title` color |
-| `#737C88` | 2 | `.sidebar-settings` color, `.settings-version` color |
+| `#737C88` | 2 | `.sidebar-settings, .sidebar-companion` color, `.settings-version` color |
 | `rgba(0,0,0,0.10)` | 2 | `.pill-act:hover` background, `.cslider` background |
 | `rgba(0,0,0,0.22)` | 2 | `.ph-state` border, `.task-check` border |
 | `rgba(255,255,255,0.25)` | 2 | `.pill-rename` background, `.project-pill.active .pill-act:hover` background |
@@ -258,11 +258,11 @@ Settings close × on 24 px, and the glance hero on 31 px; the setup screen and l
 <!-- census: font-size -->
 | value | uses | where |
 |---|---|---|
-| `13px` | 19 | `.archive-empty`, `.settings-panel-head h2`, `.confirm-panel-line` |
-| `14px` | 17 | `.sidebar-settings`, `.time-date`, `.task-add` |
+| `13px` | 20 | `.archive-empty`, `.settings-panel-head h2`, `.confirm-panel-line` |
+| `14px` | 17 | `.sidebar-settings, .sidebar-companion`, `.time-date`, `.task-add` |
 | `12px` | 10 | `.toggle-glyph`, `.time-foot`, `.th-title` |
 | `11px` | 9 | `.pill-sub`, `.settings-row-subtitle`, `.glance-eyebrow` |
-| `15px` | 8 | `body`, `.glance-cue`, `.task-text` |
+| `15px` | 9 | `body`, `.glance-cue`, `.task-text` |
 | `14.5px` | 7 | `.sidebar-label`, `.project-pill`, `.confirm-panel-title` |
 | `16px` | 5 | `.pill-del`, `.task-delete`, `.setup .icon-btn` |
 | `12.5px` | 3 | `.settings-row-title`, `.setup .time-input .unit`, `.setup .with-unit.time-input .unit` |
@@ -289,8 +289,8 @@ Baskerville upright and italic), not a usage.
 | value | uses | where |
 |---|---|---|
 | `600` | 13 | `@font-face`, `.pill-plus`, `.settings-panel-head h2` |
+| `700` | 12 | `@font-face`, `.glance-hero`, `.glance-hero-input` |
 | `400` | 11 | `@font-face`, `.pill-sub`, `.settings-row-subtitle` |
-| `700` | 11 | `@font-face`, `.glance-hero`, `.glance-hero-input` |
 | `500` | 10 | `@font-face`, `.sidebar-label`, `.project-pill` |
 | `400 700` | 3 | `@font-face` |
 
@@ -303,10 +303,10 @@ setup variable (§9.2).
 | value | uses | where |
 |---|---|---|
 | `1` | 9 | `.pill-act`, `.settings-close`, `.bubble-title` |
+| `1.25` | 7 | `.archived-pill .pill-name`, `.settings-row-title`, `.glance-hero` |
 | `1.5` | 6 | `.archive-empty`, `.dashboard .row-add`, `.task-text` |
-| `1.25` | 5 | `.archived-pill .pill-name`, `.settings-row-title`, `.glance-hero` |
 | `1.35` | 5 | `.project-pill`, `.confirm-panel-title`, `.setup .card-head p` |
-| `1.2` | 4 | `.sidebar-settings`, `.settings-panel-head h2`, `.confirm-panel-cancel, .confirm-panel-delete` |
+| `1.2` | 4 | `.sidebar-settings, .sidebar-companion`, `.settings-panel-head h2`, `.confirm-panel-cancel, .confirm-panel-delete` |
 | `1.45` | 4 | `.settings-row-subtitle`, `.confirm-panel-line`, `.dashboard .row-name` |
 | `1.55` | 2 | `body`, `.landing-card-copy` |
 | `1.6` | 2 | `.landing-task-copy`, `.landing-thought-copy` |
@@ -359,7 +359,7 @@ inherited radius or, inside a shorthand, shapes the landing's arch and quarter-r
 | `var(--r-pill)` | 14 (token) | `.project-pill`, `.confirm-panel-cancel, .confirm-panel-delete`, `.glance-bar-wrap` |
 | `50%` | 13 | `.pill-dot`, `.pill-act`, `.settings-close` |
 | `0` | 10 | `.time-hours-input`, `.ph-days-input`, `.lr-pct-input` |
-| `var(--r-input)` | 6 (token) | `.dashboard .row`, `.dashboard .row-add`, `.task-item` |
+| `var(--r-input)` | 7 (token) | `.dashboard .row`, `.dashboard .row-add`, `.task-item` |
 | `var(--setup-radius-input)` | 6 (token) | `.setup .archive-item`, `.setup input[type="number"], .setup input[ty`, `.setup .row` |
 | `var(--r-bubble)` | 5 (token) | `.sidebar`, `.confirm-panel`, `.bubble` |
 | `8px` | 4 | `.dashboard .row-name-input`, `.task-text-input`, `.th-text-input` |
@@ -400,13 +400,13 @@ Shorthand values are split into their parts and the longhands (`padding-top`, `p
 <!-- census: padding -->
 | value | uses | where |
 |---|---|---|
-| `0` | 39 | `*`, `.sidebar-label`, `.sidebar-settings` |
+| `0` | 43 | `*`, `.sidebar-label`, `.sidebar-settings, .sidebar-companion` |
 | `2px` | 11 | `.pill-rename`, `.dashboard .row-name-input`, `.dashboard .row-del` |
-| `10px` | 9 | `.task-item`, `.th-row`, `.setup .archive-item` |
-| `8px` | 9 | `.sidebar-settings`, `.th-group-chip`, `.th-action-bar` |
-| `var(--space-2)` | 9 (token) | `.project-pill`, `.dashboard .col-head`, `.dashboard .row` |
+| `10px` | 10 | `.task-item`, `.th-row`, `.companion-thought` |
+| `var(--space-2)` | 10 (token) | `.project-pill`, `.dashboard .col-head`, `.dashboard .row` |
+| `8px` | 9 | `.sidebar-settings, .sidebar-companion`, `.th-group-chip`, `.th-action-bar` |
+| `var(--space-3)` | 9 (token) | `.sidebar`, `.sidebar-label`, `.project-pill` |
 | `6px` | 8 | `.pill-rename`, `.dashboard .row-name-input`, `.task-text-input` |
-| `var(--space-3)` | 8 (token) | `.sidebar`, `.sidebar-label`, `.project-pill` |
 | `22px` | 6 | `.settings-panel`, `.settings-version`, `.setup .card` |
 | `28px` | 6 | `.settings-panel`, `.setup`, `.landing-topbar` |
 | `24px` | 5 | `.settings-panel`, `.setup .card`, `.landing-thought-card` |
@@ -417,16 +417,16 @@ Shorthand values are split into their parts and the longhands (`padding-top`, `p
 | `20px` | 4 | `.setup`, `.setup .learning-card`, `.setup .card` |
 | `30px` | 4 | `.landing-card`, `.landing-task-bubble` |
 | `4px` | 4 | `.task-delete`, `.th-group-header`, `.setup .setup-head` |
+| `5px` | 4 | `.th-title-input`, `.th-action-btn`, `.companion .task-item` |
 | `32px` | 3 | `.landing-container`, `.landing-intro`, `.landing-footer` |
-| `5px` | 3 | `.th-title-input`, `.th-action-btn`, `.setup .archive-restore` |
 | `9px` | 3 | `.dashboard .row`, `.dashboard .row-add`, `.landing-seg button` |
 | `var(--space-1)` | 3 (token) | `.confirm-panel-cancel, .confirm-panel-delete`, `.dashboard .col-head`, `.th-group-header` |
+| `11px` | 2 | `.sidebar-settings, .sidebar-companion`, `.companion-open` |
 | `120px` | 2 | `.landing-categories`, `.landing-footer` |
 | `13px` | 2 | `.setup input[type="number"], .setup input[ty`, `.setup .level-select` |
 | `46px` | 2 | `.setup #projectName, .setup #projectDays, .s`, `.setup .row .days-input input` |
 | `90px` | 2 | `.setup .time-input input`, `.setup .with-unit.time-input input` |
 | `var(--space-5)` | 2 (token) | `.confirm-panel`, `.setup .time-card` |
-| `11px` | 1 | `.sidebar-settings` |
 | `130px` | 1 | `.landing-intro` |
 | `140px` | 1 | `.landing-cta` |
 | `15px` | 1 | `.setup .head-copy` |
@@ -440,6 +440,7 @@ Shorthand values are split into their parts and the longhands (`padding-top`, `p
 | `72px` | 1 | `.landing-demo` |
 | `96px` | 1 | `.landing-hero` |
 | `var(--setup-row-pad)` | 1 (token) | `.setup .row` |
+| `var(--space-4)` | 1 (token) | `.companion .bubble` |
 | `var(--space-6)` | 1 (token) | `.sidebar` |
 | `var(--space-7)` | 1 (token) | `.bubble` |
 
@@ -453,17 +454,18 @@ would stop the collapse and widen that gap to 42 px.
 <!-- census: margin -->
 | value | uses | where |
 |---|---|---|
-| `0` | 42 | `*`, `.sidebar-settings`, `.settings-divider` |
+| `0` | 45 | `*`, `.sidebar-settings, .sidebar-companion`, `.settings-divider` |
 | `auto` | 14 | `.settings-version`, `.glance-cue`, `.panel-toggle` |
-| `var(--space-3)` | 8 (token) | `.sidebar-label`, `.archive-empty`, `.sidebar-settings` |
+| `var(--space-3)` | 8 (token) | `.sidebar-label`, `.archive-empty`, `.sidebar-settings, .sidebar-companion` |
 | `18px` | 7 | `.settings-divider`, `.setup .card-head`, `.setup .progress-rail` |
 | `4px` | 5 | `.dashboard .row-add`, `.th-handle`, `.th-action-bar` |
 | `var(--space-2)` | 4 (token) | `.archive-empty`, `.glance .cslider`, `.glance-bar-wrap` |
 | `16px` | 3 | `.landing-card-copy`, `.landing-task-copy`, `.landing-demo-note` |
+| `5px` | 3 | `.glance-hero-row`, `.companion-line`, `.companion-note` |
+| `var(--space-1)` | 3 (token) | `.new-pill`, `.confirm-panel-line`, `.companion .task-list` |
 | `28px` | 2 | `.setup .project-step`, `.landing-seg-row` |
 | `2px` | 2 | `.dashboard .col-head`, `.th-pop` |
 | `var(--setup-head-copy-offset)` | 2 (token) | `.setup .time-flow` |
-| `var(--space-1)` | 2 (token) | `.new-pill`, `.confirm-panel-line` |
 | `10px` | 1 | `.setup .hint` |
 | `14px` | 1 | `.landing-thought-copy` |
 | `1px` | 1 | `.th-del` |
@@ -473,7 +475,6 @@ would stop the collapse and widen that gap to 42 px.
 | `30px` | 1 | `.landing-login--cta` |
 | `36px` | 1 | `.landing-eyebrow--what-now` |
 | `3px` | 1 | `.th-check` |
-| `5px` | 1 | `.glance-hero-row` |
 | `64px` | 1 | `.landing-hero-pic` |
 | `8px` | 1 | `.setup .brand` |
 | `calc((var(--card-head-label-line-height) - var(--card-head-dot-size)) / 2)` | 1 (token) | `.setup .card-head .dot` |
@@ -487,9 +488,9 @@ would stop the collapse and widen that gap to 42 px.
 <!-- census: gap -->
 | value | uses | where |
 |---|---|---|
-| `var(--space-2)` | 10 (token) | `.project-pill`, `.bubble-header`, `.glance-hero-row` |
+| `var(--space-2)` | 13 (token) | `.project-pill`, `.bubble-header`, `.glance-hero-row` |
 | `2px` | 7 | `.dashboard .list`, `.task-list`, `.panel-toggle` |
-| `10px` | 6 | `.sidebar-settings`, `.settings-panel-head`, `.settings-row` |
+| `10px` | 6 | `.sidebar-settings, .sidebar-companion`, `.settings-panel-head`, `.settings-row` |
 | `4px` | 6 | `.settings-row-copy`, `.glance-spark`, `.hist-toggle` |
 | `var(--space-1)` | 4 (token) | `.sidebar`, `.project-pills`, `.confirm-panel-actions` |
 | `14px` | 3 | `.setup`, `.setup .interview-sections`, `.setup .time-flow` |
@@ -544,7 +545,7 @@ would stop the collapse and widen that gap to 42 px.
 <!-- census: width -->
 | value | uses | where |
 |---|---|---|
-| `100%` | 22 | `.new-pill`, `.settings-row`, `.glance-hero-input` |
+| `100%` | 23 | `.new-pill`, `.settings-row`, `.glance-hero-input` |
 | `10px` | 6 | `.pill-dot`, `.bubble-dot`, `.ph-state svg` |
 | `18px` | 5 | `.pill-act`, `.sidebar-settings-icon`, `.settings-row-icon` |
 | `15px` | 4 | `.settings-chevron`, `.cslider-knob`, `.th-check` |
@@ -599,12 +600,13 @@ would stop the collapse and widen that gap to 42 px.
 | `15px` | 4 | `.settings-chevron`, `.cslider-knob`, `.th-check` |
 | `36px` | 3 | `.glance-spark`, `.glance-clock`, `.setup .icon-btn` |
 | `84px` | 3 | `.landing-shape-circle`, `.landing-shape-quarter`, `.landing-shape-square` |
+| `auto` | 3 | `.glance-hero-input-narrow`, `.companion .glance-hero`, `.landing-hero-pic` |
 | `1px` | 2 | `.settings-divider`, `.setup .progress-step::before` |
 | `20px` | 2 | `.ph-days-input`, `.lr-pct-input` |
 | `22px` | 2 | `.task-check`, `.panel-toggle-btn` |
 | `5px` | 2 | `.glance .cslider`, `.glance-bar-wrap` |
 | `78px` | 2 | `.glance-hero`, `.glance-hero-input` |
-| `auto` | 2 | `.glance-hero-input-narrow`, `.landing-hero-pic` |
+| `100vh` | 1 | `.companion` |
 | `116px` | 1 | `.landing-shape-arch` |
 | `12px` | 1 | `.task-check svg` |
 | `16px` | 1 | `.setup .grip svg` |
@@ -623,7 +625,7 @@ would stop the collapse and widen that gap to 42 px.
 <!-- census: min-width -->
 | value | uses | where |
 |---|---|---|
-| `0` | 23 | `.pill-name`, `.pill-rename`, `.settings-row-copy` |
+| `0` | 24 | `.pill-name`, `.pill-rename`, `.settings-row-copy` |
 
 <!-- census: max-width -->
 | value | uses | where |
@@ -641,7 +643,7 @@ would stop the collapse and widen that gap to 42 px.
 <!-- census: min-height -->
 | value | uses | where |
 |---|---|---|
-| `0` | 7 | `.dashboard`, `.upper-row`, `.bubble` |
+| `0` | 9 | `.dashboard`, `.upper-row`, `.bubble` |
 | `100vh` | 2 | `body`, `.landing` |
 | `48px` | 2 | `.th-text-input`, `.setup .progress-step` |
 | `100%` | 1 | `.project-load-state` |
@@ -670,7 +672,7 @@ insertion lines, in a module accent or a 35% black; `0 0 0 3px …` rings are fo
 <!-- census: box-shadow -->
 | value | uses | where |
 |---|---|---|
-| `none` | 7 | `.th-action-btn-ghost:hover`, `.setup .project-title-input`, `.setup input.project-title-input[type="text"` |
+| `none` | 9 | `.th-action-btn-ghost:hover`, `.companion .bubble`, `.companion .bubble:hover` |
 | `0 0 0 3px color-mix(in srgb, var(--primary-500) 32%, transparent)` | 3 (token) | `.auth-primary-button:focus-visible, .auth-se`, `.pill-act:focus-visible`, `.confirm-panel-cancel:focus-visible, .confir` |
 | `var(--shadow-rest)` | 3 (token) | `.confirm-panel`, `.bubble`, `.dashboard .row.dragging` |
 | `0 0 0 3px color-mix(in srgb, var(--primary-500) 28%, transparent)` | 2 (token) | `.auth-input:focus`, `.cslider:focus-visible` |
@@ -714,7 +716,7 @@ keyframe animations.
 | value | uses | where |
 |---|---|---|
 | `opacity 200ms ease` | 7 | `.glance-cue`, `.dashboard .row-handle`, `.ph-state svg` |
-| `color 150ms ease` | 5 | `.sidebar-toggle`, `.sidebar-settings`, `.settings-row-title` |
+| `color 150ms ease` | 5 | `.sidebar-toggle`, `.sidebar-settings, .sidebar-companion`, `.settings-row-title` |
 | `opacity 160ms ease` | 5 | `.cslider-knob`, `.th-add-input`, `.setup .row` |
 | `opacity 150ms ease` | 4 | `.th-check`, `.th-title-empty`, `.th-pop` |
 | `background 150ms ease` | 3 | `.dashboard .row`, `.task-item`, `.th-row` |
@@ -918,6 +920,7 @@ note) and `#fff` fallbacks; the rest reference tokens. Their color literals appe
 | `src/archive/ArchiveScreen.tsx` | 1 | "--pill-accent" |
 | `src/auth/LoginScreen.tsx` | 1 | ...(!can-resend ? resend-button-disabled |
 | `src/auth/PasswordChecklist.tsx` | 31 | ...(rule.met ? item-met, ...(rule.met ? dot-met, text-align, border, border-radius, padding, background, font-family, font-size, letter-spacing, text-transform, color, margin-bottom, list-style, display, gap, align-items, line-height, width, height, flex-shrink, border-color |
+| `src/companion/Companion.tsx` | 4 | background, width |
 | `src/dashboard/AutoTextarea.tsx` | 2 | resize, overflow |
 | `src/dashboard/CSlider.tsx` | 2 | width, left |
 | `src/dashboard/Dashboard.tsx` | 9 | margin-bottom, line-height, font, color, background, border, border-radius, padding, cursor |
@@ -927,6 +930,39 @@ note) and `#fff` fallbacks; the rest reference tokens. Their color literals appe
 | `src/dashboard/TimeCard.tsx` | 4 | background, height, width, margin-left |
 | `src/dashboard/TimelineCard.tsx` | 5 | background, width, margin-left, opacity, outline |
 | `src/interview/Interview.tsx` | 2 | "--step-accent", "--prev-accent" |
+
+### DS §9.6 The companion window
+
+The companion (spec §23) is drawn into a small window of its own, whose document is given a
+copy of the page's stylesheets, so it is built from the dashboard's units and adds no token
+(D1). Its rules are one block in `styles.css` (anchor `DS §9.6`).
+
+- **Reused whole.** The clock card is a `.bubble.bubble-time.glance-card` with the
+  `.bubble-header`, `.bubble-dot` and `.bubble-title`, the `.glance-eyebrow`, the
+  `.glance-hero-row` with the coral `.glance-clock` button (D3, D11) and the `.glance-hero`,
+  and the `.glance-bar-wrap` with its `.glance-bar-fill`. The summary's three cards are
+  `.bubble.bubble-timeline`, `.bubble-learning` and `.bubble-task`, each with its module's
+  wash and a bar in its accent; tasks are the dashboard's `.task-list`, `.task-item` and
+  `.task-check`; the thought box is the thought log's `.th-add-input`.
+- **Closer together.** Under `.companion` a bubble's padding is `--space-4`, the gaps between
+  bubbles and the window's own padding are `--space-2`, and a bubble neither lifts nor casts a
+  shadow on hover: in a window this small the cards sit flat. The hero's fixed height (§9.1)
+  is released, since one card stands alone. The summary scrolls with its scrollbar hidden;
+  the clock card, the thought box and the last line do not scroll.
+- **Its own classes**, all from existing values: `.companion`, the window's one column, as
+  tall as the window, which also carries `expanded` while the summary is open (no rule reads
+  it); `.companion-summary`, the scrolling region between the clock card and the thought box,
+  its scrollbar hidden; `.companion-line`, a card's one line, in the
+  heading face at 15 px, weight 700, line height 1.25, clamped to two lines;
+  `.companion-note`, a muted centered line at 13 px, which carries "Loading…", the task
+  card's notes and the failed-save line; `.companion-cue`, which makes the header's
+  `.glance-cue` a bare button; `.companion-thought`, which boxes the thought input with the form material
+  (§2.5) and `--r-input`, its border turning `--primary-600` in focus (§2.3);
+  `.companion-body`, which turns off the page body's centering.
+- **The sidebar's button.** `.sidebar-companion` shares every rule of `.sidebar-settings`,
+  hover, active and focus ring included, so the two buttons at the foot of the sidebar are one
+  style. The companion's last line, "Open Compass", is the same class, centered
+  (`.companion-open`).
 
 ## DS §10 Design debt
 

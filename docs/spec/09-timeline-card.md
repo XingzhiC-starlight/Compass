@@ -1,6 +1,6 @@
 ## §9 Timeline card
 
-Code: `src/dashboard/TimelineCard.tsx` · Keeps: I13, I14
+Code: `src/dashboard/TimelineCard.tsx`, `src/dashboard/projectTime.ts` · Keeps: I13, I14
 
 The upper-middle bubble (`src/dashboard/TimelineCard.tsx`), titled "Timeline".
 

@@ -48,7 +48,7 @@ selected thought is grouped, then "Group" or "Merge", then × to clear.
   feed's numbers, so the group can land elsewhere than any selected thought. Members are
   ordered by their raw order numbers, which compare a group
   member's position inside its group with a loose thought's position in the feed, so a
-  selection that mixes both levels can reverse their visible order. The rename field opens at once
+  selection that mixes both levels can reverse their visible order. The group is saved with an empty name, and its rename field opens as soon as that save has answered
   ("Name this group…"), and a group dismissed without a name is called "Untitled group".
   Selected thoughts leave any old group, and an emptied group disappears. When the whole
   selection is already one group and nothing else, the button still reads "Group"; pressing it

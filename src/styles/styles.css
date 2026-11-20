@@ -423,7 +423,8 @@ body {
 .new-pill:hover { background: rgba(0, 0, 0, 0.04); color: var(--text); }
 .pill-plus { font-style: normal; font-weight: 600; }
 
-.sidebar-settings {
+.sidebar-settings,
+.sidebar-companion {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -441,10 +442,13 @@ body {
   transition: color 150ms ease;
 }
 .sidebar-settings:hover,
-.sidebar-settings.active {
+.sidebar-settings.active,
+.sidebar-companion:hover,
+.sidebar-companion.active {
   color: var(--text);
 }
 .sidebar-settings:focus-visible,
+.sidebar-companion:focus-visible,
 .settings-close:focus-visible,
 .settings-row:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--primary-500) 55%, transparent);
@@ -1975,6 +1979,106 @@ input.row-add.saving-slow,
 textarea.task-add.saving-slow,
 .th-add-input.saving-slow {
   opacity: 0.68;
+}
+
+/* DS §9.6 — the companion window: the dashboard's own bubbles, glances and rows in a
+   small window of their own, closer together. */
+.companion-body {
+  display: block;
+  min-height: 0;
+}
+.companion {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  overflow: hidden;
+}
+.companion .bubble {
+  padding: var(--space-4);
+  flex-shrink: 0;
+  box-shadow: none;
+}
+.companion .bubble:hover {
+  box-shadow: none;
+  transform: none;
+}
+.companion .bubble-title {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.companion-cue {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.companion .glance-hero {
+  height: auto;
+}
+.companion-summary {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  scrollbar-width: none;
+}
+.companion-summary::-webkit-scrollbar {
+  display: none;
+}
+.companion-line {
+  margin-top: 5px;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.companion .task-list {
+  margin: var(--space-1) 0 0;
+  flex: none;
+  overflow: visible;
+}
+.companion .task-item {
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: 5px 0;
+}
+.companion .task-item:hover {
+  background: transparent;
+}
+.companion-thought {
+  flex: none;
+  padding: 10px var(--space-3);
+  background: var(--surface-input);
+  border: 1px solid var(--border-input);
+  border-radius: var(--r-input);
+}
+.companion-thought:focus {
+  border-color: var(--primary-600);
+}
+.companion-note {
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.companion-open {
+  margin: 0;
+  padding: 11px 0 0;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

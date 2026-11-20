@@ -1,6 +1,7 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { APP_HEADERS, contentType, fileFor, isTheApp, opensInTheBrowser } from "./appFiles";
+import { APP_HEADERS, COMPANION_NAME, COMPANION_WINDOW, contentType, fileFor, isTheApp, isTheCompanion, opensInTheBrowser } from "./appFiles";
+import { COMPANION_NAME as THE_PAGES_NAME, COMPANION_SMALL_HEIGHT, COMPANION_WIDTH } from "../src/companion/companionWindow";
 
 const CHECK =
   "The desktop window is handed the app's own files and nothing else: an address outside the app's folder finds no file, only the app's page may ask for the data, only a web link leaves for the browser, and the page may load from and connect to nowhere else (spec §22)";
@@ -70,5 +71,26 @@ describe("the files the desktop window is handed", () => {
     for (const other of ["file:///Applications/Calculator.app", "compass://app/", "javascript:alert(1)", "smb://server/share", "nonsense"]) {
       expect(opensInTheBrowser(other), other).toBe(false);
     }
+  });
+});
+
+describe("the one window the page may open (spec §23)", () => {
+  it("is an empty window under the companion's name, and nothing else", () => {
+    expect(isTheCompanion("about:blank", COMPANION_NAME)).toBe(true);
+    expect(isTheCompanion("about:blank", "")).toBe(false);
+    expect(isTheCompanion("about:blank", "another-name")).toBe(false);
+    expect(isTheCompanion("https://example.com/", COMPANION_NAME)).toBe(false);
+    expect(isTheCompanion("compass://app/", COMPANION_NAME)).toBe(false);
+    expect(isTheCompanion("file:///etc/passwd", COMPANION_NAME)).toBe(false);
+  });
+
+  it("is known to the app by the name and the size the page opens it with", () => {
+    expect(COMPANION_NAME).toBe(THE_PAGES_NAME);
+    expect(COMPANION_WINDOW.width).toBe(COMPANION_WIDTH);
+    expect(COMPANION_WINDOW.height).toBe(COMPANION_SMALL_HEIGHT);
+  });
+
+  it("stays above other windows and never fills the screen", () => {
+    expect(COMPANION_WINDOW).toMatchObject({ alwaysOnTop: true, fullscreenable: false, maximizable: false });
   });
 });

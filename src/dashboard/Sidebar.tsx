@@ -27,6 +27,8 @@ export default function Sidebar({
   onArchiveProject,
   onUnarchiveProject,
   onSignOut,
+  onOpenCompanion,
+  companionOpen,
 }: {
   projects: Project[];
   archived: Project[];
@@ -40,6 +42,9 @@ export default function Sidebar({
   onArchiveProject: (id: ID) => void;
   onUnarchiveProject: (id: ID) => void;
   onSignOut: () => void;
+  /** Open the companion window, or bring it forward (spec §23). */
+  onOpenCompanion: () => void;
+  companionOpen: boolean;
 }) {
   const [view, setView] = useState<"active" | "archive">("active");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -287,6 +292,16 @@ export default function Sidebar({
       <div style={{ flex: 1 }} />
 
       <button
+        type="button"
+        className={"sidebar-companion" + (companionOpen ? " active" : "")}
+        title={companionOpen ? "The companion is open: bring it forward" : "Open the small companion window"}
+        onClick={onOpenCompanion}
+      >
+        <CompanionGlyph />
+        <span>Companion</span>
+      </button>
+
+      <button
         ref={settingsButtonRef}
         type="button"
         className={"sidebar-settings" + (settingsOpen ? " active" : "")}
@@ -364,6 +379,15 @@ export default function Sidebar({
         </div>
       )}
     </aside>
+  );
+}
+
+function CompanionGlyph() {
+  return (
+    <svg className="sidebar-settings-icon" viewBox="0 0 18 18" aria-hidden="true">
+      <rect x="2" y="3.5" width="14" height="11" rx="2.2" />
+      <rect x="8.8" y="8.8" width="4.9" height="3.4" rx="1" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 

@@ -3,6 +3,7 @@ import {
   __setTestUser,
   addTask,
   getProjectDashboardData,
+  onSavesSettled,
   onWriteError,
   renameProject,
   savesInFlight,
@@ -107,5 +108,33 @@ describe("saves in flight", () => {
     await waiting;
     expect(settled).toBe(true);
     expect(savesInFlight()).toBe(0);
+  });
+
+  it("onSavesSettled calls back once each time the last save in flight has answered, kept or refused, and never for a read or after it is stopped", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    let calls = 0;
+    const stop = onSavesSettled(() => {
+      calls += 1;
+    });
+
+    await getProjectDashboardData("p1");
+    expect(calls, "a read settles nothing").toBe(0);
+
+    const release = fake.holdNext("daily_tasks", "update");
+    const first = updateTask("t1", { text: "Draft two" });
+    const second = renameProject("Beacon");
+    await second;
+    expect(calls, "one save is still in flight").toBe(0);
+    release();
+    await first;
+    expect(calls).toBe(1);
+
+    fake.failNext("projects", "update");
+    await renameProject("Harbor");
+    expect(calls, "a refused save settles too").toBe(2);
+
+    stop();
+    await updateTask("t1", { text: "Draft three" });
+    expect(calls).toBe(2);
   });
 });

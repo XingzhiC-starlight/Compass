@@ -30,7 +30,8 @@ https://builder-compass.vercel.app (spec §20).
 - `npm run desktop` builds and starts the desktop app (spec §22): the same Compass in a
   window of its own, with its data in a file on your computer and a clock in the menu bar.
   It needs nothing but `npm install`, has no accounts and uses no network. There is no
-  installer yet: it runs from the source. `npm run test:desktop` starts the real app and
+  installer yet: it runs from the source. The sidebar's Companion button opens the
+  companion (spec §23), a small window with the clock that stays above your other windows. `npm run test:desktop` starts the real app and
   drives it (on Linux with no screen, `xvfb-run -a npm run test:desktop`), and
   `npm run typecheck:desktop` type-checks its code.
 - `npm run dev` serves http://localhost:5173. The port is fixed in `vite.config.ts`
@@ -81,7 +82,7 @@ says which sections to read for the code they touch.
 | §1 | [Product](docs/spec/01-product.md) | What Compass is, who it is for and what it refuses to be. |
 | §2 | [Screens and routing](docs/spec/02-screens-and-routing.md) | Which screen shows when, switched by state in `App.tsx`. |
 | §3 | [Object model](docs/spec/03-object-model.md) | The seven tables, their columns and the matching types, and how they are kept on this device. |
-| §4 | [Core invariants](docs/spec/04-invariants.md) | The rules the code keeps, `I1`–`I20`, one line each. |
+| §4 | [Core invariants](docs/spec/04-invariants.md) | The rules the code keeps, `I1`–`I21`, one line each. |
 | §5 | [Auth](docs/spec/05-auth.md) | Sign-in, sign-up, email links, password reset and the CAPTCHA. |
 | §6 | [Projects, sidebar and archive](docs/spec/06-projects-sidebar-archive.md) | The sidebar, switching, renaming, archiving and deleting projects. |
 | §7 | [Dashboard shell](docs/spec/07-dashboard-shell.md) | The dashboard layout, the summary and depth views, loading and saving. |
@@ -100,3 +101,4 @@ says which sections to read for the code they touch.
 | §20 | [Closure](docs/spec/20-closure.md) | The closing page production serves, and what closed when. |
 | §21 | [Architecture](docs/spec/21-architecture.md) | The layers, who owns which state, the seam's operations and the flows. |
 | §22 | [The desktop app](docs/spec/22-desktop-app.md) | The window, the data file, the bridge and the menu-bar clock. |
+| §23 | [The companion](docs/spec/23-companion.md) | The small second window: the clock, the cards in short, a thought, and how it stays in step. |

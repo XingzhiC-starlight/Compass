@@ -12,7 +12,18 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, protocol, shell, Tray } from "electron";
 import { randomId } from "../src/lib/transforms";
-import { APP_HEADERS, APP_ORIGIN, DATABASE_CHANNEL, contentType, fileFor, isTheApp, opensInTheBrowser } from "./appFiles";
+import {
+  APP_HEADERS,
+  APP_ORIGIN,
+  COMPANION_WINDOW,
+  DATABASE_CHANNEL,
+  SHOW_CHANNEL,
+  contentType,
+  fileFor,
+  isTheApp,
+  isTheCompanion,
+  opensInTheBrowser,
+} from "./appFiles";
 import { diskFiles, fileBackend } from "./dataFile";
 import { clockTitle, menuLines } from "./menuBar";
 
@@ -58,11 +69,27 @@ function showWindow(): void {
   });
   window.once("ready-to-show", () => window?.show());
 
-  // The window shows the app and nothing else: a link to the web opens in the person's
-  // browser, and anything else goes nowhere.
-  window.webContents.setWindowOpenHandler(({ url }) => {
+  // The window shows the app and nothing else: the one window the page may open is its own
+  // companion, a link to the web opens in the person's browser, and anything else goes nowhere.
+  window.webContents.setWindowOpenHandler(({ url, frameName }) => {
+    if (isTheCompanion(url, frameName)) {
+      return { action: "allow", overrideBrowserWindowOptions: { ...COMPANION_WINDOW } };
+    }
     if (opensInTheBrowser(url)) void shell.openExternal(url);
     return { action: "deny" };
+  });
+  window.webContents.on("did-create-window", (companion) => {
+    // Above other apps' windows too, and on a Mac on every desktop and beside a full-screen app.
+    companion.setAlwaysOnTop(true, "floating");
+    if (process.platform === "darwin") {
+      companion.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
+    }
+    // The page draws into it; it goes nowhere and opens nothing itself.
+    companion.webContents.setWindowOpenHandler(({ url }) => {
+      if (opensInTheBrowser(url)) void shell.openExternal(url);
+      return { action: "deny" };
+    });
+    companion.webContents.on("will-navigate", (event) => event.preventDefault());
   });
   window.webContents.on("will-navigate", (event, url) => {
     if (isTheApp(url)) return;
@@ -150,6 +177,11 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.handle(DATABASE_CHANNEL, (event, request) => {
       if (!isTheApp(event.senderFrame?.url)) throw new Error("only Compass's own page may ask for its data");
       return backend.send(request);
+    });
+
+    // The page may ask for its main window to be shown, which a hidden window cannot do itself.
+    ipcMain.on(SHOW_CHANNEL, (event) => {
+      if (isTheApp(event.senderFrame?.url)) showWindow();
     });
 
     const icon = nativeImage.createFromPath(ICON);

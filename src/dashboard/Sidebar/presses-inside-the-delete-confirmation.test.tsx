@@ -68,6 +68,8 @@ describe("presses inside the delete confirmation never reach the pill behind it"
           onArchiveProject={vi.fn()}
           onUnarchiveProject={vi.fn()}
           onSignOut={vi.fn()}
+          onOpenCompanion={vi.fn()}
+          companionOpen={false}
         />,
       );
     });

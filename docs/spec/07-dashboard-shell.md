@@ -14,8 +14,8 @@ does, and neither does a click that ends a text-selection drag (a live selection
 text; a whitespace-only selection does not block it). Each bubble header shows a ▸ (summary) or ▾ (depth) cue. In depth the upper row
 grows to hold the expanded content; nothing opens in a drawer, modal or overlay.
 
-**Loading.** The sidebar's data (projects, archive, per-project completion) is loaded once by
-the gate, survives project switches, and is re-read in place after a failed save (§2). The
+**Loading.** The sidebar's data (projects, archive, per-project completion) is loaded by
+the gate each time it runs (§2), is not read again on a project switch, and is re-read in place after a failed save (§2). The
 active project's payload — project, phases, learning items, tasks, the last 49 days of
 time, the thought feed — is loaded by the dashboard in one seam call for the requested id,
 so switching projects blanks only the cards ("Loading…"). A stale-request guard accepts a payload only if it is the latest request and
@@ -55,4 +55,10 @@ reordering pills, phases, learning items, tasks or thoughts.
 **Derived for the cards.** The current phase start (the latest completion day among done
 phases, else the project's start day), the remaining days (the sum of estimated days over
 unfinished phases), and whether all phases are done (at least one phase, every one done) are
-computed here and passed down.
+computed here, by `phasePacing` of `src/dashboard/projectTime.ts`, and passed down.
+
+**The companion.** The dashboard owns the companion's window (§23): the sidebar's Companion
+button (§6) opens it or brings it forward, it shows the active project across a project
+switch and a load, and it closes with the dashboard. After a save made in the companion, the
+cards are refreshed quietly, exactly as after a failed save above but with no note: the
+payload is re-read and the mounted cards adopt it in place.

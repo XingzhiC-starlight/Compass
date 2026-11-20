@@ -6,4 +6,5 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("compassDesktop", {
   send: (request) => ipcRenderer.invoke("compass:database", request),
+  show: () => ipcRenderer.send("compass:show-window"),
 });

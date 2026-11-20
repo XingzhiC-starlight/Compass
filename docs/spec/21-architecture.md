@@ -1,6 +1,6 @@
 ## §21 Architecture
 
-Code: `src/main.tsx`, `src/App.tsx`, `src/lib/projectRouting.ts`, `src/lib/db.ts`, `src/lib/supabase.ts`, `src/lib/localClient.ts`, `src/lib/localDatabase.ts`, `src/lib/transforms.ts`, `src/lib/types.ts`, `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts` · Keeps: I1, I3, I4, I9, I11, I12, I17, I19, I20
+Code: `src/main.tsx`, `src/App.tsx`, `src/lib/projectRouting.ts`, `src/lib/db.ts`, `src/lib/supabase.ts`, `src/lib/localClient.ts`, `src/lib/localDatabase.ts`, `src/lib/transforms.ts`, `src/lib/types.ts`, `src/dashboard/Dashboard.tsx`, `src/dashboard/dashboardLoad.ts`, `src/dashboard/useServerState.ts` · Keeps: I1, I3, I4, I9, I11, I12, I17, I19, I20, I21
 
 The shape of the code: the layers, who owns which state, every operation of the seam, and
 the flows that run through them. The behavior a person sees is in §5 to §15. A rebuild keeps
@@ -88,7 +88,8 @@ in the desktop app's main process, the file's holder (`fileBackend` in `desktop/
 runs the request and keeps the tables in a file (§22).
 
 Pure logic touches neither React nor the database and takes its inputs, the clock included,
-as arguments; only `todayDate` and `dayNumber` read the clock themselves.
+as arguments; only `todayDate`, `dayNumber`, and the two that call `dayNumber`,
+`commitmentEyebrow` and `timelineGlance`, read the clock themselves.
 
 | Pure module | Computes |
 |---|---|
@@ -97,7 +98,8 @@ as arguments; only `todayDate` and `dayNumber` read the clock themselves.
 | `src/lib/recoveryLink.ts` | The reset link's one-time token: find it in the query or the hash, take it, and replace the address without it (§5). It reads the page's address itself and rewrites it: the one module here that is not given its inputs. |
 | `src/lib/limits.ts` | `TEXT_LIMITS`: `projectName`, `phaseName`, `learningItemName`, `thoughtGroupName` and `thoughtTitle` at 200, `taskText` and `thoughtText` at 4,000, one per text column a person types into (§3); the accent color's length check has none, since the seam picks the color. |
 | `src/dashboard/dashboardLoad.ts` | `shouldAcceptProjectPayload`, true for the latest request and the active project, and `projectCardTreeKey`, the id and the version joined (I11). |
-| `src/dashboard/projectTime.ts` | `dayNumber`: the whole days from a day key to today on the local calendar, the key's day being day 1; the cards clamp it. |
+| `src/dashboard/projectTime.ts` | `dayNumber`: the whole days from a day key to today on the local calendar, the key's day being day 1; the cards, and the shared lines below, clamp it. `fmtH`: seconds as hours to one decimal, a whole number without it. What the cards and the companion (§23) both show, each worked out once: `phasePacing`, the current phase's start, the remaining days and whether every phase is done (§7); `commitmentEyebrow`, the Commitment card's line (§8); `timelineGlance`, the current phase, its name, its progress and the Timeline's line (§9); `learningGlance`, the focus item, its percent and the Learning card's line (§10). |
+| `src/companion/companionSummary.ts` | The companion's own lines (§23): `clockSeconds`, the seconds to show from a reading and the moment it was taken; `formatClock`, the clock's face; `goalPct`, the share of the daily goal; `taskGlance`, the task heading and the open tasks; `listedTaskIds`, which tasks are listed when a reading arrives, four at most (`COMPANION_TASKS`). |
 | `src/dashboard/hoursEdit.ts` | `parseHoursEdit`: the number typed into an hours field, or nothing when the text is unchanged, empty or not a plain decimal (§8). |
 | `src/dashboard/learningFocus.ts` | The focus rules for a drag, an added item and a deletion (§10). |
 | `src/dashboard/keys.ts` | `isSubmitEnter` (I13). |
@@ -118,12 +120,14 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | `src/auth/` | The login screen with its three modes, the recovery screen, the CAPTCHA widget, the password checklist (§5). |
 | `src/interview/Interview.tsx` | The setup form and its one identity per visit (§13). |
 | `src/archive/ArchiveScreen.tsx` | The standalone archive list; it reads its own list (§6). |
-| `src/dashboard/Dashboard.tsx` | The active project's payload, its loading and failure states, the summary ⇄ depth view, the keyed card tree, and the values derived for the cards (§7). |
+| `src/dashboard/Dashboard.tsx` | The active project's payload, its loading and failure states, the summary ⇄ depth view, the keyed card tree, the values derived for the cards (§7), and the companion's window (§23). |
+| `src/companion/Companion.tsx` | The companion (§23), drawn through a portal into the window `Dashboard` hands it: its own reading of the active project, its clock, which tasks it lists, the thought being typed, and the writes it sends. |
+| `src/companion/companionWindow.ts` | Opening the companion's window and making its empty document ready; bringing the main window forward. Beside `src/lib/supabase.ts`, the one module that looks at `window.compassDesktop`: whether it is there, and its `show` (§22). |
 | `src/dashboard/useServerState.ts` | A card's copy of a server value, re-adopted in place when the sync version changes. |
 | `src/dashboard/Sidebar.tsx`, `TimeCard.tsx`, `TimelineCard.tsx`, `LearningCard.tsx`, `TaskPanel.tsx`, `ThoughtLog.tsx` | Each card's list, its open editors and drafts, its drag state, its selection, and the writes it sends (§6, §8 to §12). |
 | `src/dashboard/useAddBox.ts` | An add box that waits for its save, with no time-out (§7). |
 | `src/dashboard/useDragReorder.ts`, `useEdgeAutoScroll.ts`, `useDeleteConfirm.tsx` | Drag-reorder by grip, the edge scroll while dragging (§12), and the delete confirmation (§6). |
-| `src/lib/db.ts` | The seam: the operations below, the active project id, the cached user, the count of saves in flight, the write-error listeners, and two queues. |
+| `src/lib/db.ts` | The seam: the operations below, the active project id, the cached user, the count of saves in flight, the write-error listeners, the listeners for saves settled, and two queues. |
 | `src/lib/supabase.ts` | The lazily created client (I12), and the choice between the two (I19). |
 | `src/lib/localClient.ts` | The local client, its `auth` with no accounts, the backend's one method, the browser's backend with the key the text is kept under, and the page's backend inside the desktop app. |
 | `src/lib/localDatabase.ts` | The pure engine: the seven tables' columns and rules, a request run over tables, the setup's save, and the kept text's format (§3). |
@@ -145,6 +149,8 @@ point, called at each use; the screens' tests replace the seam itself, whole or 
 | The project payload | `Dashboard` | `data` state, null while loading or failed | one load per active project id; replaced in place by a quiet refresh; patched in place on a pill rename and on a change to the phases, so the values derived for the cards and the sidebar's finished mark follow at once (§6, §7) |
 | The card tree's version | `Dashboard` | `projectDataVersion`, part of the tree's key | each accepted load, which remounts the cards (I11) |
 | The sync version | `Dashboard` | `syncVersion` | each accepted quiet refresh; the cards adopt the new payload in place |
+| The companion's window (§23) | `Dashboard` | `companionWin` state, the window or null | the sidebar's Companion button opens it or brings it forward; the window closing clears it; the dashboard unmounting or the page going closes it; it survives a project switch and a load |
+| The companion's reading: the payload, the clock as `{baseSeconds, baseAtMs, running, date}`, the listed task ids | `Companion` | plain state, beside the dashboard's payload and never copied from it | a read of `getProjectDashboardData` when it mounts, on a project switch, whenever saves have settled, when its summary opens and on a new day; its own presses first, then the seam (§23) |
 | Summary ⇄ depth | `Dashboard` | `view` state, not persisted | a click on a card's negative space; it survives a project switch and resets when the dashboard unmounts |
 | A card's list: phases, learning items, tasks, thoughts and groups, the day series, today's seconds, the running flag, the daily goal | the card | `useServerState` copies of the payload | the card's own edits first, then the seam; re-adopted when the sync version changes |
 | Open editors, drafts, a selection of thoughts, drag state, a learning item's remembered previous percent, today's day key | the card | plain state | the person's actions; lost when the card tree remounts, kept across a quiet refresh. The running clock's on-screen seconds are the card's copy of today's seconds above, ticked once a second and replaced by a quiet refresh |
@@ -161,8 +167,9 @@ Nothing else is kept in the browser: no theme, no view, no draft, no selection.
 
 ### The seam's operations
 
-Every write is wrapped in `tracked`, which counts it from the call until its answer, failed
-or not; reads and auth calls are not counted. A write that needs the project reads the
+Every write to the database is wrapped in `tracked`, which counts it from the call until its
+answer, failed or not; reads and auth calls are not counted, and neither is
+`setActiveProject`, which touches only the seam's variable and its `localStorage` copy. A write that needs the project reads the
 seam's active project id when it is called, except `setLoggedSecondsForDate`, which reads it
 when its queued job runs. A failed write is reported once: one console line holding the
 error's code and the first line of its message, and the same pair to every `onWriteError`
@@ -215,9 +222,10 @@ counted from 0.
 | `cleanAuthRedirectErrorUrl` | links | an address | the address without `error`, `error_code` and `error_description`, in the query and in the hash, an emptied hash dropped | none | a malformed address is answered unchanged |
 | `consumeAuthRedirectError` | links | nothing | takes that error from the page's address and replaces the address without it | none | null when there is none |
 | `SaveFailedError` | saves | the failure | the error the five create-and-wait writes reject with: the code and the one-line summary | none | none |
-| `onWriteError` | saves | a listener | subscribes it to every reported failure; `App` is the one subscriber; answers the unsubscribe | none | none |
+| `onWriteError` | saves | a listener | subscribes it to every reported failure; `App` subscribes, and the companion while it is open (§23); answers the unsubscribe | none | none |
 | `savesInFlight` | saves | nothing | how many tracked writes have not answered | none | none |
 | `whenSavesSettle` | saves | nothing | resolves when that count next reaches zero, at once when it already is | none | none |
+| `onSavesSettled` | saves | a listener | calls it, with nothing, every time that count reaches zero, the last save kept or refused, after the waiters of `whenSavesSettle` have been resolved; never for a read; the companion is the one subscriber (§23); answers the unsubscribe | none | none |
 | `listProjects` | shell | nothing | the live projects by `sort_order` | user | throws |
 | `listArchivedProjects` | shell | nothing | the archived projects, newest first | user | throws |
 | `listProjectCompletion` | shell | nothing | every project id, archived ones included, and every phase; answers a map from project id to whether it is finished, which is having phases and all of them done (§6) | user | throws |
@@ -332,7 +340,9 @@ feed the seam answers; a drop of a thought on a group; a group's rename; deletin
 and restoring a project from the sidebar, and restoring one from the archive screen, after
 which the gate runs again; a delete on the archive screen, which re-reads that screen's list
 and runs the gate only when none remains (§6); signing out; and a stopped clock's re-read of
-today's total. A successful write refreshes nothing.
+today's total. A successful write from a card refreshes nothing on the dashboard; an open
+companion reads again, and a write made in the companion refreshes the cards quietly
+(below).
 
 **A failed save.** The seam reports it (above) before its own count drops. `App`'s listener
 shows the note (§2) and starts a quiet refresh of both parts. The sidebar's part reads
@@ -349,6 +359,19 @@ and counts as success. On a load, an empty payload shows the dashboard's failure
 both parts runs again when the browser comes back online, when the tab becomes visible, and
 every 15 seconds, until both succeed, with no note. Signing out clears what is owed. The note's four seconds are
 not restarted by a second failure.
+
+**The companion (§23).** `Dashboard` opens the window and renders `Companion` with it, the
+active project's id, and that project's name and accent from the sidebar's data. `Companion`
+draws into the window's body through a portal and reads `getProjectDashboardData` for itself,
+with a request number of its own. From then on the two stay in step by reading, in both
+directions. Every tracked write, from a card or from the companion, ends in the seam's count
+reaching zero, which calls `onSavesSettled`; the companion reads again there. And after a
+write of its own, `startSession` or `stopSession` and `updateTask` whatever they answered,
+`addThought` when it was kept, the companion calls back to `Dashboard`, which runs the cards' quiet refresh as for a failed save, without
+the note and without the sidebar's part: the payload is read, twice when saves were in
+flight, adopted in place by the sync version, and `App` is answered as after any quiet
+refresh, so a read that failed is retried (§2). A write the companion sends goes to the
+seam's active project, which is the project it shows.
 
 **The clock (§8).** Instants (`started_at`, `ended_at`) are UTC strings; day keys
 (`session_date`) are local days the client writes: today's for a start and for today's
@@ -424,7 +447,8 @@ longer value fails the save.
   refreshes read twice when saves were in flight (§7).
 - Two queues, for the focus writes and the time edits; nothing else is serialized.
 - Stale reads are dropped by request numbers: one in `Dashboard`, shared by its load and its
-  quiet refresh, one in `App` for the sidebar's reads, one in the archive screen.
+  quiet refresh, one in `App` for the sidebar's reads, one in the archive screen, one in the
+  companion.
 - Double submits are blocked by the add box's waiting flag, the setup's saving flag with its
   fixed identity, the recovery screen's verifying flag, the sidebar's signing-out flag, the
   Commitment card's day-roll flag, the delete confirmation's closed flag, and the archive
@@ -437,7 +461,7 @@ longer value fails the save.
 Nothing in these documents is marked optional. A rebuild keeps the invariants of §4, the
 object model of §3, the layers, the ownership, the seam's operations with their failure
 shapes and the flows of this section, both databases behind the seam with the choice between
-them (I19), the desktop app of §22 with its page kept a page (I20), the behavior of §5 to §15 with the copy those sections
+them (I19), the desktop app of §22 with its page kept a page (I20), the companion of §23 as a second window of the same page (I21), the behavior of §5 to §15 with the copy those sections
 quote, the posture of §17, the schema of §18, and the design units of `DESIGN-SYSTEM.md`.
 The load-bearing clauses are the ones with IDs (§0); the rest of a section describes the app
 as accepted, and a rebuild that changes any of it changes the section in the same pull

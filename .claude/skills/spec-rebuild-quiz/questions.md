@@ -59,3 +59,7 @@ missing. Never guess from general knowledge of React or Supabase.
     from? Where is the data, who reads and writes it, how is a save made safe, and what
     happens to a file that cannot be read? What address does the window show and what serves
     it? What does the menu bar show, and when is it empty?
+23. The companion. What is it, how is it opened, and what kind of window is it in a browser
+    and in the desktop app? What does it show before and after a press on it, and what can a
+    person do there? How does it stay in step with the dashboard in both directions, and
+    what does the desktop app do for its window and refuse it?

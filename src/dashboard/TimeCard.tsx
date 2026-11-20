@@ -11,16 +11,11 @@ import {
   type DailyTime,
 } from "../lib/db";
 import type { Project } from "../lib/types";
-import { dayNumber } from "./projectTime";
+import { commitmentEyebrow, dayNumber, fmtH } from "./projectTime";
 import { isSubmitEnter } from "./keys";
 import { parseHoursEdit } from "./hoursEdit";
 
 const WEEKS = 7;
-
-const fmtH = (seconds: number) => {
-  const h = Math.round((seconds / 3600) * 10) / 10;
-  return Number.isInteger(h) ? String(h) : h.toFixed(1);
-};
 
 
 export default function TimeCard({
@@ -108,7 +103,6 @@ export default function TimeCard({
   const plannedSeconds = plannedHours * 3600;
   const weeklyPlanSeconds = plannedSeconds * 7;
   const dayN = Math.max(1, dayNumber(project.startedAt));
-  const phaseDayN = Math.max(1, dayNumber(currentPhaseStart));
   const pct = (sec: number, plan: number) => (plan > 0 ? Math.round((sec / plan) * 100) : 0);
 
   function startGlanceEdit(which: "logged" | "plan", e: MouseEvent) {
@@ -195,9 +189,7 @@ export default function TimeCard({
 
       <div className="glance">
         <span className="glance-eyebrow">
-          {allPhasesDone
-            ? `Done · Goal ${fmtH(plannedSeconds)}h`
-            : `Day ${phaseDayN}${remainingDays > 0 ? ` / ${remainingDays}` : ""} · Goal ${fmtH(plannedSeconds)}h`}
+          {commitmentEyebrow({ currentPhaseStart, remainingDays, allPhasesDone }, plannedHours)}
         </span>
 
         <div className="glance-hero-row">
