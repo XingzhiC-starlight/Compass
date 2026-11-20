@@ -53,6 +53,12 @@ jobs:
         run: echo "version=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
 
       - name: Build and package (npm run desktop:package)
+        # On a pull request electron-builder signs nothing unless told to, so that a
+        # certificate kept as a secret is never used on a stranger's code. There is no
+        # certificate here: the signature is ad hoc and needs no secret, and the app that is
+        # checked must be the app that is released.
+        env:
+          CSC_FOR_PULL_REQUEST: "true"
         run: npm run desktop:package
 
       - name: The app is signed ad hoc, whole, and made for both kinds of Mac
