@@ -345,8 +345,21 @@ export function whenSavesSettle(): Promise<void> {
   return new Promise((resolve) => settleWaiters.push(resolve));
 }
 
+/**
+ * Calls back every time the last save in flight has answered, whether it was kept or refused,
+ * with nothing: a second surface over the same data (the companion window, spec §23) reads
+ * again then. Returns the way to stop listening.
+ */
+export function onSavesSettled(cb: () => void): () => void {
+  settledListeners.push(cb);
+  return () => {
+    settledListeners = settledListeners.filter((f) => f !== cb);
+  };
+}
+
 let inFlight = 0;
 let settleWaiters: (() => void)[] = [];
+let settledListeners: (() => void)[] = [];
 
 function tracked<A extends unknown[], R>(write: (...args: A) => Promise<R>): (...args: A) => Promise<R> {
   return (...args: A) => {
@@ -357,6 +370,7 @@ function tracked<A extends unknown[], R>(write: (...args: A) => Promise<R>): (..
         const waiters = settleWaiters;
         settleWaiters = [];
         for (const resolve of waiters) resolve();
+        for (const cb of [...settledListeners]) cb();
       }
     };
     let answer: Promise<R>;
