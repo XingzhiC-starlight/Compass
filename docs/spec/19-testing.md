@@ -1,6 +1,6 @@
 ## §19 Testing
 
-Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, `scripts/practice/`, `browser/`, `scripts/verify/`, `.github/workflows/ci.yml`, `desktop/playwright.config.ts` · Keeps: I1, I12, I18
+Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, `scripts/practice/`, `browser/`, `scripts/verify/`, `.github/workflows/ci.yml`, `.github/workflows/desktop-download.yml`, `desktop/playwright.config.ts` · Keeps: I1, I12, I18
 
 ### Unit and component tests
 
@@ -465,6 +465,12 @@ Code: `vitest.config.ts`, `src/lib/fakeSupabase.ts`, `src/lib/practiceCopy.ts`, 
   push to `main`: a merge that brings several commits marks the last alone, and a commit
   pushed before its branch has a pull request carries no mark. The repository's GitHub plan
   cannot block a merge, so the rule that `main` is never pushed red lives in `AGENTS.md`.
+- A second workflow, `.github/workflows/desktop-download.yml`, makes the desktop app's
+  download on a Mac and checks it: the signature, the two kinds of Mac, and the desktop
+  check run on the packaged app. It runs on a pull request that changes how the app is
+  packaged, and when started by hand, and only then, on `main`, can draft a release (§22).
+  The drafting job is the one job that may write to the repository: it has the run's own
+  GitHub token with leave to write contents, and no stored secret.
 
 ### Where a new test goes
 

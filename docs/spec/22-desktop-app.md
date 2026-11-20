@@ -1,6 +1,6 @@
 ## §22 The desktop app
 
-Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/notices.ts`, `desktop/preferences.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/icons/make-icons.mjs`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20, I21
+Code: `desktop/main.ts`, `desktop/preload.cjs`, `desktop/dataFile.ts`, `desktop/menuBar.ts`, `desktop/notices.ts`, `desktop/preferences.ts`, `desktop/appFiles.ts`, `desktop/build.mjs`, `desktop/package.config.mjs`, `desktop/icons/make-icons.mjs`, `.github/workflows/desktop-download.yml`, `src/lib/supabase.ts`, `src/lib/localClient.ts` · Keeps: I19, I20, I21
 
 Compass also runs as a desktop app, built with Electron: the same page in a window of its
 own, with its data in a file on the computer and a clock in the menu bar, keys that capture a
@@ -15,9 +15,9 @@ app adds around the page. It has no accounts and talks to no server (I19, I20).
 three `VITE_` values empty and no env file read, into `desktop/out/app/`; the main process,
 `desktop/main.ts` with what it imports, as the one file `desktop/out/main.js`; and beside
 them, copied as they are, `preload.cjs` and the menu-bar icons. Vite does both builds, the
-second as a build for Node. Electron is the one package the desktop app adds, a development
-dependency; nothing the page ships changes. There is no installer: the app runs from the
-source.
+second as a build for Node. The desktop app adds two packages, both development
+dependencies: Electron, and electron-builder, which makes the download (below); nothing the
+page ships changes.
 
 ### The window
 
@@ -190,6 +190,45 @@ separator; and **Quit Compass**. Open at Login is the operating system's own set
 pressed, it flips the setting and the tick follows. Run from the source the line is shown
 and cannot be pressed, since the setting would open the bare Electron program.
 
+### The app as downloaded
+
+`npm run desktop:package` builds the app as above and hands it to electron-builder with the
+settings in `desktop/package.config.mjs`, which writes into `desktop/release/`, a folder git
+does not keep. What goes into the package is `package.json`, whose `main` names
+`desktop/out/main.js`, and `desktop/out/`, in one archive, and nothing else: no package from
+`node_modules`, since the main process is one file and the page is already bundled.
+
+On a Mac it makes `Compass.app`, one app for Apple Silicon and Intel alike, with the id
+`io.github.xingzhic-starlight.compass`, in the productivity category, and as two files to
+download, `Compass-<version>-mac.dmg` and `Compass-<version>-mac.zip`, the version being
+`package.json`'s. Its icon is `desktop/icons/appIcon.png`, drawn by `make-icons.mjs` with
+the menu-bar icons: the same ring, its needle in the Time accent, on a rounded square of the
+sidebar's cream (DS §2). The app is signed ad hoc, with no Apple Developer certificate, and
+is not notarized: an Apple Silicon Mac starts no program that is not signed at all, and an
+ad hoc signature is the least it accepts. So macOS stops the first open of a downloaded copy
+and the person allows it once, in System Settings under Privacy & Security (README). On
+Linux the same settings make only a folder, `desktop/release/linux-unpacked/`, which is
+there for the check below; there is no download for Linux or Windows, where the app runs
+from the source.
+
+The downloaded app is the same program as the one run from the source. It has the same
+name, so the same data folder and the same data file, and the one-copy rule (I20) holds
+between the two: with one open, the other hands over to it and ends. Two things differ.
+Open at Login can be pressed (below). And nothing in it looks for a newer version or
+fetches one: an update is a new download, put in the old one's place, and the data file
+stays where it is.
+
+The download is made on GitHub, by `.github/workflows/desktop-download.yml`. Its first job
+runs on a Mac: `npm ci`, `npm run desktop:package`, then it checks that the app's signature
+is ad hoc and covers every file and that the program is made for both kinds of Mac, runs
+the desktop check on the packaged app, writes the two files' SHA-256 sums to
+`SHA256SUMS.txt` and keeps all three on the run's page. It runs on a pull request that
+changes `desktop/`, `package.json`, `package-lock.json` or the workflow itself, and
+publishes nothing. Started by hand on `main`, a second job then drafts a GitHub release
+named `v<version>` with the three files attached, and refuses when that version already has
+a release. A draft is seen by the repository's owners alone; the release is public, and its
+tag made, only when a person publishes it on GitHub. Nothing publishes one by itself.
+
 ### What checks it
 
 The pure parts each have tests in the suite (§19): the file's holder over a pretend disk,
@@ -212,8 +251,13 @@ running clock's start moved so the goal is ten seconds on, the app announces the
 "Garden" once, and with the preferences file saying off it announces none; the page has the bridge's three functions and no Node, a request to a web address
 from the page is refused, and a second copy opens no window. On a machine with no screen it
 runs under `xvfb-run`, and on Linux it starts the app with Chromium's sandbox off, which
-test machines there lack the setting for. The menu bar's icon, its text on a real Mac, the
+test machines there lack the setting for. With `COMPASS_DESKTOP_APP` naming a packaged
+app's program, the same check drives that program in place of the build in `desktop/out/`
+(started as `npx playwright test -c desktop/playwright.config.ts`, which builds nothing):
+this is how the download's workflow checks the Mac app, and how the Linux folder is checked
+by hand. The menu bar's icon, its text on a real Mac, the
 hiding window, Open at Login, the companion staying above other apps, on every desktop
-and beside a full-screen app, the capture keys pressed in another app, and the notification
-as the system shows it are checked by no test: they are the operating system's, and
-are tried by hand on a Mac.
+and beside a full-screen app, the capture keys pressed in another app, the notification
+as the system shows it, and the first open of a downloaded copy, with what macOS asks
+there, are checked by no test: they are the operating system's, and are tried by hand on a
+Mac. The drafting of a release runs only when started by hand on `main`.

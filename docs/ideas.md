@@ -13,8 +13,15 @@ idea, write it here in a few lines. What Compass does today is in `docs/spec/` a
 - **Choose the capture keys.** The desktop app's keys for capturing a thought are fixed
   (spec §22). When another program holds them they do nothing, and the menu's line is the
   only other way.
-- **An installer for the desktop app.** The desktop app runs from the source (spec §22).
-  Package it so a person can download and open it, and so Open at Login can be pressed.
+- **Sign and notarize the Mac app.** The download is signed ad hoc (spec §22), so macOS
+  stops its first open and the person allows it in System Settings. Signed with an Apple
+  Developer certificate and notarized, it opens like any other app; that needs the yearly
+  membership.
+- **Tell of a newer version.** The desktop app looks for no update (spec §22). It could say,
+  in the menu-bar menu, that a newer release exists, with a line that opens its page; the
+  one request this needs is the first the app would make to the network (I20, spec §17).
+- **Downloads for Windows and Linux.** Only the Mac has a download (spec §22); the others
+  run from the source, where the menu bar shows the clock in the icon's tooltip alone.
 - **Start and stop the clock from the menu bar.** The menu bar shows the running clock (spec
   §22) and cannot change it.
 - **Export and import of the data kept on this device.** A copy with no accounts keeps its

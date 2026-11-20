@@ -29,8 +29,8 @@ https://builder-compass.vercel.app (spec §20).
   present). The Turnstile secret key lives only in Supabase.
 - `npm run desktop` builds and starts the desktop app (spec §22): the same Compass in a
   window of its own, with its data in a file on your computer and a clock in the menu bar.
-  It needs nothing but `npm install`, has no accounts and uses no network. There is no
-  installer yet: it runs from the source. The sidebar's Companion button opens the
+  It needs nothing but `npm install`, has no accounts and uses no network. On a Mac it can
+  also be downloaded and installed (below). The sidebar's Companion button opens the
   companion (spec §23), a small window with the clock that stays above your other windows.
   Option-Shift-T (Alt-Shift-T off the Mac) opens it from any app, ready for a thought, and
   one quiet notification says when you reach the day's goal; its tick in the menu-bar menu
@@ -72,6 +72,34 @@ https://builder-compass.vercel.app (spec §20).
   test runner from a subfolder — and re-verifies the §17 headers on the live URL after every
   production deploy. The backend is the Supabase project `compass` (`your-project-ref`).
   Runbook: `docs/deploy.md`.
+
+## Installing the desktop app
+
+For a Mac, Apple Silicon or Intel. Other systems run it from the source, `npm run desktop`.
+
+1. On the repository's Releases page on GitHub, download `Compass-<version>-mac.dmg` from the
+   newest release.
+2. Open the file and drag Compass into Applications.
+3. Open Compass. The first time, macOS says it could not verify the app and does not open
+   it. This is expected: the app is not signed with an Apple Developer certificate, which
+   costs a yearly membership this project does not have. Press Done, open System Settings,
+   go to Privacy & Security, scroll down to the line saying Compass was blocked, and press
+   Open Anyway. On macOS 14 or older, hold Control and click the app in Applications instead,
+   choose Open, then Open again. macOS asks once per download.
+
+Compass keeps everything in one file, `compass-data.json`, in
+`~/Library/Application Support/Compass/`. The app does not update itself: for a newer
+version, download it and drag it over the old one, and the data stays as it is. To check a
+download, compare `shasum -a 256` of the file with the release's `SHA256SUMS.txt`.
+
+### Making a release
+
+The download is made on GitHub, never on someone's own computer (spec §22). To release:
+raise `version` in `package.json` in a pull request and merge it; on GitHub, open Actions,
+choose "Desktop download", press "Run workflow" and pick `main`; when the run is green, open
+Releases, where a draft named for the version waits with the files attached; read it over
+and press "Publish release". Until that press nothing is public. `npm run desktop:package`
+makes the same package on your own machine, into `desktop/release/`.
 
 ## The spec
 
